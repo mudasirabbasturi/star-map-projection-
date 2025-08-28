@@ -1,0 +1,130 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+    width: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    padding: 0;
+    margin: 0;
+}
+
+.app-container {
+  display: flex;
+  height: 100vh;
+  margin: 0;
+  font-family: "Segoe UI", sans-serif;
+}
+
+.sidebar {
+  width: 60px;
+  background: #181818;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 0;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
+}
+
+.main-body {
+  flex: 1;
+  background: #1F1F1F;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.editIconWrapper, .grabbingIconWrapper {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 20px;
+  height: 20px;
+  z-index: 9999;
+  cursor: pointer;
+  display: none;
+}
+
+.editIcon {
+  transform: translate(10%, -20%);
+}
+
+.grabbingIconWrapper {
+  top: -3px;
+  right: 22px;
+  cursor: grabbing;
+}
+
+.glb:hover > .editIconWrapper,
+.glb:hover > .grabbingIconWrapper 
+ {
+  display: block;
+}
+
+.glb:hover {
+  outline: 1px dashed #7c5cffcc;
+}
+
+.glb.poster:hover {
+  outline: 2px dashed #7c5cffcc;
+}
+
+.poster {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  width: min(100vw, calc(100vh * 0.707));
+  height: min(calc(100vw * 1.4142), 100vh);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transform: scale(.97);
+}
+
+.poster.download-mode {
+  pointer-events: none;
+  user-select: none;
+  /* transform: none !important; */
+}
+
+.poster:hover {
+  cursor: url('imgs/transform.png'), auto !important;
+}
+
+.map {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.map:hover {
+  cursor: move;
+  background-color: #7d5cff0c;
+}
+
+.momentContent {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-left: auto;
+  margin-right: auto;
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+.momentContent:hover {
+  background-color: #7d5cff2a;
+}
+.momentContent .textNode {
+  position: relative;
+}
+
+.textNode:hover {
+  cursor: move;
+  background-color: #7d5cff2a;
+}
+
+.textNode .editIconWrapper {
+  transform: translate(50%, -50%);
+}
