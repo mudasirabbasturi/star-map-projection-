@@ -23,17 +23,15 @@ const Map = ({ handleMouseDown, positions, showDrawer, styles }) => {
         left: positions.map.x,
         top: positions.map.y,
         cursor: "grabbing",
-        backgroundColor: styles.bgColor,
-        // width: styles.width ? `${styles.width}%` : "90%",
       }}
     >
       <canvas
         ref={canvasRef}
         style={{
-          width: "100%",
+          width: "90%",
           aspectRatio: "1/1",
-          // display: "block",
-          // background: styles.canvasBg || "black",
+          display: "block",
+          background: "black",
         }}
       />
       <div className="editIconWrapper" onClick={() => showDrawer("map")}>

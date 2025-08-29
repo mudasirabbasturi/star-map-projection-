@@ -1,17 +1,16 @@
 import { useState, Suspense, lazy } from "react";
 import { MdOutlineEditNote } from "react-icons/md";
 import { Spin, Drawer } from "antd";
-
 const Poster = lazy(() => import("@components/Poster/Poster"));
 const Map = lazy(() => import("@components/Map/Map"));
-const MomentContent = lazy(() => import("@components/moment/MomentContent"));
+const Main = lazy(() => import("@components/moment/pages/Main/Main"));
+import MomentContent from "@components/moment/MomentContent";
 const NodeStyle = lazy(() =>
   import("@components/moment/pages/NodeStyle/NodeStyle")
 );
 
 const App = () => {
   const [loading, setLoading] = useState(false);
-
   const [positions, setPositions] = useState({
     map: { x: 0, y: 0 },
     momentContent: { x: 0, y: 0 },
@@ -21,68 +20,6 @@ const App = () => {
     title: { x: 0, y: 0 },
     coordinate: { x: 0, y: 0 },
   });
-
-  const [styleConfig, setStyleConfig] = useState({
-    poster: { bgColor: "#ffffff" },
-    map: { bgColor: "pink", width: 70, canvasBg: "black" },
-    globalText: {
-      fontFamily: "Arial, sans-serif",
-      fontStyle: "normal",
-      fontWeight: "normal",
-      textDecoration: "none",
-      fontSize: 16,
-      textColor: "#000000",
-      width: 90,
-      visibleNodes: {
-        address: true,
-        date: true,
-        message: true,
-        title: true,
-        coordinate: true,
-      },
-    },
-    nodes: {
-      address: {},
-      date: {},
-      message: {},
-      title: {},
-      coordinate: {},
-      poster: {},
-      momentContent: {},
-      map: {},
-    },
-  });
-
-  const updateStyle = (section, newStyles) => {
-    setStyleConfig((prev) => ({
-      ...prev,
-      [section]: { ...prev[section], ...newStyles },
-    }));
-  };
-
-  const updateNodeStyle = (node, newStyles) => {
-    setStyleConfig((prev) => ({
-      ...prev,
-      nodes: {
-        ...prev.nodes,
-        [node]: { ...prev.nodes[node], ...newStyles },
-      },
-    }));
-  };
-
-  const getFinalStyle = (node) => ({
-    ...styleConfig.globalText,
-    ...styleConfig.nodes[node],
-  });
-
-  const fontFamilies = [
-    { label: "Arial", value: "Arial, sans-serif" },
-    { label: "Roboto", value: "Roboto, sans-serif" },
-    { label: "Times New Roman", value: "Times New Roman, serif" },
-    { label: "Courier New", value: "Courier New, monospace" },
-    { label: "Georgia", value: "Georgia, serif" },
-    { label: "Verdana", value: "Verdana, sans-serif" },
-  ];
 
   const handleMouseDown = (e, mode) => {
     e.preventDefault();
@@ -121,16 +58,55 @@ const App = () => {
   };
   const hideDrawer = () => setOpen(false);
 
-  const drawerTitles = {
-    poster: "Main Poster Setting & Style",
-    map: "Map Setting & Style",
-    momentContent: "Content Settings",
-    address: "Address Setting",
-    date: "Date Setting",
-    message: "Message Setting",
-    title: "Title Setting",
-    coordinate: "Coordinate Setting",
+  const [posterStyles, setPosterStyles] = useState({
+    bgColor: "#ffffff",
+  });
+
+  const [mapStyles, setMapStyles] = useState({
+    bgColor: "trasparent",
+  });
+
+  const [styles, setStyles] = useState({
+    fontFamily: "Arial, sans-serif",
+    fontStyle: "normal",
+    fontWeight: "normal",
+    textDecoration: "none",
+    fontSize: 16,
+    textColor: "#000000",
+    bgColor: "trasparent",
+    width: 90,
+    visibleNodes: {
+      address: true,
+      date: true,
+      message: true,
+      title: true,
+      coordinate: true,
+    },
+  });
+
+  const [nodeStyles, setNodeStyles] = useState({
+    address: {},
+    date: {},
+    message: {},
+    title: {},
+    coordinate: {},
+  });
+
+  const getFinalStyle = (node) => {
+    return {
+      ...styles,
+      ...nodeStyles[node],
+    };
   };
+
+  const fontFamilies = [
+    { label: "Arial", value: "Arial, sans-serif" },
+    { label: "Roboto", value: "Roboto, sans-serif" },
+    { label: "Times New Roman", value: "Times New Roman, serif" },
+    { label: "Courier New", value: "Courier New, monospace" },
+    { label: "Georgia", value: "Georgia, serif" },
+    { label: "Verdana", value: "Verdana, sans-serif" },
+  ];
 
   return (
     <>
@@ -141,8 +117,7 @@ const App = () => {
               className={`poster glb ${loading ? "download-mode" : ""}`}
               style={{
                 position: "relative",
-                backgroundColor: styleConfig.poster.bgColor,
-                minHeight: "100vh", // Full viewport height
+                backgroundColor: posterStyles.bgColor,
               }}
             >
               <div
@@ -151,18 +126,16 @@ const App = () => {
               >
                 <MdOutlineEditNote className="editIcon" />
               </div>
-
               <Map
                 handleMouseDown={handleMouseDown}
                 positions={positions}
                 showDrawer={showDrawer}
-                styles={styleConfig.map}
+                mapStyles={mapStyles}
               />
-
               <MomentContent
                 positions={positions}
                 getFinalStyle={getFinalStyle}
-                styles={styleConfig.globalText}
+                styles={styles}
                 handleMouseDown={handleMouseDown}
                 showDrawer={showDrawer}
               />
@@ -170,9 +143,26 @@ const App = () => {
           </Spin>
         </div>
       </div>
-
       <Drawer
-        title={drawerTitles[drawerMode]}
+        title={
+          drawerMode === "poster"
+            ? "Main Poster Setting & Style"
+            : drawerMode === "map"
+            ? "Map Setting & Style"
+            : drawerMode === "momentContent"
+            ? "Content Settings"
+            : drawerMode === "address"
+            ? "Address Setting"
+            : drawerMode === "date"
+            ? "Date Setting"
+            : drawerMode === "message"
+            ? "Message Setting"
+            : drawerMode === "title"
+            ? "Title Setting"
+            : drawerMode === "coordinate"
+            ? "Coordinate Setting"
+            : null
+        }
         open={open}
         onClose={hideDrawer}
         placement="left"
@@ -183,13 +173,24 @@ const App = () => {
           <Suspense fallback={<div>Loading...</div>}>
             {drawerMode === "poster" ? (
               <Poster
-                styles={styleConfig.poster}
-                setStyles={(s) => updateStyle("poster", s)}
+                posterStyles={posterStyles}
+                setPosterStyles={setPosterStyles}
+              />
+            ) : drawerMode === "momentContent" ? (
+              <Main
+                styles={styles}
+                setStyles={setStyles}
+                fontFamilies={fontFamilies}
               />
             ) : (
               <NodeStyle
                 styles={getFinalStyle(drawerMode)}
-                setStyles={(s) => updateNodeStyle(drawerMode, s)}
+                setStyles={(newStyle) =>
+                  setNodeStyles((prev) => ({
+                    ...prev,
+                    [drawerMode]: { ...prev[drawerMode], ...newStyle },
+                  }))
+                }
                 fontFamilies={fontFamilies}
               />
             )}

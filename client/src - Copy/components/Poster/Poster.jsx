@@ -1,5 +1,7 @@
 import React from "react";
 import {
+  // cyan, generate, green, presetPalettes, red ,
+
   red,
   volcano,
   orange,
@@ -26,7 +28,7 @@ function genPresets(presets = presetPalettes) {
   }));
 }
 
-const Poster = ({ styles, setStyles }) => {
+const Poster = ({ posterStyles, setPosterStyles }) => {
   const { token } = theme.useToken();
 
   const presets = genPresets({
@@ -66,14 +68,15 @@ const Poster = ({ styles, setStyles }) => {
       <div className="d-flex align-items-center">
         <small className="me-2">Background Color:</small>
         <ColorPicker
-          value={styles.bgColor}
-          onChangeComplete={(color) =>
-            setStyles({ ...styles, bgColor: color.toCssString() })
-          }
+          defaultValue={token.colorPrimary}
           styles={{ popupOverlayInner: { width: 480 } }}
           presets={presets}
           panelRender={customPanelRender}
           size="small"
+          value={posterStyles.bgColor}
+          onChangeComplete={(color) =>
+            setPosterStyles({ ...posterStyles, bgColor: color.toCssString() })
+          }
         />
       </div>
       <hr className="mb-1 mt-1" />
