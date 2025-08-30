@@ -54,6 +54,7 @@ body {
 
 .editIcon , .grabbingIcon{
   transform: translate(10%, -20%);
+  color: white
 }
 
 .grabbingIconWrapper {
@@ -81,6 +82,7 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: space-around;
+  align-items: center;
   width: min(100vw, calc(100vh * 0.707));
   height: min(calc(100vw * 1.4142), 100vh);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
@@ -101,27 +103,29 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  background-color: #ffffff00;
+   position: absolute;
+   top: 5%;
 }
 .map:hover {
   cursor: move;
   background-color: #7d5cff0c;
 }
 
-.momentContent {
+.moment {
   position: relative;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  margin-left: auto;
-  margin-right: auto;
-  padding-top: 15px;
-  padding-bottom: 15px;
+  position: absolute;
+  bottom: 5%;
+  
 }
-.momentContent:hover {
+.moment:hover {
   background-color: #7d5cff2a;
 }
-.momentContent .textNode {
+.moment .textNode {
   position: relative;
 }
 

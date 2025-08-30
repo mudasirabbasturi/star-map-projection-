@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Full Celestial Template — Stars, MW, Constellations, Planets, Export</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    :root{
+      --bg:#05050a; --panel:#121224; --muted:#9aa0b2; --accent:#5dd0ff; --text:#e9eef8;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,Arial}
+    .app{display:flex;flex-direction:column;height:100%}
+    header{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,0.03);background:linear-gradient(180deg, rgba(10,10,18,0.6), rgba(8,8,12,0.45));backdrop-filter:blur(6px)}
+    .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .card{background:var(--panel);border:1px solid rgba(255,255,255,0.03);padding:8px 10px;border-radius:10px;min-width:150px}
+    label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+    input[type="range"]{width:160px}
+    select{padding:6px;border-radius:6px;background:#0b0b14;color:var(--text);border:1px solid rgba(255,255,255,0.03)}
+    .toggles{display:flex;gap:8px;align-items:center}
+    .toggles label{display:flex;gap:6px;align-items:center;font-size:13px;color:var(--text);margin:0}
+    main{flex:1;display:flex;justify-content:center;align-items:center;padding:12px}
+    svg{width:min(96vw,1100px);height:auto;border-radius:14px;box-shadow:0 15px 40px rgba(0,0,0,.6);background:radial-gradient(circle at 40% 30%, #04040a 0%, #000 65%)}
+    .outline{fill:none;stroke:rgba(255,255,255,0.06);stroke-width:1.4;stroke-dasharray:5 4}
+    .star{fill:white;pointer-events:none}
+    .mw{fill:rgba(255,255,255,0.08);pointer-events:none}
+    .constLine{stroke:rgba(180,200,255,0.22);stroke-width:1.2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+    .constLabel{fill:rgba(200,220,255,0.9);font-size:12px;pointer-events:none}
+    .planet{fill:#ffda6b;stroke:rgba(0,0,0,0.5);stroke-width:0.6}
+    .moon{fill:#dfe9f5;stroke:rgba(0,0,0,0.35);stroke-width:0.5}
+    .btn{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--text);padding:6px 10px;border-radius:8px;cursor:pointer}
+    .footer-note{font-size:12px;color:var(--muted);text-align:center;margin-top:8px}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+          <div class="card">
+            <label>Mask shape</label>
+            <select id="shape">
+              <option value="circle" selected>Circle</option>
+              <option value="heart">Heart</option>
+              <option value="triangle">Triangle</option>
+              <option value="rect">Rectangle</option>
+            </select>
+          </div>
+
+          <div class="card">
+            <label>Center RA (°)</label>
+            <input id="centerRA" type="range" min="-180" max="180" step="1" value="0" />
+            <div style="font-size:12px;color:var(--muted);margin-top:6px">Center RA: <span id="centerRAVal">0</span>°</div>
+          </div>
+
+          <div class="card">
+            <label>Magnitude limit</label>
+            <input id="magLimit" type="range" min="-1" max="6" step="0.1" value="5.5" />
+            <div style="font-size:12px;color:var(--muted);margin-top:6px">Mag ≤ <span id="magVal">5.5</span></div>
+          </div>
+
+          <div class="card">
+            <label>Star size multiplier</label>
+            <input id="sizeMult" type="range" min="0.3" max="3" step="0.05" value="1" />
+            <div style="font-size:12px;color:var(--muted);margin-top:6px">× <span id="sizeVal">1.00</span></div>
+          </div>
+
+          <div class="card">
+            <label>MilkyWay opacity</label>
+            <input id="mwOpacity" type="range" min="0" max="0.4" step="0.01" value="0.12" />
+            <div style="font-size:12px;color:var(--muted);margin-top:6px">opacity: <span id="mwVal">0.12</span></div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <div class="card toggles">
+            <label><input id="showStars" type="checkbox" checked /> Stars</label>
+            <label><input id="showMW" type="checkbox" checked /> Milky Way</label>
+            <label><input id="showConst" type="checkbox" checked /> Constellations</label>
+            <label><input id="showPlanets" type="checkbox" checked /> Planets</label>
+            <label><input id="showMoon" type="checkbox" checked /> Moon</label>
+          </div>
+
+          <div style="display:flex;gap:8px;align-items:center">
+            <button id="refresh" class="btn">Refresh (now)</button>
+            <button id="exportPNG" class="btn">Export PNG</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:8px;font-size:13px;color:var(--muted)">
+        Data: d3-celestial (stars, milky way, constellations). Planet & Moon positions via <span style="color:var(--accent)">astronomy-engine</span>.
+        (No D3 projections — RA/Dec → equirectangular mapping; clipped to shape.)
+      </div>
+    </header>
+
+    <main>
+      <svg id="sky" viewBox="0 0 1200 1200" aria-label="Celestial map">
+        <defs>
+          <clipPath id="maskShape">
+            <circle id="maskCircle" cx="600" cy="600" r="520"></circle>
+          </clipPath>
+        </defs>
+
+        <!-- outline for mask -->
+        <g id="shapeOutline">
+          <circle class="outline" cx="600" cy="600" r="520"></circle>
+        </g>
+
+        <!-- content clipped to mask -->
+        <g clip-path="url(#maskShape)">
+          <g id="mwLayer"></g>
+          <g id="starsLayer"></g>
+          <g id="constLinesLayer"></g>
+          <g id="constLabelsLayer"></g>
+          <g id="planetsLayer"></g>
+        </g>
+      </svg>
+    </main>
+
+    <div class="footer-note">Tip: change magnitude & size sliders to tune density. Use "Export PNG" to save the current view.</div>
+  </div>
+
+  <!-- Load astronomy-engine (browser build) -->
+  <script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js"></script>
+
+  <script>
+    // ---------- Configuration & URLs ----------
+    const WIDTH = 1200, HEIGHT = 1200;
+    const center = { x: WIDTH/2, y: HEIGHT/2 };
+    const radiusMask = 520;
+
+    const URL_STARS = 'https://raw.githubusercontent.com/ofrohn/d3-celestial/master/data/stars.6.json';
+    const URL_MW = 'https://raw.githubusercontent.com/ofrohn/d3-celestial/master/data/mw.json';
+    const URL_CONST = 'https://raw.githubusercontent.com/ofrohn/d3-celestial/master/data/constellations.json';
+
+    // DOM refs
+    const svg = document.getElementById('sky');
+    const starsLayer = document.getElementById('starsLayer');
+    const mwLayer = document.getElementById('mwLayer');
+    const constLinesLayer = document.getElementById('constLinesLayer');
+    const constLabelsLayer = document.getElementById('constLabelsLayer');
+    const planetsLayer = document.getElementById('planetsLayer');
+    const maskShape = document.getElementById('maskShape');
+    const shapeOutline = document.getElementById('shapeOutline');
+
+    // Controls
+    const shapeSel = document.getElementById('shape');
+    const centerRAInput = document.getElementById('centerRA');
+    const centerRAVal = document.getElementById('centerRAVal');
+    const magLimitInput = document.getElementById('magLimit');
+    const magVal = document.getElementById('magVal');
+    const sizeMultInput = document.getElementById('sizeMult');
+    const sizeVal = document.getElementById('sizeVal');
+    const mwOpacityInput = document.getElementById('mwOpacity');
+    const mwVal = document.getElementById('mwVal');
+
+    const showStarsChk = document.getElementById('showStars');
+    const showMWChk = document.getElementById('showMW');
+    const showConstChk = document.getElementById('showConst');
+    const showPlanetsChk = document.getElementById('showPlanets');
+    const showMoonChk = document.getElementById('showMoon');
+
+    const refreshBtn = document.getElementById('refresh');
+    const exportBtn = document.getElementById('exportPNG');
+
+    // State
+    let centerRA = parseFloat(centerRAInput.value);
+    let magLimit = parseFloat(magLimitInput.value);
+    let sizeMult = parseFloat(sizeMultInput.value);
+    let mwOpacity = parseFloat(mwOpacityInput.value);
+    let invertRA = false;
+
+    // Data caches
+    let starsData = null;
+    let mwData = null;
+    let constData = null;
+
+    // ---------- Utility: shapes for mask & outline ----------
+    function setMaskTo(element) {
+      const cp = document.querySelector('#maskShape');
+      cp.innerHTML = '';
+      cp.appendChild(element.cloneNode(true));
+      shapeOutline.innerHTML = '';
+      const outline = element.cloneNode(true);
+      outline.setAttribute('class','outline');
+      shapeOutline.appendChild(outline);
+    }
+
+    function makeCircle() {
+      const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+      c.setAttribute('cx', center.x); c.setAttribute('cy', center.y); c.setAttribute('r', radiusMask);
+      return c;
+    }
+
+    function makeRect() {
+      const pad = 110;
+      const r = document.createElementNS('http://www.w3.org/2000/svg','rect');
+      r.setAttribute('x', pad); r.setAttribute('y', pad); r.setAttribute('width', WIDTH-pad*2); r.setAttribute('height', HEIGHT-pad*2);
+      r.setAttribute('rx', 28); r.setAttribute('ry', 28);
+      return r;
+    }
+
+    function makeTriangle() {
+      const r = 520;
+      const cx = center.x, cy = center.y + 40;
+      const p1 = `${cx},${cy - r}`;
+      const p2 = `${cx - r * 0.866},${cy + r * 0.5}`;
+      const p3 = `${cx + r * 0.866},${cy + r * 0.5}`;
+      const poly = document.createElementNS('http://www.w3.org/2000/svg','polygon');
+      poly.setAttribute('points', `${p1} ${p2} ${p3}`);
+      return poly;
+    }
+
+    function makeHeart() {
+      const cx = center.x, cy = center.y + 80;
+      const s = 1.05;
+      const path = `
+        M ${cx} ${cy + 420*s}
+        C ${cx - 380*s} ${cy + 180*s}, ${cx - 540*s} ${cy - 120*s}, ${cx - 280*s} ${cy - 260*s}
+        C ${cx - 120*s} ${cy - 340*s}, ${cx} ${cy - 220*s}, ${cx} ${cy - 120*s}
+        C ${cx} ${cy - 220*s}, ${cx + 120*s} ${cy - 340*s}, ${cx + 280*s} ${cy - 260*s}
+        C ${cx + 540*s} ${cy - 120*s}, ${cx + 380*s} ${cy + 180*s}, ${cx} ${cy + 420*s}
+        Z`;
+      const p = document.createElementNS('http://www.w3.org/2000/svg','path');
+      p.setAttribute('d', path);
+      return p;
+    }
+
+    function updateShape() {
+      const v = shapeSel.value;
+      if (v === 'circle') setMaskTo(makeCircle());
+      else if (v === 'rect') setMaskTo(makeRect());
+      else if (v === 'triangle') setMaskTo(makeTriangle());
+      else if (v === 'heart') setMaskTo(makeHeart());
+    }
+
+    // ---------- RA/Dec mapping (equirectangular) ----------
+    function wrapLon(lon) {
+      let x = lon;
+      while (x <= -180) x += 360;
+      while (x > 180) x -= 360;
+      return x;
+    }
+
+    // lon is RA in degrees (−180..+180), lat is Dec (−90..+90)
+    function raDecToXY(lon, lat) {
+      // centerRA is the RA that should appear in middle (x = WIDTH/2)
+      let shifted = wrapLon(lon - centerRA);
+      if (invertRA) shifted = -shifted;
+      const x = ((shifted + 180) / 360) * WIDTH;
+      const y = HEIGHT - ((lat + 90) / 180) * HEIGHT;
+      return { x, y };
+    }
+
+    // ---------- star radius by magnitude ----------
+    function starRadius(mag) {
+      // mag ~ -1..6 ; brighter = smaller mag number.
+      // Map mag to radius: mag 0 -> ~3.4 ; mag 6 -> ~0.6 ; then multiply
+      const r = 3.4 - 0.44 * mag;
+      return Math.max(0.4, r) * sizeMult;
+    }
+
+    // ---------- load data ----------
+    async function loadAllData() {
+      const [starsRes, mwRes, constRes] = await Promise.all([
+        fetch(URL_STARS),
+        fetch(URL_MW),
+        fetch(URL_CONST)
+      ]);
+      starsData = await starsRes.json();
+      mwData = await mwRes.json();
+      constData = await constRes.json();
+    }
+
+    // ---------- renderers ----------
+    function renderStars() {
+      starsLayer.innerHTML = '';
+      if (!showStarsChk.checked || !starsData) return;
+      const frag = document.createDocumentFragment();
+      for (const f of starsData.features) {
+        const mag = (f.properties && typeof f.properties.mag === 'number') ? f.properties.mag : 6.5;
+        if (mag > magLimit) continue;
+        const [lon, lat] = f.geometry.coordinates;
+        const { x, y } = raDecToXY(lon, lat);
+        if (x < -20 || x > WIDTH+20 || y < -20 || y > HEIGHT+20) continue; // cull
+        const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+        c.setAttribute('class','star');
+        c.setAttribute('cx', x.toFixed(2)); c.setAttribute('cy', y.toFixed(2));
+        c.setAttribute('r', starRadius(mag).toFixed(2));
+        c.setAttribute('opacity', (0.95 - Math.max(0, (mag - 0))/10).toFixed(2));
+        frag.appendChild(c);
+      }
+      starsLayer.appendChild(frag);
+    }
+
+    function renderMilkyWay() {
+      mwLayer.innerHTML = '';
+      if (!showMWChk.checked || !mwData) return;
+      const frag = document.createDocumentFragment();
+      const baseOpacity = mwOpacity;
+      for (const feature of mwData.features) {
+        // geometry.coordinates: array of polygons; each polygon may contain rings
+        for (const polygon of feature.geometry.coordinates) {
+          for (const ring of polygon) {
+            let d = '';
+            for (let i=0;i<ring.length;i++) {
+              const [lon, lat] = ring[i];
+              const { x, y } = raDecToXY(lon, lat);
+              d += (i===0 ? `M${x},${y}` : `L${x},${y}`);
+            }
+            d += 'Z';
+            const p = document.createElementNS('http://www.w3.org/2000/svg','path');
+            p.setAttribute('d', d);
+            p.setAttribute('class','mw');
+            p.setAttribute('opacity', baseOpacity.toString());
+            frag.appendChild(p);
+          }
+        }
+      }
+      mwLayer.appendChild(frag);
+    }
+
+    function renderConstellations() {
+      constLinesLayer.innerHTML = '';
+      constLabelsLayer.innerHTML = '';
+      if (!showConstChk.checked || !constData) return;
+      const fragLines = document.createDocumentFragment();
+      const fragLabels = document.createDocumentFragment();
+
+      // constellations.json has features: some are lines (LineString/MultiLineString) and some name property
+      for (const f of constData.features) {
+        const geom = f.geometry;
+        const props = f.properties || {};
+        if (!geom) continue;
+
+        if (geom.type === 'LineString') {
+          let d = '';
+          for (let i=0;i<geom.coordinates.length;i++) {
+            const [lon, lat] = geom.coordinates[i];
+            const { x, y } = raDecToXY(lon, lat);
+            d += (i===0 ? `M${x},${y}` : `L${x},${y}`);
+          }
+          const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+          path.setAttribute('d', d);
+          path.setAttribute('class','constLine');
+          fragLines.appendChild(path);
+        } else if (geom.type === 'MultiLineString') {
+          for (const line of geom.coordinates) {
+            let d = '';
+            for (let i=0;i<line.length;i++) {
+              const [lon, lat] = line[i];
+              const { x, y } = raDecToXY(lon, lat);
+              d += (i===0 ? `M${x},${y}` : `L${x},${y}`);
+            }
+            const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+            path.setAttribute('d', d);
+            path.setAttribute('class','constLine');
+            fragLines.appendChild(path);
+          }
+        }
+
+        // labels: some features have a 'name' and 'pos' or 'centroid'; try to place labels if available
+        if (props && props.name && props.pos) {
+          // pos often [lon, lat]
+          const [lon, lat] = props.pos;
+          const { x, y } = raDecToXY(lon, lat);
+          const text = document.createElementNS('http://www.w3.org/2000/svg','text');
+          text.setAttribute('x', x + 6);
+          text.setAttribute('y', y - 6);
+          text.setAttribute('class','constLabel');
+          text.textContent = props.name;
+          fragLabels.appendChild(text);
+        }
+      }
+
+      constLinesLayer.appendChild(fragLines);
+      constLabelsLayer.appendChild(fragLabels);
+    }
+
+    // ---------- Planets & Moon rendering using astronomy-engine ----------
+    // We'll compute geocentric vectors then convert to RA/Dec.
+    function vecToRaDec(vec) {
+      // vec: {x,y,z}  (geocentric equatorial vector in AU; orientation as doc)
+      const x = vec.x, y = vec.y, z = vec.z;
+      const r = Math.sqrt(x*x + y*y + z*z);
+      let ra = Math.atan2(y, x) * 180/Math.PI; // degrees
+      if (ra < 0) ra += 360;
+      // convert RA to -180..180 scale:
+      if (ra > 180) ra = ra - 360;
+      const dec = Math.asin(z / r) * 180/Math.PI;
+      return { ra, dec };
+    }
+
+    function renderPlanetsAndMoon() {
+      planetsLayer.innerHTML = '';
+      if (!(showPlanetsChk.checked || showMoonChk.checked)) return;
+      if (!window.Astronomy) {
+        console.warn('astronomy-engine not loaded');
+        return;
+      }
+
+      const now = new Date();
+      // Bodies to render (excluding Earth)
+      const PLANET_BODIES = [
+        { body: Astronomy.Body.Mercury, name: 'Mercury' },
+        { body: Astronomy.Body.Venus, name: 'Venus' },
+        { body: Astronomy.Body.Mars, name: 'Mars' },
+        { body: Astronomy.Body.Jupiter, name: 'Jupiter' },
+        { body: Astronomy.Body.Saturn, name: 'Saturn' },
+        { body: Astronomy.Body.Uranus, name: 'Uranus' },
+        { body: Astronomy.Body.Neptune, name: 'Neptune' },
+      ];
+
+      // Planets
+      if (showPlanetsChk.checked) {
+        for (const p of PLANET_BODIES) {
+          try {
+            const v = Astronomy.GeoVector(p.body, now, false); // geocentric vector
+            const eq = vecToRaDec(v); // ra, dec
+            const { x, y } = raDecToXY(eq.ra, eq.dec);
+            // draw
+            const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+            const circ = document.createElementNS('http://www.w3.org/2000/svg','circle');
+            circ.setAttribute('cx', x); circ.setAttribute('cy', y); circ.setAttribute('r', 6);
+            circ.setAttribute('class','planet');
+            const label = document.createElementNS('http://www.w3.org/2000/svg','text');
+            label.setAttribute('x', x + 8); label.setAttribute('y', y + 4);
+            label.setAttribute('fill', '#ffdca0'); label.setAttribute('font-size','12');
+            label.textContent = p.name;
+            g.appendChild(circ); g.appendChild(label);
+            planetsLayer.appendChild(g);
+          } catch (err) {
+            console.warn('planet calc failed for', p.name, err);
+          }
+        }
+      }
+
+      // Moon
+      if (showMoonChk.checked) {
+        try {
+          const v = Astronomy.GeoVector(Astronomy.Body.Moon, now, false);
+          const eq = vecToRaDec(v);
+          const { x, y } = raDecToXY(eq.ra, eq.dec);
+          const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+          const circ = document.createElementNS('http://www.w3.org/2000/svg','circle');
+          circ.setAttribute('cx', x); circ.setAttribute('cy', y); circ.setAttribute('r', 8);
+          circ.setAttribute('class','moon');
+          const label = document.createElementNS('http://www.w3.org/2000/svg','text');
+          label.setAttribute('x', x + 10); label.setAttribute('y', y + 5);
+          label.setAttribute('fill', '#cdd9ea'); label.setAttribute('font-size','12');
+          label.textContent = 'Moon';
+          g.appendChild(circ); g.appendChild(label);
+          planetsLayer.appendChild(g);
+        } catch (err) {
+          console.warn('moon calc failed', err);
+        }
+      }
+    }
+
+    // ---------- Render all ----------
+    function renderAll() {
+      updateShape(); // in case mask changed
+      renderMilkyWay();
+      renderStars();
+      renderConstellations();
+      renderPlanetsAndMoon();
+    }
+
+    // ---------- UI bindings ----------
+    shapeSel.addEventListener('change', () => { updateShape(); renderAll(); });
+    centerRAInput.addEventListener('input', (e) => {
+      centerRA = parseFloat(e.target.value);
+      centerRAVal.textContent = centerRA.toString();
+      renderAll();
+    });
+    magLimitInput.addEventListener('input', (e) => {
+      magLimit = parseFloat(e.target.value);
+      magVal.textContent = magLimit.toFixed(1);
+      renderStars();
+    });
+    sizeMultInput.addEventListener('input', (e) => {
+      sizeMult = parseFloat(e.target.value);
+      sizeVal.textContent = sizeMult.toFixed(2);
+      renderStars();
+    });
+    mwOpacityInput.addEventListener('input', (e) => {
+      mwOpacity = parseFloat(e.target.value);
+      mwVal.textContent = mwOpacity.toFixed(2);
+      renderMilkyWay();
+    });
+
+    showStarsChk.addEventListener('change', renderAll);
+    showMWChk.addEventListener('change', renderAll);
+    showConstChk.addEventListener('change', renderAll);
+    showPlanetsChk.addEventListener('change', renderAll);
+    showMoonChk.addEventListener('change', renderAll);
+
+    refreshBtn.addEventListener('click', () => { renderPlanetsAndMoon(); });
+
+    // ---------- Export PNG ----------
+    async function exportPNG() {
+      // serialize SVG
+      const svgClone = svg.cloneNode(true);
+      // remove clipPath id collisions by leaving it (browser will accept)
+      const serializer = new XMLSerializer();
+      const svgStr = serializer.serializeToString(svgClone);
+      const blob = new Blob([svgStr], { type: 'image/svg+xml;charset=utf-8' });
+      const imgUrl = URL.createObjectURL(blob);
+      const img = new Image();
+      img.onload = () => {
+        // render onto canvas
+        const canvas = document.createElement('canvas');
+        const scale = Math.min(3000 / WIDTH, 1); // max size safety
+        canvas.width = WIDTH * scale;
+        canvas.height = HEIGHT * scale;
+        const ctx = canvas.getContext('2d');
+        // black background
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        URL.revokeObjectURL(imgUrl);
+        // download
+        canvas.toBlob((b) => {
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(b);
+          a.download = `celestial_${new Date().toISOString().slice(0,19).replace(/[:T]/g,'-')}.png`;
+          a.click();
+          URL.revokeObjectURL(a.href);
+        }, 'image/png');
+      };
+      img.onerror = (err) => { console.error('SVG->Image load error', err); };
+      img.src = imgUrl;
+    }
+    exportBtn.addEventListener('click', exportPNG);
+
+    // ---------- Init sequence ----------
+    (async function init(){
+      updateShape();
+      // set initial UI labels
+      centerRAVal.textContent = centerRAInput.value;
+      magVal.textContent = magLimitInput.value;
+      sizeVal.textContent = sizeMultInput.value;
+      mwVal.textContent = mwOpacityInput.value;
+
+      try {
+        await loadAllData();
+      } catch (err) {
+        console.error('Error loading GeoJSON data', err);
+      }
+
+      // initial render
+      renderAll();
+
+      // keep Moon & planets fresh (update every 30s but you can press Refresh)
+      setInterval(renderPlanetsAndMoon, 30000);
+    })();
+  </script>
+</body>
+</html>

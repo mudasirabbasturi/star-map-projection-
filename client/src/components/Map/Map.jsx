@@ -1,41 +1,30 @@
 import { useEffect, useRef } from "react";
 import { MdEdit } from "react-icons/md";
-import Heart from "./projections/Heart";
+import Heart from "@components/map/projections/Heart";
 
-const Map = ({ handleMouseDown, positions, showDrawer, styles }) => {
+const Map = ({ showDrawer, styles }) => {
   const canvasRef = useRef(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    canvas.width = 300;
-    canvas.height = 300;
+    const canvasStyle = styles.canvas || {
+      bgColor: "transparent",
+      width: 100,
+      height: 100,
+    };
+    canvas.width = canvasStyle.width;
+    canvas.height = canvasStyle.height;
     const ctx = canvas.getContext("2d");
 
     Heart(ctx, canvas);
-  }, []);
+  }, [styles]);
 
   return (
     <div
       className="map glb"
-      onMouseDown={(e) => handleMouseDown(e, "map")}
-      style={{
-        position: "relative",
-        left: positions.map.x,
-        top: positions.map.y,
-        cursor: "grabbing",
-        backgroundColor: styles.bgColor,
-        // width: styles.width ? `${styles.width}%` : "90%",
-      }}
+      style={{ position: "relative", background: styles.poster.bgColor }}
     >
-      <canvas
-        ref={canvasRef}
-        style={{
-          width: "100%",
-          aspectRatio: "1/1",
-          // display: "block",
-          // background: styles.canvasBg || "black",
-        }}
-      />
+      <canvas ref={canvasRef} />
       <div className="editIconWrapper" onClick={() => showDrawer("map")}>
         <MdEdit className="editIcon" />
       </div>
