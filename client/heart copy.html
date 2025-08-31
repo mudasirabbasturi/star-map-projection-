@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heart Mask Celestial Config</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            background-color: black;
+        }
+
+        .heart-container {
+            width: 400px;
+            height: 90vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid #ddd;
+        }
+
+        svg {
+            width: 90%;
+            height: auto;
+        }
+
+        .heart-outline {
+            fill: none;
+            stroke: white;
+            stroke-width: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="heart-container">
+        <svg viewBox="170 352 860 798" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <!-- Heart clip path -->
+                <clipPath id="heartClip">
+                    <path d="
+              M 600 1121
+              C 201 869, 33 554, 306 407
+              C 474 323, 600 449, 600 554
+              C 600 449, 726 323, 894 407
+              C 1167 554, 999 869, 600 1121
+              Z"></path>
+                </clipPath>
+            </defs>
+
+            <!-- Celestial layers -->
+            <g id="mwLayer" clip-path="url(#heartClip)"></g>
+            <g id="starsLayer" clip-path="url(#heartClip)"></g>
+            <g id="constLayer" clip-path="url(#heartClip)"></g>
+            <g id="moonLayer" clip-path="url(#heartClip)"></g>
+
+            <!-- Heart outline -->
+            <path class="heart-outline" d="
+          M 600 1121
+          C 201 869, 33 554, 306 407
+          C 474 323, 600 449, 600 554
+          C 600 449, 726 323, 894 407
+          C 1167 554, 999 869, 600 1121
+          Z"></path>
+        </svg>
+    </div>
+
+    <script>
+        // Data sources
+        const URL_STARS = 'https://raw.githubusercontent.com/ofrohn/d3-celestial/master/data/stars.6.json';
+        const URL_MW = 'https://raw.githubusercontent.com/ofrohn/d3-celestial/master/data/mw.json';
+        const URL_CONST = 'https://raw.githubusercontent.com/ofrohn/d3-celestial/master/data/constellations.json';
+
+        const svg = document.querySelector('svg');
+        const viewBox = svg.viewBox.baseVal;
+        const WIDTH = viewBox.width;
+        const HEIGHT = viewBox.height;
+
+        // 🌌 Advanced Config Object
+        const config = {
+            stars: {
+                show: true,
+                density: 1,
+                magLimit: 6.5,
+                minRadius: 0.5,
+                maxRadius: 4,
+                color: '#ffffff',
+                opacityFactor: 10,
+                randomize: true,
+                twinkle: true,
+                twinkleRange: 0.4
+            },
+            milkyWay: {
+                show: false,
+                color: 'rgba(255,255,255,0.05)',
+                opacity: 0.05
+            },
+            constellations: {
+                show: true,
+                color: 'rgba(0,255,255,0.3)',
+                lineWidth: 0.5
+            },
+            moon: {
+                show: true,
+                color: 'rgba(255,255,200,0.9)',
+                radius: 15
+            }
+        };
+
+        const starsLayer = document.getElementById('starsLayer');
+        const mwLayer = document.getElementById('mwLayer');
+        const constLayer = document.getElementById('constLayer');
+        const moonLayer = document.getElementById('moonLayer');
+
+        function raDecToXY(ra, dec) {
+            const x = (ra / 24) * WIDTH + viewBox.x;
+            const y = viewBox.y + HEIGHT - ((dec + 90) / 180) * HEIGHT;
+            return { x, y };
+        }
+
+        function starRadius(mag) {
+            const cfg = config.stars;
+            const r = cfg.maxRadius - mag * (cfg.maxRadius - cfg.minRadius) / cfg.magLimit;
+            return Math.max(cfg.minRadius, r);
+        }
+
+        async function loadStars() {
+            if (!config.stars.show) return;
+
+            const response = await fetch(URL_STARS);
+            const data = await response.json();
+            const frag = document.createDocumentFragment();
+
+            data.features.forEach(f => {
+                if (Math.random() > config.stars.density) return;
+
+                const mag = (f.properties && typeof f.properties.mag === 'number') ? f.properties.mag : config.stars.magLimit;
+                if (mag > config.stars.magLimit) return;
+
+                const [ra, dec] = f.geometry.coordinates;
+                let { x, y } = raDecToXY(ra, dec);
+
+                if (config.stars.randomize) {
+                    x += (Math.random() - 0.5) * 2;
+                    y += (Math.random() - 0.5) * 2;
+                }
+
+                const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                c.setAttribute('cx', x.toFixed(2));
+                c.setAttribute('cy', y.toFixed(2));
+                c.setAttribute('r', starRadius(mag).toFixed(2));
+                c.setAttribute('fill', config.stars.color);
+                c.setAttribute('opacity', (0.95 - Math.max(0, mag) / config.stars.opacityFactor).toFixed(2));
+                frag.appendChild(c);
+            });
+
+            starsLayer.appendChild(frag);
+
+            if (config.stars.twinkle) animateTwinkle();
+        }
+
+        function animateTwinkle() {
+            const stars = starsLayer.querySelectorAll('circle');
+            function tick() {
+                stars.forEach(s => {
+                    const baseOpacity = parseFloat(s.getAttribute('opacity'));
+                    const delta = (Math.random() - 0.5) * config.stars.twinkleRange;
+                    s.setAttribute('opacity', Math.max(0, Math.min(1, baseOpacity + delta)));
+                });
+                requestAnimationFrame(tick);
+            }
+            requestAnimationFrame(tick);
+        }
+
+        async function loadMilkyWay() {
+            if (!config.milkyWay.show) return;
+            const resp = await fetch(URL_MW);
+            const data = await resp.json();
+
+            const frag = document.createDocumentFragment();
+            data.features.forEach(f => {
+                const [ra, dec] = f.geometry.coordinates;
+                const { x, y } = raDecToXY(ra, dec);
+                const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                c.setAttribute('cx', x);
+                c.setAttribute('cy', y);
+                c.setAttribute('r', 1);
+                c.setAttribute('fill', config.milkyWay.color);
+                c.setAttribute('opacity', config.milkyWay.opacity);
+                frag.appendChild(c);
+            });
+            mwLayer.appendChild(frag);
+        }
+
+        async function loadConstellations() {
+            if (!config.constellations.show) return;
+            const resp = await fetch(URL_CONST);
+            const data = await resp.json();
+
+            const frag = document.createDocumentFragment();
+            data.features.forEach(f => {
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                const [ra1, dec1] = f.geometry.coordinates[0];
+                const [ra2, dec2] = f.geometry.coordinates[1];
+                const { x: x1, y: y1 } = raDecToXY(ra1, dec1);
+                const { x: x2, y: y2 } = raDecToXY(ra2, dec2);
+                line.setAttribute('x1', x1);
+                line.setAttribute('y1', y1);
+                line.setAttribute('x2', x2);
+                line.setAttribute('y2', y2);
+                line.setAttribute('stroke', config.constellations.color);
+                line.setAttribute('stroke-width', config.constellations.lineWidth);
+                frag.appendChild(line);
+            });
+
+            constLayer.appendChild(frag);
+        }
+
+        function loadMoon() {
+            if (!config.moon.show) return;
+            const cx = WIDTH / 2 + viewBox.x;
+            const cy = HEIGHT / 2 + viewBox.y;
+            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            circle.setAttribute('cx', cx);
+            circle.setAttribute('cy', cy);
+            circle.setAttribute('r', config.moon.radius);
+            circle.setAttribute('fill', config.moon.color);
+            moonLayer.appendChild(circle);
+        }
+
+        // Load everything
+        loadMilkyWay();
+        loadStars();
+        loadConstellations();
+        loadMoon();
+
+    </script>
+</body>
+
+</html>

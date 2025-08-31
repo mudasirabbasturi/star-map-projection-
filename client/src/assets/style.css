@@ -86,13 +86,21 @@ body {
   width: min(100vw, calc(100vh * 0.707));
   height: min(calc(100vw * 1.4142), 100vh);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-  transform: scale(.97);
+  transform: scale(.99);
 }
 
 .poster.download-mode {
   pointer-events: none;
   user-select: none;
   /* transform: none !important; */
+}
+
+.posterWrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
 }
 
 .poster:hover {
@@ -103,9 +111,8 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #ffffff00;
-   position: absolute;
-   top: 5%;
+  position: absolute;
+  top: 5%;
 }
 .map:hover {
   cursor: move;
@@ -136,4 +143,8 @@ body {
 
 .textNode .editIconWrapper {
   transform: translate(50%, -50%);
+}
+
+.star {
+  color: white !important;
 }

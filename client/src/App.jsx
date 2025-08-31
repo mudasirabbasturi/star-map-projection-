@@ -1,30 +1,44 @@
-import { useState, Suspense, lazy } from "react";
-import { MdOutlineEditNote, MdEdit } from "react-icons/md";
+// src/App.jsx
+import { useState, useEffect, Suspense, lazy } from "react";
+import { MdOutlineEditNote } from "react-icons/md";
 import { Spin, Drawer } from "antd";
-import CelestialMap from "./CelestialMap";
 
 const Sections = lazy(() => import("@components/sections/Sections"));
+const Map = lazy(() => import("@components/map/Map"));
 
 const App = () => {
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [drawerMode, setDrawerMode] = useState("poster");
 
+  const [starsData, setStarsData] = useState({ features: [] });
+  const [centerRA, setCenterRA] = useState(0);
+
   const [styles, setStyles] = useState({
     poster: {
       paperSize: "A4",
       bgColor: "#020202ff",
       borderStyle: "solid",
-      borderWidth: 4,
+      borderWidth: 1,
+      borderRadius: 0,
+      borderColor: "#eee",
+    },
+    posterWrapper: {
+      bgColor: "transparent",
+      width: 90,
+      height: 90,
+      borderStyle: "solid",
+      borderWidth: 1,
       borderRadius: 0,
       borderColor: "#eee",
     },
     map: {
-      bgColor: "#ffffff",
+      maskShape: "circle",
+      bgColor: "transparent",
       width: 90,
       height: 70,
       borderStyle: "solid",
-      borderWidth: 0,
+      borderWidth: 1,
       borderRadius: 0,
       borderColor: "#eee",
     },
@@ -44,6 +58,19 @@ const App = () => {
     },
   });
 
+  // Load stars JSON
+  useEffect(() => {
+    setLoading(true);
+    fetch("/json/stars.6.json")
+      .then((res) => res.json())
+      .then((data) => {
+        setStarsData(data); // expects { features: [...], centerRA: ... }
+        setCenterRA(data.centerRA || 0);
+      })
+      .catch((err) => console.error("Failed to load stars JSON:", err))
+      .finally(() => setLoading(false));
+  }, []);
+
   const updateSectionStyle = (section, newStyle) => {
     setStyles((prev) => ({
       ...prev,
@@ -55,16 +82,12 @@ const App = () => {
     setDrawerMode(section);
     setOpen(true);
   };
-
   const hideDrawer = () => setOpen(false);
-
-  const getFinalStyle = (section) => {
-    const style = styles[section] || {};
-    return style;
-  };
+  const getFinalStyle = (section) => styles[section] || {};
 
   const drawerTitles = {
     poster: "Poster Settings",
+    posterWrapper: "Inner Poster Settings",
     map: "Map Settings",
     moment: "Moment Settings",
   };
@@ -77,7 +100,6 @@ const App = () => {
             <div
               className="poster glb"
               style={{
-                position: "relative",
                 minHeight: "100vh",
                 background: styles.poster.bgColor,
                 borderStyle: styles.poster.borderStyle,
@@ -93,55 +115,52 @@ const App = () => {
                 <MdOutlineEditNote className="editIcon" />
               </div>
 
-              {/* Map Container */}
               <div
-                className="map glb"
+                className="posterWrapper glb"
                 style={{
-                  width: `${styles.map.width}%`,
-                  height: `${styles.map.height}%`,
-                  borderStyle: styles.map.borderStyle,
-                  borderWidth: `${styles.map.borderWidth}px`,
-                  borderRadius: `${styles.map.borderRadius}%`,
-                  borderColor: styles.map.borderColor,
-                  background: styles.map.bgColor,
+                  width: `${styles.posterWrapper.width}%`,
+                  height: `${styles.posterWrapper.height}%`,
+                  background: styles.posterWrapper.bgColor,
+                  borderStyle: styles.posterWrapper.borderStyle,
+                  borderWidth: `${styles.posterWrapper.borderWidth}px`,
+                  borderRadius: `${styles.posterWrapper.borderRadius}%`,
+                  borderColor: styles.posterWrapper.borderColor,
                 }}
               >
                 <div
                   className="editIconWrapper"
-                  onClick={() => showDrawer("map")}
-                >
-                  <MdEdit className="editIcon" />
-                </div>
-
-                {/* Celestial Map */}
-              </div>
-              {/* Moment Container */}
-              <div
-                className="moment glb pt-1 pb-1"
-                style={{
-                  width: `${styles.moment.width}%`,
-                  borderStyle: styles.moment.borderStyle,
-                  borderWidth: `${styles.moment.borderWidth}px`,
-                  borderRadius: `${styles.moment.borderRadius}%`,
-                  borderColor: styles.moment.borderColor,
-                  background: styles.moment.bgColor,
-                }}
-              >
-                <div
-                  className="editIconWrapper"
-                  onClick={() => showDrawer("moment")}
+                  onClick={() => showDrawer("posterWrapper")}
                 >
                   <MdOutlineEditNote className="editIcon" />
                 </div>
-                <div className="textNode address">East London #3, FccD23</div>
-                <div className="textNode date">04, March, 1995</div>
-                <div className="textNode message">Magical Night Sky Uk</div>
-                <div className="textNode message">Title &oR Name</div>
-                <div className="textNode coordinate">Coordinate</div>
+                <div
+                  className="map glb"
+                  style={{
+                    width: `${styles.map.width}%`,
+                    height: `${styles.map.height}%`,
+                    background: styles.map.bgColor,
+                    borderStyle: styles.map.borderStyle,
+                    borderWidth: `${styles.map.borderWidth}px`,
+                    borderRadius: `${styles.map.borderRadius}%`,
+                    borderColor: styles.map.borderColor,
+                  }}
+                >
+                  <div
+                    className="editIconWrapper"
+                    onClick={() => showDrawer("map")}
+                  >
+                    <MdOutlineEditNote className="editIcon" />
+                  </div>
+                  <Map
+                    maskShape={styles.map.maskShape}
+                    starsData={starsData}
+                    sizeMult={styles.sizeMult || 1}
+                    centerRA={centerRA}
+                  />
+                </div>
               </div>
             </div>
 
-            {/* Paper Size Display */}
             <div
               style={{
                 position: "fixed",
@@ -160,7 +179,6 @@ const App = () => {
         </div>
       </div>
 
-      {/* Drawer for Section Settings */}
       <Drawer
         title={drawerTitles[drawerMode]}
         open={open}

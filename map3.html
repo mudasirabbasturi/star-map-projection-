@@ -1,37 +1,171 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8" />
   <title>Celestial — Stars, Milky Way, Constellations, Planets, Export</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
-    :root{
-      --bg:#04050a; --panel:#0f1020; --muted:#9aa0b2; --accent:#5dd0ff; --text:#e9eef8;
+    :root {
+      --bg: #04050a;
+      --panel: #0f1020;
+      --muted: #9aa0b2;
+      --accent: #5dd0ff;
+      --text: #e9eef8;
     }
-    *{box-sizing:border-box}
-    html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,Arial}
-    .app{display:flex;flex-direction:column;height:100%}
-    header{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,0.03);background:linear-gradient(180deg, rgba(10,10,18,0.6), rgba(8,8,12,0.45));backdrop-filter:blur(6px)}
-    .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-    .card{background:var(--panel);border:1px solid rgba(255,255,255,0.03);padding:8px 10px;border-radius:10px;min-width:150px}
-    label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
-    input[type="range"]{width:160px}
-    select{padding:6px;border-radius:6px;background:#0b0b14;color:var(--text);border:1px solid rgba(255,255,255,0.03)}
-    .toggles{display:flex;gap:8px;align-items:center}
-    .toggles label{display:flex;gap:6px;align-items:center;font-size:13px;color:var(--text);margin:0}
-    main{flex:1;display:flex;justify-content:center;align-items:center;padding:12px}
-    svg{width:min(96vw,1100px);height:auto;border-radius:14px;box-shadow:0 15px 40px rgba(0,0,0,.6);background:radial-gradient(circle at 40% 30%, #04040a 0%, #000 65%)}
-    .outline{fill:none;stroke:rgba(255,255,255,0.06);stroke-width:1.4;stroke-dasharray:5 4}
-    .star{fill:white;pointer-events:none}
-    .mw{fill:rgba(255,255,255,0.08);pointer-events:none}
-    .constLine{stroke:rgba(180,200,255,0.22);stroke-width:1.2;fill:none;stroke-linecap:round;stroke-linejoin:round}
-    .constLabel{fill:rgba(200,220,255,0.9);font-size:12px;pointer-events:none}
-    .planet{fill:#ffda6b;stroke:rgba(0,0,0,0.5);stroke-width:0.6}
-    .moon{fill:#dfe9f5;stroke:rgba(0,0,0,0.35);stroke-width:0.5}
-    .btn{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--text);padding:6px 10px;border-radius:8px;cursor:pointer}
-    .footer-note{font-size:12px;color:var(--muted);text-align:center;margin-top:8px}
+
+    * {
+      box-sizing: border-box
+    }
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, Segoe UI, Roboto, Arial
+    }
+
+    .app {
+      display: flex;
+      flex-direction: column;
+      height: 100%
+    }
+
+    header {
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      background: linear-gradient(180deg, rgba(10, 10, 18, 0.6), rgba(8, 8, 12, 0.45));
+      backdrop-filter: blur(6px)
+    }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      padding: 8px 10px;
+      border-radius: 10px;
+      min-width: 150px
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px
+    }
+
+    input[type="range"] {
+      width: 160px
+    }
+
+    select {
+      padding: 6px;
+      border-radius: 6px;
+      background: #0b0b14;
+      color: var(--text);
+      border: 1px solid rgba(255, 255, 255, 0.03)
+    }
+
+    .toggles {
+      display: flex;
+      gap: 8px;
+      align-items: center
+    }
+
+    .toggles label {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      font-size: 13px;
+      color: var(--text);
+      margin: 0
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 12px
+    }
+
+    svg {
+      width: min(96vw, 1100px);
+      height: auto;
+      border-radius: 14px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, .6);
+      background: radial-gradient(circle at 40% 30%, #04040a 0%, #000 65%)
+    }
+
+    .outline {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.06);
+      stroke-width: 1.4;
+      stroke-dasharray: 5 4
+    }
+
+    .star {
+      fill: white;
+      pointer-events: none
+    }
+
+    .mw {
+      fill: rgba(255, 255, 255, 0.08);
+      pointer-events: none
+    }
+
+    .constLine {
+      stroke: rgba(180, 200, 255, 0.22);
+      stroke-width: 1.2;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round
+    }
+
+    .constLabel {
+      fill: rgba(200, 220, 255, 0.9);
+      font-size: 12px;
+      pointer-events: none
+    }
+
+    .planet {
+      fill: #ffda6b;
+      stroke: rgba(0, 0, 0, 0.5);
+      stroke-width: 0.6
+    }
+
+    .moon {
+      fill: #dfe9f5;
+      stroke: rgba(0, 0, 0, 0.35);
+      stroke-width: 0.5
+    }
+
+    .btn {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      color: var(--text);
+      padding: 6px 10px;
+      border-radius: 8px;
+      cursor: pointer
+    }
+
+    .footer-note {
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 8px
+    }
   </style>
 </head>
+
 <body>
   <div class="app">
     <header>
@@ -50,7 +184,8 @@
           <div class="card">
             <label>Center RA (°)</label>
             <input id="centerRA" type="range" min="-180" max="180" step="1" value="0" />
-            <div style="font-size:12px;color:var(--muted);margin-top:6px">Center RA: <span id="centerRAVal">0</span>°</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:6px">Center RA: <span id="centerRAVal">0</span>°
+            </div>
           </div>
 
           <div class="card">
@@ -89,7 +224,8 @@
       </div>
 
       <div style="margin-top:8px;font-size:13px;color:var(--muted)">
-        Data: d3-celestial (stars, Milky Way, constellations). Planet & Moon positions via <span style="color:var(--accent)">astronomy-engine</span>.
+        Data: d3-celestial (stars, Milky Way, constellations). Planet & Moon positions via <span
+          style="color:var(--accent)">astronomy-engine</span>.
         (No D3 projections — RA/Dec → equirectangular mapping; clipped to shape.)
       </div>
     </header>
@@ -118,7 +254,8 @@
       </svg>
     </main>
 
-    <div class="footer-note">Tip: change magnitude & size sliders to tune density. Use "Export PNG" to save the current view.</div>
+    <div class="footer-note">Tip: change magnitude & size sliders to tune density. Use "Export PNG" to save the current
+      view.</div>
   </div>
 
   <!-- astronomy-engine (browser build) -->
@@ -127,7 +264,7 @@
   <script>
     // ---------- Config & Data URLs (real) ----------
     const WIDTH = 1200, HEIGHT = 1200;
-    const center = { x: WIDTH/2, y: HEIGHT/2 };
+    const center = { x: WIDTH / 2, y: HEIGHT / 2 };
     const radiusMask = 520;
 
     const URL_STARS = 'https://raw.githubusercontent.com/ofrohn/d3-celestial/master/data/stars.6.json';
@@ -182,20 +319,20 @@
       cp.appendChild(element.cloneNode(true));
       shapeOutline.innerHTML = '';
       const outline = element.cloneNode(true);
-      outline.setAttribute('class','outline');
+      outline.setAttribute('class', 'outline');
       shapeOutline.appendChild(outline);
     }
 
     function makeCircle() {
-      const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+      const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
       c.setAttribute('cx', center.x); c.setAttribute('cy', center.y); c.setAttribute('r', radiusMask);
       return c;
     }
 
     function makeRect() {
       const pad = 110;
-      const r = document.createElementNS('http://www.w3.org/2000/svg','rect');
-      r.setAttribute('x', pad); r.setAttribute('y', pad); r.setAttribute('width', WIDTH-pad*2); r.setAttribute('height', HEIGHT-pad*2);
+      const r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      r.setAttribute('x', pad); r.setAttribute('y', pad); r.setAttribute('width', WIDTH - pad * 2); r.setAttribute('height', HEIGHT - pad * 2);
       r.setAttribute('rx', 28); r.setAttribute('ry', 28);
       return r;
     }
@@ -206,7 +343,7 @@
       const p1 = `${cx},${cy - r}`;
       const p2 = `${cx - r * 0.866},${cy + r * 0.5}`;
       const p3 = `${cx + r * 0.866},${cy + r * 0.5}`;
-      const poly = document.createElementNS('http://www.w3.org/2000/svg','polygon');
+      const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
       poly.setAttribute('points', `${p1} ${p2} ${p3}`);
       return poly;
     }
@@ -215,13 +352,13 @@
       const cx = center.x, cy = center.y + 80;
       const s = 1.05;
       const path = `
-        M ${cx} ${cy + 420*s}
-        C ${cx - 380*s} ${cy + 180*s}, ${cx - 540*s} ${cy - 120*s}, ${cx - 280*s} ${cy - 260*s}
-        C ${cx - 120*s} ${cy - 340*s}, ${cx} ${cy - 220*s}, ${cx} ${cy - 120*s}
-        C ${cx} ${cy - 220*s}, ${cx + 120*s} ${cy - 340*s}, ${cx + 280*s} ${cy - 260*s}
-        C ${cx + 540*s} ${cy - 120*s}, ${cx + 380*s} ${cy + 180*s}, ${cx} ${cy + 420*s}
+        M ${cx} ${cy + 420 * s}
+        C ${cx - 380 * s} ${cy + 180 * s}, ${cx - 540 * s} ${cy - 120 * s}, ${cx - 280 * s} ${cy - 260 * s}
+        C ${cx - 120 * s} ${cy - 340 * s}, ${cx} ${cy - 220 * s}, ${cx} ${cy - 120 * s}
+        C ${cx} ${cy - 220 * s}, ${cx + 120 * s} ${cy - 340 * s}, ${cx + 280 * s} ${cy - 260 * s}
+        C ${cx + 540 * s} ${cy - 120 * s}, ${cx + 380 * s} ${cy + 180 * s}, ${cx} ${cy + 420 * s}
         Z`;
-      const p = document.createElementNS('http://www.w3.org/2000/svg','path');
+      const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
       p.setAttribute('d', path);
       return p;
     }
@@ -285,12 +422,12 @@
         if (mag > magLimit) continue;
         const [lon, lat] = f.geometry.coordinates;
         const { x, y } = raDecToXY(lon, lat);
-        if (x < -20 || x > WIDTH+20 || y < -20 || y > HEIGHT+20) continue;
-        const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
-        c.setAttribute('class','star');
+        if (x < -20 || x > WIDTH + 20 || y < -20 || y > HEIGHT + 20) continue;
+        const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        c.setAttribute('class', 'star');
         c.setAttribute('cx', x.toFixed(2)); c.setAttribute('cy', y.toFixed(2));
         c.setAttribute('r', starRadius(mag).toFixed(2));
-        c.setAttribute('opacity', (0.95 - Math.max(0, (mag - 0))/10).toFixed(2));
+        c.setAttribute('opacity', (0.95 - Math.max(0, (mag - 0)) / 10).toFixed(2));
         frag.appendChild(c);
       }
       starsLayer.appendChild(frag);
@@ -305,15 +442,15 @@
         for (const polygon of feature.geometry.coordinates) {
           for (const ring of polygon) {
             let d = '';
-            for (let i=0;i<ring.length;i++) {
+            for (let i = 0; i < ring.length; i++) {
               const [lon, lat] = ring[i];
               const { x, y } = raDecToXY(lon, lat);
-              d += (i===0 ? `M${x},${y}` : `L${x},${y}`);
+              d += (i === 0 ? `M${x},${y}` : `L${x},${y}`);
             }
             d += 'Z';
-            const p = document.createElementNS('http://www.w3.org/2000/svg','path');
+            const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
             p.setAttribute('d', d);
-            p.setAttribute('class','mw');
+            p.setAttribute('class', 'mw');
             p.setAttribute('opacity', baseOpacity.toString());
             frag.appendChild(p);
           }
@@ -336,26 +473,26 @@
 
         if (geom.type === 'LineString') {
           let d = '';
-          for (let i=0;i<geom.coordinates.length;i++) {
+          for (let i = 0; i < geom.coordinates.length; i++) {
             const [lon, lat] = geom.coordinates[i];
             const { x, y } = raDecToXY(lon, lat);
-            d += (i===0 ? `M${x},${y}` : `L${x},${y}`);
+            d += (i === 0 ? `M${x},${y}` : `L${x},${y}`);
           }
-          const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+          const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
           path.setAttribute('d', d);
-          path.setAttribute('class','constLine');
+          path.setAttribute('class', 'constLine');
           fragLines.appendChild(path);
         } else if (geom.type === 'MultiLineString') {
           for (const line of geom.coordinates) {
             let d = '';
-            for (let i=0;i<line.length;i++) {
+            for (let i = 0; i < line.length; i++) {
               const [lon, lat] = line[i];
               const { x, y } = raDecToXY(lon, lat);
-              d += (i===0 ? `M${x},${y}` : `L${x},${y}`);
+              d += (i === 0 ? `M${x},${y}` : `L${x},${y}`);
             }
-            const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
             path.setAttribute('d', d);
-            path.setAttribute('class','constLine');
+            path.setAttribute('class', 'constLine');
             fragLines.appendChild(path);
           }
         }
@@ -364,10 +501,10 @@
         if (props && props.name && props.pos) {
           const [lon, lat] = props.pos;
           const { x, y } = raDecToXY(lon, lat);
-          const text = document.createElementNS('http://www.w3.org/2000/svg','text');
+          const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
           text.setAttribute('x', x + 6);
           text.setAttribute('y', y - 6);
-          text.setAttribute('class','constLabel');
+          text.setAttribute('class', 'constLabel');
           text.textContent = props.name;
           fragLabels.appendChild(text);
         }
@@ -380,11 +517,11 @@
     // ---------- Planets & Moon (astronomy-engine) ----------
     function vecToRaDec(vec) {
       const x = vec.x, y = vec.y, z = vec.z;
-      const r = Math.sqrt(x*x + y*y + z*z);
-      let ra = Math.atan2(y, x) * 180/Math.PI;
+      const r = Math.sqrt(x * x + y * y + z * z);
+      let ra = Math.atan2(y, x) * 180 / Math.PI;
       if (ra < 0) ra += 360;
       if (ra > 180) ra = ra - 360;
-      const dec = Math.asin(z / r) * 180/Math.PI;
+      const dec = Math.asin(z / r) * 180 / Math.PI;
       return { ra, dec };
     }
 
@@ -410,13 +547,13 @@
             const v = Astronomy.GeoVector(p.body, now, false);
             const eq = vecToRaDec(v);
             const { x, y } = raDecToXY(eq.ra, eq.dec);
-            const g = document.createElementNS('http://www.w3.org/2000/svg','g');
-            const circ = document.createElementNS('http://www.w3.org/2000/svg','circle');
+            const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            const circ = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
             circ.setAttribute('cx', x); circ.setAttribute('cy', y); circ.setAttribute('r', 6);
-            circ.setAttribute('class','planet');
-            const label = document.createElementNS('http://www.w3.org/2000/svg','text');
+            circ.setAttribute('class', 'planet');
+            const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
             label.setAttribute('x', x + 8); label.setAttribute('y', y + 4);
-            label.setAttribute('fill', '#ffdca0'); label.setAttribute('font-size','12');
+            label.setAttribute('fill', '#ffdca0'); label.setAttribute('font-size', '12');
             label.textContent = p.name;
             g.appendChild(circ); g.appendChild(label);
             planetsLayer.appendChild(g);
@@ -431,13 +568,13 @@
           const v = Astronomy.GeoVector(Astronomy.Body.Moon, now, false);
           const eq = vecToRaDec(v);
           const { x, y } = raDecToXY(eq.ra, eq.dec);
-          const g = document.createElementNS('http://www.w3.org/2000/svg','g');
-          const circ = document.createElementNS('http://www.w3.org/2000/svg','circle');
+          const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+          const circ = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
           circ.setAttribute('cx', x); circ.setAttribute('cy', y); circ.setAttribute('r', 8);
-          circ.setAttribute('class','moon');
-          const label = document.createElementNS('http://www.w3.org/2000/svg','text');
+          circ.setAttribute('class', 'moon');
+          const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
           label.setAttribute('x', x + 10); label.setAttribute('y', y + 5);
-          label.setAttribute('fill', '#cdd9ea'); label.setAttribute('font-size','12');
+          label.setAttribute('fill', '#cdd9ea'); label.setAttribute('font-size', '12');
           label.textContent = 'Moon';
           g.appendChild(circ); g.appendChild(label);
           planetsLayer.appendChild(g);
@@ -507,7 +644,7 @@
         canvas.toBlob((b) => {
           const a = document.createElement('a');
           a.href = URL.createObjectURL(b);
-          a.download = `celestial_${new Date().toISOString().slice(0,19).replace(/[:T]/g,'-')}.png`;
+          a.download = `celestial_${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')}.png`;
           a.click();
           URL.revokeObjectURL(a.href);
         }, 'image/png');
@@ -518,7 +655,7 @@
     exportBtn.addEventListener('click', exportPNG);
 
     // ---------- Init ----------
-    (async function init(){
+    (async function init() {
       updateShape();
       centerRAVal.textContent = centerRAInput.value;
       magVal.textContent = magLimitInput.value;
@@ -542,4 +679,5 @@
     })();
   </script>
 </body>
+
 </html>
