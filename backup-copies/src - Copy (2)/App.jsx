@@ -1,10 +1,11 @@
 // src/App.jsx
-import { useState, useEffect, useRef, Suspense, lazy } from "react";
+import { useState, useRef, useEffect, Suspense, lazy } from "react";
+import { MdOutlineEditNote } from "react-icons/md";
 import { Spin, Drawer } from "antd";
 
-const Sidebar = lazy(() => import("@components/Sidebar"));
-const PosterCanvas = lazy(() => import("@components/PosterCanvas"));
-const Sections = lazy(() => import("@components/Sections"));
+const Sidebar = lazy(() => import("@components/sidebar/Sidebar"));
+const Sections = lazy(() => import("@components/sections/Sections"));
+const Map = lazy(() => import("@components/map/Map"));
 
 const App = () => {
   const [loading, setLoading] = useState(false);
@@ -26,7 +27,7 @@ const App = () => {
       borderColor: "#eee",
     },
     posterWrapper: {
-      bgColor: "",
+      bgColor: "transparent",
       width: 90,
       height: 90,
       borderStyle: "solid",
@@ -38,20 +39,15 @@ const App = () => {
       width: 90,
       height: 70,
       maskShape: "circle",
-      bgColor: "",
+      bgColor: "transparent",
       strokeColor: "#eee",
-      strokeStyle: "solid",
+      strokeStyle: "solid", // solid | dashed | dotted | double | none
       strokeWidth: 1,
       showStars: true,
       showMilkyway: true,
-      milkywayOpacity: 0.2,
       showConstellations: true,
       showPlanets: true,
       showMoon: true,
-      sizeMult: 1,
-      magLimit: 6.5,
-      lat: 51.5,
-      log: -0.1,
     },
     moment: {
       fontFamily: "Arial, sans-serif",
@@ -68,8 +64,6 @@ const App = () => {
       borderColor: "#eee",
     },
   });
-
-  const canvasRef = useRef(null);
 
   useEffect(() => {
     setLoading(true);
@@ -110,7 +104,7 @@ const App = () => {
     map: "Map Settings",
     moment: "Moment Settings",
   };
-
+  const canvasRef = useRef(null);
   const handleScreenShot = async () => {
     if (!canvasRef.current) return;
     setLoading(true);
@@ -122,12 +116,22 @@ const App = () => {
             return Array.from(sheet.cssRules)
               .map((rule) => rule.cssText)
               .join("");
-          } catch {
+          } catch (e) {
             return "";
           }
         })
         .join("\n");
-      const fullHTML = `<html><head><meta charset="UTF-8"><style>${styles}</style></head><body>${htmlContent}</body></html>`;
+      const fullHTML = `
+      <html>
+        <head>
+          <meta charset="UTF-8">
+          <style>${styles}</style>
+        </head>
+        <body>
+          ${htmlContent}
+        </body>
+      </html>
+    `;
       const response = await fetch("http://localhost:3001/api/screenshot", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -151,20 +155,87 @@ const App = () => {
   return (
     <>
       <div className="app-container">
-        <Suspense fallback={<div>Loading Sidebar...</div>}>
-          <Sidebar handleScreenShot={handleScreenShot} />
-        </Suspense>
+        <Sidebar handleScreenShot={handleScreenShot} />
         <div className="main-body">
           <Spin spinning={loading} tip="Generating poster..." size="large">
-            <Suspense fallback={<div>Loading Canvas...</div>}>
-              <PosterCanvas
-                canvasRef={canvasRef}
-                drawerMode={drawerMode}
-                showDrawer={showDrawer}
-                mapData={{ starsData, mwData, constData, centerRA }}
-                styles={styles}
-              />
-            </Suspense>
+            <div
+              ref={canvasRef}
+              className={`poster glb ${
+                drawerMode === "poster" ? "active" : ""
+              }`}
+              style={{
+                minHeight: "100vh",
+                background: styles.poster.bgColor,
+                borderStyle: styles.poster.borderStyle,
+                borderWidth: `${styles.poster.borderWidth}px`,
+                borderRadius: `${styles.poster.borderRadius}%`,
+                borderColor: styles.poster.borderColor,
+              }}
+            >
+              <div
+                className="editIconWrapper"
+                onClick={() => showDrawer("poster")}
+              >
+                <MdOutlineEditNote className="editIcon" />
+              </div>
+
+              <div
+                className={`posterWrapper glb ${
+                  drawerMode === "posterWrapper" ? "active" : ""
+                }`}
+                style={{
+                  width: `${styles.posterWrapper.width}%`,
+                  height: `${styles.posterWrapper.height}%`,
+                  background: styles.posterWrapper.bgColor,
+                  borderStyle: styles.posterWrapper.borderStyle,
+                  borderWidth: `${styles.posterWrapper.borderWidth}px`,
+                  borderRadius: `${styles.posterWrapper.borderRadius}%`,
+                  borderColor: styles.posterWrapper.borderColor,
+                }}
+              >
+                <div
+                  className="editIconWrapper"
+                  onClick={() => showDrawer("posterWrapper")}
+                >
+                  <MdOutlineEditNote className="editIcon" />
+                </div>
+                <div
+                  className={`map glb ${drawerMode === "map" ? "active" : ""}`}
+                  style={{
+                    width: `${styles.map.width}%`,
+                    height: `${styles.map.height}%`,
+                  }}
+                >
+                  <div
+                    className="editIconWrapper"
+                    onClick={() => showDrawer("map")}
+                  >
+                    <MdOutlineEditNote className="editIcon" />
+                  </div>
+                  <Map
+                    maskShape={styles.map.maskShape}
+                    starsData={starsData}
+                    mwData={mwData}
+                    constData={constData}
+                    showStars={styles.map.showStars}
+                    showMilkyway={styles.map.showMilkyway}
+                    showConstellations={styles.map.showConstellations}
+                    showPlanets={styles.map.showPlanets}
+                    showMoon={styles.map.showMoon}
+                    sizeMult={styles.map.sizeMult || 1}
+                    magLimit={styles.map.magLimit || 6.5}
+                    milkywayOpacity={styles.map.milkywayOpacity || 0.2}
+                    centerRA={centerRA}
+                    strokeColor={styles.map.strokeColor}
+                    strokeWidth={styles.map.strokeWidth}
+                    strokeStyle={styles.map.strokeStyle}
+                    fill={styles.map.bgColor}
+                    lat={styles.map.lat || 51.5}
+                    lon={styles.map.lon || -0.1}
+                  />
+                </div>
+              </div>
+            </div>
           </Spin>
         </div>
       </div>
@@ -178,7 +249,7 @@ const App = () => {
         mask={false}
       >
         {open && (
-          <Suspense fallback={<div>Loading Sections...</div>}>
+          <Suspense fallback={<div>Loading...</div>}>
             <Sections
               drawerMode={drawerMode}
               styles={getFinalStyle(drawerMode)}
