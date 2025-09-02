@@ -9,9 +9,11 @@ const Map = lazy(() => import("@components/map/Map"));
 const App = () => {
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
-  const [drawerMode, setDrawerMode] = useState("poster");
+  const [drawerMode, setDrawerMode] = useState(null);
 
   const [starsData, setStarsData] = useState({ features: [] });
+  const [mwData, setMwData] = useState({ features: [] });
+  const [constData, setConstData] = useState({ features: [] });
   const [centerRA, setCenterRA] = useState(0);
 
   const [styles, setStyles] = useState({
@@ -33,14 +35,18 @@ const App = () => {
       borderColor: "#eee",
     },
     map: {
-      maskShape: "circle",
-      bgColor: "transparent",
       width: 90,
       height: 70,
-      borderStyle: "solid",
-      borderWidth: 1,
-      borderRadius: 0,
-      borderColor: "#eee",
+      maskShape: "circle",
+      bgColor: "transparent",
+      strokeColor: "#eee",
+      strokeStyle: "solid", // solid | dashed | dotted | double | none
+      strokeWidth: 1,
+      showStars: true,
+      showMilkyway: true,
+      showConstellations: true,
+      showPlanets: true,
+      showMoon: true,
     },
     moment: {
       fontFamily: "Arial, sans-serif",
@@ -58,16 +64,19 @@ const App = () => {
     },
   });
 
-  // Load stars JSON
   useEffect(() => {
     setLoading(true);
-    fetch("/json/stars.6.json")
-      .then((res) => res.json())
-      .then((data) => {
-        setStarsData(data); // expects { features: [...], centerRA: ... }
-        setCenterRA(data.centerRA || 0);
+    Promise.all([
+      fetch("/json/stars.6.json").then((r) => r.json()),
+      fetch("/json/mw.json").then((r) => r.json()),
+      fetch("/json/constellations.lines.json").then((r) => r.json()),
+    ])
+      .then(([stars, mw, constellations]) => {
+        setStarsData(stars);
+        setMwData(mw);
+        setConstData(constellations);
       })
-      .catch((err) => console.error("Failed to load stars JSON:", err))
+      .catch((err) => console.error("Failed to load JSON data:", err))
       .finally(() => setLoading(false));
   }, []);
 
@@ -82,7 +91,10 @@ const App = () => {
     setDrawerMode(section);
     setOpen(true);
   };
-  const hideDrawer = () => setOpen(false);
+  const hideDrawer = () => {
+    setDrawerMode(null);
+    setOpen(false);
+  };
   const getFinalStyle = (section) => styles[section] || {};
 
   const drawerTitles = {
@@ -98,7 +110,9 @@ const App = () => {
         <div className="main-body">
           <Spin spinning={loading} tip="Generating poster..." size="large">
             <div
-              className="poster glb"
+              className={`poster glb ${
+                drawerMode === "poster" ? "active" : ""
+              }`}
               style={{
                 minHeight: "100vh",
                 background: styles.poster.bgColor,
@@ -116,7 +130,9 @@ const App = () => {
               </div>
 
               <div
-                className="posterWrapper glb"
+                className={`posterWrapper glb ${
+                  drawerMode === "posterWrapper" ? "active" : ""
+                }`}
                 style={{
                   width: `${styles.posterWrapper.width}%`,
                   height: `${styles.posterWrapper.height}%`,
@@ -134,15 +150,10 @@ const App = () => {
                   <MdOutlineEditNote className="editIcon" />
                 </div>
                 <div
-                  className="map glb"
+                  className={`map glb ${drawerMode === "map" ? "active" : ""}`}
                   style={{
                     width: `${styles.map.width}%`,
                     height: `${styles.map.height}%`,
-                    background: styles.map.bgColor,
-                    borderStyle: styles.map.borderStyle,
-                    borderWidth: `${styles.map.borderWidth}px`,
-                    borderRadius: `${styles.map.borderRadius}%`,
-                    borderColor: styles.map.borderColor,
                   }}
                 >
                   <div
@@ -154,8 +165,23 @@ const App = () => {
                   <Map
                     maskShape={styles.map.maskShape}
                     starsData={starsData}
-                    sizeMult={styles.sizeMult || 1}
+                    mwData={mwData}
+                    constData={constData}
+                    showStars={styles.map.showStars}
+                    showMilkyway={styles.map.showMilkyway}
+                    showConstellations={styles.map.showConstellations}
+                    showPlanets={styles.map.showPlanets}
+                    showMoon={styles.map.showMoon}
+                    sizeMult={styles.map.sizeMult || 1}
+                    magLimit={styles.map.magLimit || 6.5}
+                    milkywayOpacity={styles.map.milkywayOpacity || 0.2}
                     centerRA={centerRA}
+                    strokeColor={styles.map.strokeColor}
+                    strokeWidth={styles.map.strokeWidth}
+                    strokeStyle={styles.map.strokeStyle}
+                    fill={styles.map.bgColor}
+                    lat={styles.map.lat || 51.5}
+                    lon={styles.map.lon || -0.1}
                   />
                 </div>
               </div>

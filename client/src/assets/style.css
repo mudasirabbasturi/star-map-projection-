@@ -145,6 +145,18 @@ body {
   transform: translate(50%, -50%);
 }
 
-.star {
-  color: white !important;
+
+/* Active/edit mode */
+.glb.active {
+  outline: 1px dashed #7c5cffcc;
+}
+
+.glb.active > .editIconWrapper,
+.glb.active > .grabbingIconWrapper {
+  display: block;
+}
+
+.mw {
+  fill: rgba(255, 255, 255, 0.08);
+  pointer-events: none;
 }
