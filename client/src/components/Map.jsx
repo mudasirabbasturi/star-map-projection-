@@ -385,7 +385,24 @@ const Map = ({
   ]);
 
   return (
-    <svg ref={svgRef} viewBox="0 0 1200 1200" aria-label="Celestial map">
+    <svg
+      width="100%"
+      height="100%"
+      ref={svgRef}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox={
+        maskShape === "circle"
+          ? "96 96 1010 1010"
+          : maskShape === "heart"
+          ? "168 350 865 865"
+          : maskShape === "triangle"
+          ? "100 70 1010 1010"
+          : maskShape === "rect"
+          ? "90 90 1020 1020"
+          : null
+      }
+      aria-label="Celestial map"
+    >
       <defs>
         <clipPath id="maskShape">{maskElement}</clipPath>
       </defs>

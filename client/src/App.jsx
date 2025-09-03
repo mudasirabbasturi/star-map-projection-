@@ -7,7 +7,50 @@ const PosterCanvas = lazy(() => import("@components/PosterCanvas"));
 const Sections = lazy(() => import("@components/Sections"));
 
 const App = () => {
+  const webSafeFonts = [
+    "Arial",
+    "Helvetica",
+    "Times New Roman",
+    "Courier New",
+    "Georgia",
+    "Verdana",
+    "Trebuchet MS",
+    "Impact",
+    "Comic Sans MS",
+  ];
   const [loading, setLoading] = useState(false);
+  const [positions, setPositions] = useState({
+    map: { y: 0 },
+    content: { y: 0 },
+    address: { y: 0 },
+    date: { y: 0 },
+    message: { y: 0 },
+    title: { y: 0 },
+    coordinate: { y: 0 },
+  });
+
+  const handleMouseDown = (e, mode) => {
+    e.preventDefault();
+    const startY = e.clientY;
+    const startPos = positions[mode];
+
+    const handleMouseMove = (e) => {
+      setPositions((prev) => ({
+        ...prev,
+        [mode]: {
+          y: startPos.y + (e.clientY - startY),
+        },
+      }));
+    };
+
+    const handleMouseUp = () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+  };
   const [open, setOpen] = useState(false);
   const [drawerMode, setDrawerMode] = useState(null);
 
@@ -36,7 +79,7 @@ const App = () => {
     },
     map: {
       width: 90,
-      height: 70,
+      height: null,
       maskShape: "circle",
       bgColor: "",
       strokeColor: "#eee",
@@ -53,19 +96,28 @@ const App = () => {
       lat: 51.5,
       log: -0.1,
     },
-    moment: {
-      fontFamily: "Arial, sans-serif",
+    content: {
+      width: 90,
+      height: 20,
+      bgColor: "",
+      textColor: "",
+      fontFamily: "Verdana",
       fontStyle: "normal",
       fontWeight: "normal",
+      fontSize: 14,
+      textTransform: "none",
       textDecoration: "none",
-      fontSize: 16,
-      textColor: "#000000",
-      bgColor: "#ffffff",
-      width: 90,
       borderStyle: "solid",
       borderWidth: 0,
       borderRadius: 0,
       borderColor: "#eee",
+      show: {
+        showMessage: true,
+        showTitle: false,
+        showAddress: true,
+        showDate: true,
+        showCoordinate: true,
+      },
     },
   });
 
@@ -108,7 +160,7 @@ const App = () => {
     poster: "Poster Settings",
     posterWrapper: "Inner Poster Settings",
     map: "Map Settings",
-    moment: "Moment Settings",
+    content: "Content Settings",
   };
 
   const handleScreenShot = async () => {
@@ -163,6 +215,8 @@ const App = () => {
                 showDrawer={showDrawer}
                 mapData={{ starsData, mwData, constData, centerRA }}
                 styles={styles}
+                handleMouseDown={handleMouseDown}
+                positions={positions}
               />
             </Suspense>
           </Spin>
@@ -183,7 +237,7 @@ const App = () => {
               drawerMode={drawerMode}
               styles={getFinalStyle(drawerMode)}
               setStyles={(s) => updateSectionStyle(drawerMode, s)}
-              fontFamilies={["Arial", "Roboto", "Times New Roman"]}
+              fontFamilies={webSafeFonts}
             />
           </Suspense>
         )}

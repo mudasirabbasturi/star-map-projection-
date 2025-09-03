@@ -1,0 +1,35 @@
+Poster Settings
+Paper Size:
+Background Color:
+Border Style:
+Border Width:
+Border Radius:
+Border Color:
+
+Inner Poster Settings
+Background Color:
+Border Style:
+Border Width:
+Border Radius:
+Border Color:
+Width:
+Height:
+
+Map Settings
+Mask Shape:
+Stroke Style:
+Stroke Width:
+Stroke Color:
+Fill Color:
+Show Stars
+Show Milky Way
+Show Constellations
+Show Planets
+Show Moon
+Milky Way Opacity:
+Star Size Mult:
+Magnitude Limit:
+Latitude:
+Longitude:
+Width:
+Height:
