@@ -1,4 +1,4 @@
-// src/components/setting/Poster.jsx
+// src/components/setting/PosterWrapper.jsx
 import {
   red,
   volcano,
@@ -35,7 +35,7 @@ function genPresets(presets = presetPalettes) {
     key: label,
   }));
 }
-const Poster = ({ styles, setStyles, fontFamilies }) => {
+const PosterWrapper = ({ styles, setStyles, fontFamilies }) => {
   const { token } = theme.useToken();
   const presets = genPresets({
     primary: generate(token.colorPrimary),
@@ -73,46 +73,6 @@ const Poster = ({ styles, setStyles, fontFamilies }) => {
   };
   return (
     <>
-      {/* Paper Size */}
-      <div className="mb-2">
-        <hr className="mb-1 mt-0" />
-        <div className="d-flex align-items-center">
-          <small className="me-2" style={{ whiteSpace: "nowrap" }}>
-            Paper Size:
-          </small>
-          <Select
-            className="w-100"
-            value={styles.paperSize}
-            onChange={(value) => setStyles({ ...styles, paperSize: value })}
-            size="small"
-            options={[
-              { label: "A0", value: "A0", disabled: true },
-              { label: "A1", value: "A1", disabled: true },
-              { label: "A2", value: "A2", disabled: true },
-              { label: "A3", value: "A3", disabled: true },
-              { label: "A4", value: "A4" },
-              { label: "A5", value: "A5" },
-              { label: "A6", value: "A6" },
-              { label: "B0", value: "B0" },
-              { label: "B1", value: "B1" },
-              { label: "B2", value: "B2" },
-              { label: "B3", value: "B3" },
-              { label: "B4", value: "B4" },
-              { label: "B5", value: "B5" },
-              { label: "C0", value: "C0" },
-              { label: "C1", value: "C1" },
-              { label: "C2", value: "C2" },
-              { label: "C3", value: "C3" },
-              { label: "C4", value: "C4" },
-              { label: "C5", value: "C5" },
-              { label: "Letter", value: "Letter" },
-              { label: "Legal", value: "Legal" },
-              { label: "Tabloid", value: "Tabloid" },
-            ]}
-          />
-        </div>
-        <hr className="mb-0 mt-1" />
-      </div>
       {/* Background Color */}
       <div className="mb-2">
         <hr className="mb-1 mt-0" />
@@ -232,7 +192,57 @@ const Poster = ({ styles, setStyles, fontFamilies }) => {
         </div>
         <hr className="mb-0 mt-1" />
       </div>
+      {/* Width */}
+      <div className="mb-2">
+        <hr className="mb-1 mt-0" />
+        <div className="d-flex align-items-center">
+          <small className="me-2" style={{ whiteSpace: "nowrap" }}>
+            Width:
+          </small>
+          <Slider
+            className="w-100 m-0 me-2"
+            min={30}
+            max={100}
+            value={styles.width}
+            onChange={(value) => setStyles({ ...styles, width: value || 0 })}
+          />
+          <InputNumber
+            value={styles.width}
+            className="w-80"
+            size="small"
+            min={30}
+            max={100}
+            onChange={(value) => setStyles({ ...styles, width: value || 0 })}
+          />
+        </div>
+        <hr className="mb-0 mt-1" />
+      </div>
+      {/* Height */}
+      <div className="mb-2">
+        <hr className="mb-1 mt-0" />
+        <div className="d-flex align-items-center">
+          <small className="me-2" style={{ whiteSpace: "nowrap" }}>
+            Height:
+          </small>
+          <Slider
+            className="w-100 m-0 me-2"
+            min={0}
+            max={100}
+            value={styles.height}
+            onChange={(value) => setStyles({ ...styles, height: value || 0 })}
+          />
+          <InputNumber
+            value={styles.height}
+            className="w-80"
+            size="small"
+            min={30}
+            max={100}
+            onChange={(value) => setStyles({ ...styles, height: value || 0 })}
+          />
+        </div>
+        <hr className="mb-0 mt-1" />
+      </div>
     </>
   );
 };
-export default Poster;
+export default PosterWrapper;

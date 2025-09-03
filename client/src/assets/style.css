@@ -146,6 +146,7 @@ body {
 }
 .content .textNode {
   position: relative;
+  text-align: center;
 }
 
 .textNode:hover {
@@ -154,9 +155,14 @@ body {
 }
 
 .textNode .editIconWrapper {
-  transform: translate(50%, -50%);
+  left: 0;
+  right: 100%;
 }
 
+.textNode .editIcon {
+  transform: translate(30%, -30%);
+  color: white
+}
 
 /* Active/edit mode */
 .glb.active {

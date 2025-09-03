@@ -113,10 +113,67 @@ const App = () => {
       borderColor: "#eee",
       show: {
         showMessage: true,
-        showTitle: false,
+        showTitle: true,
         showAddress: true,
         showDate: true,
         showCoordinate: true,
+      },
+      nodes: {
+        message: {
+          width: 100,
+          bgColor: "",
+          textColor: "",
+          fontFamily: "Verdana",
+          fontStyle: "normal",
+          fontWeight: "normal",
+          fontSize: 14,
+          textTransform: "none",
+          textDecoration: "none",
+        },
+        title: {
+          width: 100,
+          bgColor: "",
+          textColor: "",
+          fontFamily: "Verdana",
+          fontStyle: "normal",
+          fontWeight: "normal",
+          fontSize: 14,
+          textTransform: "none",
+          textDecoration: "none",
+        },
+        address: {
+          width: 100,
+          bgColor: "",
+          textColor: "",
+          fontFamily: "Verdana",
+          fontStyle: "normal",
+          fontWeight: "normal",
+          fontSize: 14,
+          textTransform: "none",
+          textDecoration: "none",
+        },
+        date: {
+          width: 100,
+          bgColor: "",
+          textColor: "",
+          fontFamily: "Verdana",
+          fontStyle: "normal",
+          fontWeight: "normal",
+          fontSize: 14,
+          textTransform: "none",
+          textDecoration: "none",
+        },
+        coordinate: {
+          width: 100,
+          bgColor: "",
+          textColor: "",
+          fontFamily: "Verdana",
+          fontStyle: "normal",
+          fontWeight: "normal",
+          fontSize: 14,
+          textTransform: "none",
+          textDecoration: "none",
+        },
       },
     },
   });
@@ -139,11 +196,29 @@ const App = () => {
       .finally(() => setLoading(false));
   }, []);
 
-  const updateSectionStyle = (section, newStyle) => {
-    setStyles((prev) => ({
-      ...prev,
-      [section]: { ...prev[section], ...newStyle },
-    }));
+  // const updateSectionStyle = (section, newStyle) => {
+  //   setStyles((prev) => ({
+  //     ...prev,
+  //     [section]: { ...prev[section], ...newStyle },
+  //   }));
+  // };
+
+  const updateSectionStyle = (path, newStyle) => {
+    setStyles((prev) => {
+      const keys = path.split(".");
+      const updated = { ...prev };
+
+      let current = updated;
+      for (let i = 0; i < keys.length - 1; i++) {
+        current[keys[i]] = { ...current[keys[i]] }; // clone each level
+        current = current[keys[i]];
+      }
+
+      const lastKey = keys[keys.length - 1];
+      current[lastKey] = { ...current[lastKey], ...newStyle };
+
+      return updated;
+    });
   };
 
   const showDrawer = (section) => {
@@ -161,6 +236,11 @@ const App = () => {
     posterWrapper: "Inner Poster Settings",
     map: "Map Settings",
     content: "Content Settings",
+    message: "Message Settings",
+    title: "Title Settings",
+    address: "Address Settings",
+    date: "Date Settings",
+    coordinate: "Coordinate Settings",
   };
 
   const handleScreenShot = async () => {
@@ -234,10 +314,15 @@ const App = () => {
         {open && (
           <Suspense fallback={<div>Loading Sections...</div>}>
             <Sections
+              // drawerMode={drawerMode}
+              // styles={getFinalStyle(drawerMode)}
+              // setStyles={(s) => updateSectionStyle(drawerMode, s)}
+              // fontFamilies={webSafeFonts}
               drawerMode={drawerMode}
               styles={getFinalStyle(drawerMode)}
               setStyles={(s) => updateSectionStyle(drawerMode, s)}
               fontFamilies={webSafeFonts}
+              updateSectionStyle={updateSectionStyle}
             />
           </Suspense>
         )}
