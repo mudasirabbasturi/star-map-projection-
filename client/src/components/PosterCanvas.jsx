@@ -9,6 +9,8 @@ const PosterCanvas = ({
   showDrawer,
   mapData,
   styles,
+  content,
+  onChangeContent,
   handleMouseDown,
   positions,
 }) => {
@@ -76,6 +78,8 @@ const PosterCanvas = ({
           </div>
 
           <Content
+            content={content}
+            onChangeContent={onChangeContent}
             contentStyle={styles.content}
             drawerMode={drawerMode}
             showDrawer={showDrawer}

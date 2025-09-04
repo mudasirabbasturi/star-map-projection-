@@ -69,7 +69,7 @@ const App = () => {
       borderColor: "#eee",
     },
     posterWrapper: {
-      bgColor: "",
+      bgColor: "transparent",
       width: 90,
       height: 90,
       borderStyle: "solid",
@@ -81,7 +81,7 @@ const App = () => {
       width: 90,
       height: null,
       maskShape: "circle",
-      bgColor: "",
+      bgColor: "transparent",
       strokeColor: "#eee",
       strokeStyle: "solid",
       strokeWidth: 1,
@@ -99,13 +99,13 @@ const App = () => {
     content: {
       width: 90,
       height: 20,
-      bgColor: "",
-      textColor: "",
+      bgColor: "transparent",
+      textColor: "#ff9c6e",
       fontFamily: "Verdana",
       fontStyle: "normal",
       fontWeight: "normal",
       fontSize: 14,
-      textTransform: "none",
+      textTransform: "capitalize",
       textDecoration: "none",
       borderStyle: "solid",
       borderWidth: 0,
@@ -122,61 +122,75 @@ const App = () => {
         message: {
           width: 100,
           bgColor: "",
-          textColor: "",
+          textColor: "#ff9c6e",
           fontFamily: "Verdana",
           fontStyle: "normal",
           fontWeight: "normal",
           fontSize: 14,
-          textTransform: "none",
+          textTransform: "capitalize",
           textDecoration: "none",
         },
         title: {
           width: 100,
           bgColor: "",
-          textColor: "",
+          textColor: "#ff9c6e",
           fontFamily: "Verdana",
           fontStyle: "normal",
           fontWeight: "normal",
           fontSize: 14,
-          textTransform: "none",
+          textTransform: "capitalize",
           textDecoration: "none",
         },
         address: {
           width: 100,
           bgColor: "",
-          textColor: "",
+          textColor: "#ff9c6e",
           fontFamily: "Verdana",
           fontStyle: "normal",
           fontWeight: "normal",
           fontSize: 14,
-          textTransform: "none",
+          textTransform: "capitalize",
           textDecoration: "none",
         },
         date: {
           width: 100,
           bgColor: "",
-          textColor: "",
+          textColor: "#ff9c6e",
           fontFamily: "Verdana",
           fontStyle: "normal",
           fontWeight: "normal",
           fontSize: 14,
-          textTransform: "none",
+          textTransform: "capitalize",
           textDecoration: "none",
         },
         coordinate: {
           width: 100,
           bgColor: "",
-          textColor: "",
+          textColor: "#ff9c6e",
           fontFamily: "Verdana",
           fontStyle: "normal",
           fontWeight: "normal",
           fontSize: 14,
-          textTransform: "none",
+          textTransform: "capitalize",
           textDecoration: "none",
         },
       },
     },
   });
+
+  const defaultContent = {
+    message: "look up at the stars",
+    title: "my star map",
+    address: "london, uk",
+    date: new Date().toISOString().split("T")[0],
+    coordinate: "51.5°N, 0.1°W",
+  };
+
+  const [content, setContent] = useState(defaultContent);
+
+  const onChangeContent = (newContent) => {
+    setContent((prev) => ({ ...prev, ...newContent }));
+  };
 
   const canvasRef = useRef(null);
 
@@ -195,13 +209,6 @@ const App = () => {
       .catch((err) => console.error("Failed to load JSON data:", err))
       .finally(() => setLoading(false));
   }, []);
-
-  // const updateSectionStyle = (section, newStyle) => {
-  //   setStyles((prev) => ({
-  //     ...prev,
-  //     [section]: { ...prev[section], ...newStyle },
-  //   }));
-  // };
 
   const updateSectionStyle = (path, newStyle) => {
     setStyles((prev) => {
@@ -297,6 +304,8 @@ const App = () => {
                 styles={styles}
                 handleMouseDown={handleMouseDown}
                 positions={positions}
+                content={content}
+                onChangeContent={onChangeContent}
               />
             </Suspense>
           </Spin>
@@ -314,15 +323,13 @@ const App = () => {
         {open && (
           <Suspense fallback={<div>Loading Sections...</div>}>
             <Sections
-              // drawerMode={drawerMode}
-              // styles={getFinalStyle(drawerMode)}
-              // setStyles={(s) => updateSectionStyle(drawerMode, s)}
-              // fontFamilies={webSafeFonts}
               drawerMode={drawerMode}
               styles={getFinalStyle(drawerMode)}
               setStyles={(s) => updateSectionStyle(drawerMode, s)}
               fontFamilies={webSafeFonts}
               updateSectionStyle={updateSectionStyle}
+              onChangeContent={onChangeContent}
+              content={content}
             />
           </Suspense>
         )}

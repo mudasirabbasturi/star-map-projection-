@@ -16,6 +16,8 @@ const Sections = ({
   setStyles,
   fontFamilies,
   updateSectionStyle,
+  content,
+  onChangeContent,
 }) => {
   return (
     <>
@@ -39,6 +41,8 @@ const Sections = ({
         />
       ) : drawerMode === "content" ? (
         <Content
+          content={content}
+          onChangeContent={onChangeContent}
           styles={styles}
           setStyles={setStyles}
           fontFamilies={fontFamilies}

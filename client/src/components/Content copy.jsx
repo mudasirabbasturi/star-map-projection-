@@ -52,40 +52,17 @@ const Content = ({
       {contentStyle.show.showMessage && (
         <div
           className="textNode message glb"
-          // style={{
-          //   transform: `translateY(${positions.message.y}px)`,
-          //   width: `${contentStyle.nodes.message.width}%`,
-          //   backgroundColor: `${contentStyle.nodes.message.bgColor}`,
-          //   color: `${contentStyle.nodes.message.textColor}`,
-          //   fontFamily: `${contentStyle.nodes.message.fontFamily}`,
-          //   fontStyle: `${contentStyle.nodes.message.fontStyle}`,
-          //   fontWeight: `${contentStyle.nodes.message.fontWeight}`,
-          //   fontSize: `${contentStyle.nodes.message.fontSize}px`,
-          //   textTransform: `${contentStyle.nodes.message.textTransform}`,
-          //   textDecoration: `${contentStyle.nodes.message.textDecoration}`,
-          // }}
           style={{
             transform: `translateY(${positions.message.y}px)`,
             width: `${contentStyle.nodes.message.width}%`,
-            backgroundColor:
-              contentStyle.nodes.message.bgColor || contentStyle.bgColor,
-            color:
-              contentStyle.nodes.message.textColor || contentStyle.textColor,
-            fontFamily:
-              contentStyle.nodes.message.fontFamily || contentStyle.fontFamily,
-            fontStyle:
-              contentStyle.nodes.message.fontStyle || contentStyle.fontStyle,
-            fontWeight:
-              contentStyle.nodes.message.fontWeight || contentStyle.fontWeight,
-            fontSize: `${
-              contentStyle.nodes.message.fontSize || contentStyle.fontSize
-            }px`,
-            textTransform:
-              contentStyle.nodes.message.textTransform ||
-              contentStyle.textTransform,
-            textDecoration:
-              contentStyle.nodes.message.textDecoration ||
-              contentStyle.textDecoration,
+            backgroundColor: `${contentStyle.nodes.message.bgColor}`,
+            color: `${contentStyle.nodes.message.textColor}`,
+            fontFamily: `${contentStyle.nodes.message.fontFamily}`,
+            fontStyle: `${contentStyle.nodes.message.fontStyle}`,
+            fontWeight: `${contentStyle.nodes.message.fontWeight}`,
+            fontSize: `${contentStyle.nodes.message.fontSize}px`,
+            textTransform: `${contentStyle.nodes.message.textTransform}`,
+            textDecoration: `${contentStyle.nodes.message.textDecoration}`,
           }}
           onMouseDown={(e) => handleMouseDown(e, "message")}
           onMouseEnter={() => setHoveredNode("message")}

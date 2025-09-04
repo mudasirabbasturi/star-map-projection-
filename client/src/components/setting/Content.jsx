@@ -22,11 +22,14 @@ import {
   Divider,
   Row,
   theme,
+  Input,
+  DatePicker,
   InputNumber,
   Select,
   Slider,
   Checkbox,
 } from "antd";
+import dayjs from "dayjs";
 
 function genPresets(presets = presetPalettes) {
   return Object.entries(presets).map(([label, colors]) => ({
@@ -35,7 +38,13 @@ function genPresets(presets = presetPalettes) {
     key: label,
   }));
 }
-const Content = ({ styles, setStyles, fontFamilies }) => {
+const Content = ({
+  content,
+  onChangeContent,
+  styles,
+  setStyles,
+  fontFamilies,
+}) => {
   const { token } = theme.useToken();
   const presets = genPresets({
     primary: generate(token.colorPrimary),
@@ -73,6 +82,146 @@ const Content = ({ styles, setStyles, fontFamilies }) => {
   };
   return (
     <>
+      {/* Checkbox show/hide Content */}
+      <div className="mb-2">
+        <hr className="mb-1 mt-0" />
+        <div>
+          <Checkbox
+            checked={styles.show.showMessage}
+            onChange={(e) =>
+              setStyles({
+                ...styles,
+                show: { ...styles.show, showMessage: e.target.checked },
+              })
+            }
+          >
+            Show Message{" "}
+          </Checkbox>
+          <Checkbox
+            checked={styles.show.showTitle}
+            onChange={(e) =>
+              setStyles({
+                ...styles,
+                show: { ...styles.show, showTitle: e.target.checked },
+              })
+            }
+          >
+            Show Title
+          </Checkbox>
+          <Checkbox
+            checked={styles.show.showAddress}
+            onChange={(e) =>
+              setStyles({
+                ...styles,
+                show: { ...styles.show, showAddress: e.target.checked },
+              })
+            }
+          >
+            Show Address
+          </Checkbox>
+          <Checkbox
+            checked={styles.show.showDate}
+            onChange={(e) =>
+              setStyles({
+                ...styles,
+                show: { ...styles.show, showDate: e.target.checked },
+              })
+            }
+          >
+            Show Date
+          </Checkbox>
+          <Checkbox
+            checked={styles.show.showCoordinate}
+            onChange={(e) =>
+              setStyles({
+                ...styles,
+                show: { ...styles.show, showCoordinate: e.target.checked },
+              })
+            }
+          >
+            Show Coordinate
+          </Checkbox>
+        </div>
+        <hr className="mb-0 mt-1" />
+      </div>
+      {/* Message */}
+      <div className="mb-2">
+        <hr className="mb-1 mt-0" />
+        <div className="d-flex align-items-center">
+          <small className="me-2" style={{ whiteSpace: "nowrap" }}>
+            Message:
+          </small>
+          <Input
+            value={content.message}
+            onChange={(e) => onChangeContent({ message: e.target.value })}
+            size="small"
+          />
+        </div>
+        <hr className="mb-0 mt-1" />
+      </div>
+      {/* Title */}
+      <div className="mb-2">
+        <hr className="mb-1 mt-0" />
+        <div className="d-flex align-items-center">
+          <small className="me-2" style={{ whiteSpace: "nowrap" }}>
+            Title:
+          </small>
+          <Input
+            value={content.title}
+            onChange={(e) => onChangeContent({ title: e.target.value })}
+            size="small"
+          />
+        </div>
+        <hr className="mb-0 mt-1" />
+      </div>
+      {/* Address */}
+      <div className="mb-2">
+        <hr className="mb-1 mt-0" />
+        <div className="d-flex align-items-center">
+          <small className="me-2" style={{ whiteSpace: "nowrap" }}>
+            Address:
+          </small>
+          <Input
+            value={content.address}
+            onChange={(e) => onChangeContent({ address: e.target.value })}
+            size="small"
+          />
+        </div>
+        <hr className="mb-0 mt-1" />
+      </div>
+      {/* Date */}
+      <div className="mb-2">
+        <hr className="mb-1 mt-0" />
+        <div className="d-flex align-items-center">
+          <small className="me-2" style={{ whiteSpace: "nowrap" }}>
+            Date:
+          </small>
+          <DatePicker
+            showTime
+            value={content.date ? dayjs(content.date) : null}
+            onChange={(date, dateString) =>
+              onChangeContent({ date: dateString || "" })
+            }
+            style={{ width: "100%" }}
+          />
+        </div>
+        <hr className="mb-0 mt-1" />
+      </div>
+      {/* Coordinate */}
+      <div className="mb-2">
+        <hr className="mb-1 mt-0" />
+        <div className="d-flex align-items-center">
+          <small className="me-2" style={{ whiteSpace: "nowrap" }}>
+            Coordinate:
+          </small>
+          <Input
+            value={content.coordinate}
+            onChange={(e) => onChangeContent({ coordinate: e.target.value })}
+            size="small"
+          />
+        </div>
+        <hr className="mb-0 mt-1" />
+      </div>
       {/* Width */}
       <div className="mb-2">
         <hr className="mb-1 mt-0" />
@@ -82,7 +231,7 @@ const Content = ({ styles, setStyles, fontFamilies }) => {
           </small>
           <Slider
             className="w-100 m-0 me-2"
-            min={30}
+            min={0}
             max={100}
             value={styles.width}
             onChange={(value) => setStyles({ ...styles, width: value || 0 })}
@@ -182,6 +331,7 @@ const Content = ({ styles, setStyles, fontFamilies }) => {
       {/* Font family */}
       <div className="mb-2">
         <hr className="mb-1 mt-0" />
+
         <div className="d-flex align-items-center mb-1">
           <small className="me-2" style={{ whiteSpace: "nowrap" }}>
             Font Family:
@@ -406,68 +556,6 @@ const Content = ({ styles, setStyles, fontFamilies }) => {
               overflow: { adjustY: true },
             }}
           />
-        </div>
-        <hr className="mb-0 mt-1" />
-      </div>
-      {/* Checkbox show/hide Content */}
-      <div className="mb-2">
-        <hr className="mb-1 mt-0" />
-        <div>
-          <Checkbox
-            checked={styles.show.showMessage}
-            onChange={(e) =>
-              setStyles({
-                ...styles,
-                show: { ...styles.show, showMessage: e.target.checked },
-              })
-            }
-          >
-            Show Message{" "}
-          </Checkbox>
-          <Checkbox
-            checked={styles.show.showTitle}
-            onChange={(e) =>
-              setStyles({
-                ...styles,
-                show: { ...styles.show, showTitle: e.target.checked },
-              })
-            }
-          >
-            Show Title
-          </Checkbox>
-          <Checkbox
-            checked={styles.show.showAddress}
-            onChange={(e) =>
-              setStyles({
-                ...styles,
-                show: { ...styles.show, showAddress: e.target.checked },
-              })
-            }
-          >
-            Show Address
-          </Checkbox>
-          <Checkbox
-            checked={styles.show.showDate}
-            onChange={(e) =>
-              setStyles({
-                ...styles,
-                show: { ...styles.show, showDate: e.target.checked },
-              })
-            }
-          >
-            Show Date
-          </Checkbox>
-          <Checkbox
-            checked={styles.show.showCoordinate}
-            onChange={(e) =>
-              setStyles({
-                ...styles,
-                show: { ...styles.show, showCoordinate: e.target.checked },
-              })
-            }
-          >
-            Show Coordinate
-          </Checkbox>
         </div>
         <hr className="mb-0 mt-1" />
       </div>
