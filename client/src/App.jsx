@@ -125,59 +125,19 @@ const App = () => {
       },
       nodes: {
         message: {
-          width: 80,
-          textColor: "#ff9c6e",
-          fontFamily: "Verdana",
-          fontStyle: "normal",
-          fontWeight: "normal",
-          fontSize: 14,
-          textTransform: "capitalize",
-          textDecoration: "none",
-          bgColor: "transparent",
+          width: 100,
         },
         title: {
           width: 100,
-          textColor: "#ff9c6e",
-          fontFamily: "Verdana",
-          fontStyle: "normal",
-          fontWeight: "normal",
-          fontSize: 14,
-          textTransform: "capitalize",
-          textDecoration: "none",
-          bgColor: "transparent",
         },
         address: {
           width: 100,
-          textColor: "#ff9c6e",
-          fontFamily: "Verdana",
-          fontStyle: "normal",
-          fontWeight: "normal",
-          fontSize: 14,
-          textTransform: "capitalize",
-          textDecoration: "none",
-          bgColor: "transparent",
         },
         date: {
           width: 100,
-          textColor: "#ff9c6e",
-          fontFamily: "Verdana",
-          fontStyle: "normal",
-          fontWeight: "normal",
-          fontSize: 14,
-          textTransform: "capitalize",
-          textDecoration: "none",
-          bgColor: "transparent",
         },
         coordinate: {
           width: 100,
-          textColor: "#ff9c6e",
-          fontFamily: "Verdana",
-          fontStyle: "normal",
-          fontWeight: "normal",
-          fontSize: 14,
-          textTransform: "capitalize",
-          textDecoration: "none",
-          bgColor: "transparent",
         },
       },
     },
@@ -227,7 +187,6 @@ const App = () => {
 
       const lastKey = keys[keys.length - 1];
       current[lastKey] = { ...current[lastKey], ...newStyle };
-
       return updated;
     });
   };
@@ -290,47 +249,6 @@ const App = () => {
     return PAPER_SIZES[name] || PAPER_SIZES["A4"];
   };
 
-  // const handleScreenShot = async () => {
-  //   if (!canvasRef.current) return;
-  //   setLoading(true);
-  //   try {
-  //     const htmlContent = canvasRef.current.outerHTML;
-  //     const cssText = Array.from(document.styleSheets)
-  //       .map((sheet) => {
-  //         try {
-  //           return Array.from(sheet.cssRules)
-  //             .map((rule) => rule.cssText)
-  //             .join("");
-  //         } catch {
-  //           return "";
-  //         }
-  //       })
-  //       .join("\n");
-  //     const fullHTML = `<html><head><meta charset="UTF-8"><style>${cssText}</style></head><body>${htmlContent}</body></html>`;
-  //     const response = await fetch("http://localhost:3001/api/screenshot", {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify({
-  //         html: fullHTML,
-  //         paperSize: styles.poster.paperSize,
-  //       }),
-  //     });
-
-  //     if (!response.ok) throw new Error("Failed to capture screenshot");
-
-  //     const blob = await response.blob();
-  //     const url = window.URL.createObjectURL(blob);
-  //     const link = document.createElement("a");
-  //     link.href = url;
-  //     link.download = "poster.pdf";
-  //     link.click();
-  //     window.URL.revokeObjectURL(url);
-  //   } catch (err) {
-  //     console.error("Error capturing screenshot:", err);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
   const handleScreenShot = async () => {
     if (!canvasRef.current) return;
     setLoading(true);
@@ -400,7 +318,10 @@ const App = () => {
     <>
       <div className="app-container">
         <Suspense fallback={<div>Loading Sidebar...</div>}>
-          <Sidebar handleScreenShot={handleScreenShot} />
+          <Sidebar
+            handleScreenShot={handleScreenShot}
+            showDrawer={showDrawer}
+          />
         </Suspense>
         <div className="main-body">
           <Spin spinning={loading} tip="Generating poster..." size="large">

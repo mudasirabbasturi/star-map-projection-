@@ -23,11 +23,10 @@ body {
 
 .sidebar {
   position: fixed;
-  width: 60px;
+  width: 44px;
   height: 95vh;
   left: 20px;
   background: #181818;
-  /* background: #ffffff; */
   border-radius: 5px;
   display: flex;
   flex-direction: column;
@@ -35,6 +34,24 @@ body {
   padding: 8px 4px;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
   z-index: 9;
+}
+
+.sidebarIcon {
+  width: 30px;
+  height: 30px;
+  margin: 8px 0;
+  padding: 5px;
+  cursor: pointer;
+  filter: invert(100%);
+  border: 1px solid #1F1F1F;
+  border-radius: 6px;
+}
+
+.sidebarIcon:hover {
+  color: #ffffff;
+  background-color: #D69C6E;
+  border-radius: 5px;
+  filter: none;
 }
 
 .main-body {
@@ -101,7 +118,6 @@ body {
 .poster.download-mode {
   pointer-events: none;
   user-select: none;
-  /* transform: none !important; */
 }
 
 .posterWrapper {
@@ -162,7 +178,6 @@ body {
   color: white
 }
 
-/* Active/edit mode */
 .glb.active {
   outline: 1px dashed #7c5cffcc;
 }

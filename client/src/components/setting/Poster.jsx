@@ -93,21 +93,10 @@ const Poster = ({ styles, setStyles, fontFamilies }) => {
               { label: "A4", value: "A4" },
               { label: "A5", value: "A5" },
               { label: "A6", value: "A6" },
-              { label: "B0", value: "B0" },
-              { label: "B1", value: "B1" },
-              { label: "B2", value: "B2" },
-              { label: "B3", value: "B3" },
-              { label: "B4", value: "B4" },
-              { label: "B5", value: "B5" },
-              { label: "C0", value: "C0" },
-              { label: "C1", value: "C1" },
-              { label: "C2", value: "C2" },
-              { label: "C3", value: "C3" },
-              { label: "C4", value: "C4" },
-              { label: "C5", value: "C5" },
               { label: "Letter", value: "Letter" },
               { label: "Legal", value: "Legal" },
               { label: "Tabloid", value: "Tabloid" },
+              { label: "Ledger", value: "Ledger" },
             ]}
           />
         </div>

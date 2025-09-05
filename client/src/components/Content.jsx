@@ -67,9 +67,14 @@ const Content = ({
         onMouseEnter={() => setHoveredNode(nodeKey)}
         onMouseLeave={() => setHoveredNode(null)}
       >
-        {shouldShowLabel(nodeKey) && (
-          <span className="text-info fst-italic small">{label}: </span>
-        )}
+        {/* {shouldShowLabel(nodeKey) && (
+          <span
+            className="text-info fst-italic small"
+            style={{ fontSize: "9px" }}
+          >
+            {label}:{" "}
+          </span>
+        )} */}
         {text}
         <div className="editIconWrapper" onClick={() => showDrawer(nodeKey)}>
           <MdOutlineEditNote className="editIcon" />
