@@ -90,6 +90,8 @@ const Map = ({ styles, setStyles, fontFamilies }) => {
               { value: "heart", label: "Heart" },
               { value: "triangle", label: "Triangle" },
               { value: "rect", label: "Rectangle" },
+              { value: "apple", label: "Apple Inc" },
+              { value: "astronomy", label: "Astronomy" },
             ]}
           />
         </div>
@@ -189,34 +191,7 @@ const Map = ({ styles, setStyles, fontFamilies }) => {
         <hr className="mb-0 mt-1" />
       </div>
       {/* Fill Color */}
-      {/* <div className="mb-2">
-            <hr className="mb-1 mt-0" />
-            <div className="d-flex align-items-center">
-              <small className="me-2" style={{ whiteSpace: "nowrap" }}>
-                Fill Color:
-              </small>
-              <ColorPicker
-                style={{
-                  width: "100%",
-                }}
-                allowClear
-                value={styles.bgColor || styles.color || null}
-                onChangeComplete={(color) =>
-                  setStyles({ ...styles, bgColor: color.toCssString() })
-                }
-                styles={{ popupOverlayInner: { width: 480 } }}
-                presets={presets}
-                panelRender={customPanelRender}
-                size="small"
-                dropdownAlign={{
-                  points: ["tl", "bl"],
-                  overflow: { adjustY: true },
-                }}
-              />
-            </div>
-            <hr className="mb-0 mt-1" />
-          </div> */}
-      {/* Checkbox show/hide starts,milkyway,plantets,constelation,moon */}
+      {/* Checkbox show/hide starts/mw/moon/plan/... */}
       <div className="mb-2">
         <hr className="mb-1 mt-0" />
         <div>

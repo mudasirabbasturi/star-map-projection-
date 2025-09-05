@@ -18,19 +18,21 @@ const App = () => {
     "Impact",
     "Comic Sans MS",
   ];
-  const [loading, setLoading] = useState(false);
+
+  // Positions with X & Y for full draggable
   const [positions, setPositions] = useState({
-    map: { y: 0 },
-    content: { y: 0 },
-    address: { y: 0 },
-    date: { y: 0 },
-    message: { y: 0 },
-    title: { y: 0 },
-    coordinate: { y: 0 },
+    map: { x: 0, y: 0 },
+    content: { x: 0, y: 0 },
+    address: { x: 0, y: 0 },
+    date: { x: 0, y: 0 },
+    message: { x: 0, y: 0 },
+    title: { x: 0, y: 0 },
+    coordinate: { x: 0, y: 0 },
   });
 
   const handleMouseDown = (e, mode) => {
     e.preventDefault();
+    const startX = e.clientX;
     const startY = e.clientY;
     const startPos = positions[mode];
 
@@ -38,6 +40,7 @@ const App = () => {
       setPositions((prev) => ({
         ...prev,
         [mode]: {
+          x: startPos.x + (e.clientX - startX),
           y: startPos.y + (e.clientY - startY),
         },
       }));
@@ -51,8 +54,10 @@ const App = () => {
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("mouseup", handleMouseUp);
   };
-  const [open, setOpen] = useState(false);
+
+  const [loading, setLoading] = useState(false);
   const [drawerMode, setDrawerMode] = useState(null);
+  const [open, setOpen] = useState(false);
 
   const [starsData, setStarsData] = useState({ features: [] });
   const [mwData, setMwData] = useState({ features: [] });
@@ -120,8 +125,7 @@ const App = () => {
       },
       nodes: {
         message: {
-          width: 100,
-          bgColor: "",
+          width: 80,
           textColor: "#ff9c6e",
           fontFamily: "Verdana",
           fontStyle: "normal",
@@ -129,10 +133,10 @@ const App = () => {
           fontSize: 14,
           textTransform: "capitalize",
           textDecoration: "none",
+          bgColor: "transparent",
         },
         title: {
           width: 100,
-          bgColor: "",
           textColor: "#ff9c6e",
           fontFamily: "Verdana",
           fontStyle: "normal",
@@ -140,10 +144,10 @@ const App = () => {
           fontSize: 14,
           textTransform: "capitalize",
           textDecoration: "none",
+          bgColor: "transparent",
         },
         address: {
           width: 100,
-          bgColor: "",
           textColor: "#ff9c6e",
           fontFamily: "Verdana",
           fontStyle: "normal",
@@ -151,10 +155,10 @@ const App = () => {
           fontSize: 14,
           textTransform: "capitalize",
           textDecoration: "none",
+          bgColor: "transparent",
         },
         date: {
           width: 100,
-          bgColor: "",
           textColor: "#ff9c6e",
           fontFamily: "Verdana",
           fontStyle: "normal",
@@ -162,10 +166,10 @@ const App = () => {
           fontSize: 14,
           textTransform: "capitalize",
           textDecoration: "none",
+          bgColor: "transparent",
         },
         coordinate: {
           width: 100,
-          bgColor: "",
           textColor: "#ff9c6e",
           fontFamily: "Verdana",
           fontStyle: "normal",
@@ -173,6 +177,7 @@ const App = () => {
           fontSize: 14,
           textTransform: "capitalize",
           textDecoration: "none",
+          bgColor: "transparent",
         },
       },
     },
@@ -187,7 +192,6 @@ const App = () => {
   };
 
   const [content, setContent] = useState(defaultContent);
-
   const onChangeContent = (newContent) => {
     setContent((prev) => ({ ...prev, ...newContent }));
   };
@@ -217,7 +221,7 @@ const App = () => {
 
       let current = updated;
       for (let i = 0; i < keys.length - 1; i++) {
-        current[keys[i]] = { ...current[keys[i]] }; // clone each level
+        current[keys[i]] = { ...current[keys[i]] };
         current = current[keys[i]];
       }
 
@@ -236,7 +240,13 @@ const App = () => {
     setDrawerMode(null);
     setOpen(false);
   };
-  const getFinalStyle = (section) => styles[section] || {};
+
+  const getFinalStyle = (section) => {
+    if (section in styles.content.nodes) {
+      return { ...styles.content, ...styles.content.nodes[section] };
+    }
+    return styles[section] || {};
+  };
 
   const drawerTitles = {
     poster: "Poster Settings",
@@ -250,12 +260,102 @@ const App = () => {
     coordinate: "Coordinate Settings",
   };
 
+  // ISO A sizes (in pixels at 300dpi) + extras
+  const PAPER_SIZES = {
+    A0: { width: 9933, height: 14043 },
+    A1: { width: 7016, height: 9933 },
+    A2: { width: 4961, height: 7016 },
+    A3: { width: 3508, height: 4961 },
+    A4: { width: 2480, height: 3508 },
+    A5: { width: 1748, height: 2480 },
+    A6: { width: 1240, height: 1748 },
+    Letter: { width: 2550, height: 3300 },
+    Legal: { width: 2550, height: 4200 },
+    Tabloid: { width: 3300, height: 5100 },
+    B0: { width: 10000, height: 14140 },
+    B1: { width: 7070, height: 10000 },
+    B2: { width: 5000, height: 7070 },
+    B3: { width: 3530, height: 5000 },
+    B4: { width: 2500, height: 3530 },
+    B5: { width: 1760, height: 2500 },
+    C0: { width: 9170, height: 12970 },
+    C1: { width: 6480, height: 9170 },
+    C2: { width: 4580, height: 6480 },
+    C3: { width: 3240, height: 4580 },
+    C4: { width: 2290, height: 3240 },
+    C5: { width: 1620, height: 2290 },
+  };
+
+  const getPaperSize = (name) => {
+    return PAPER_SIZES[name] || PAPER_SIZES["A4"];
+  };
+
+  // const handleScreenShot = async () => {
+  //   if (!canvasRef.current) return;
+  //   setLoading(true);
+  //   try {
+  //     const htmlContent = canvasRef.current.outerHTML;
+  //     const cssText = Array.from(document.styleSheets)
+  //       .map((sheet) => {
+  //         try {
+  //           return Array.from(sheet.cssRules)
+  //             .map((rule) => rule.cssText)
+  //             .join("");
+  //         } catch {
+  //           return "";
+  //         }
+  //       })
+  //       .join("\n");
+  //     const fullHTML = `<html><head><meta charset="UTF-8"><style>${cssText}</style></head><body>${htmlContent}</body></html>`;
+  //     const response = await fetch("http://localhost:3001/api/screenshot", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({
+  //         html: fullHTML,
+  //         paperSize: styles.poster.paperSize,
+  //       }),
+  //     });
+
+  //     if (!response.ok) throw new Error("Failed to capture screenshot");
+
+  //     const blob = await response.blob();
+  //     const url = window.URL.createObjectURL(blob);
+  //     const link = document.createElement("a");
+  //     link.href = url;
+  //     link.download = "poster.pdf";
+  //     link.click();
+  //     window.URL.revokeObjectURL(url);
+  //   } catch (err) {
+  //     console.error("Error capturing screenshot:", err);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
   const handleScreenShot = async () => {
     if (!canvasRef.current) return;
     setLoading(true);
     try {
       const htmlContent = canvasRef.current.outerHTML;
-      const styles = Array.from(document.styleSheets)
+      const nodes = canvasRef.current.querySelectorAll(".textNode");
+      let fontCSS = "";
+      nodes.forEach((node) => {
+        const className = node.className.split(" ")[0];
+        const style = window.getComputedStyle(node);
+        const fontSizePt = parseFloat(style.fontSize) * 0.75;
+        fontCSS += `
+        .${className} {
+          font-size: ${fontSizePt}pt !important;
+          font-family: ${style.fontFamily} !important;
+          font-weight: ${style.fontWeight} !important;
+          font-style: ${style.fontStyle} !important;
+          text-transform: ${style.textTransform} !important;
+          text-decoration: ${style.textDecoration} !important;
+          color: ${style.color} !important;
+          background-color: ${style.backgroundColor} !important;
+        }
+      `;
+      });
+      const cssText = Array.from(document.styleSheets)
         .map((sheet) => {
           try {
             return Array.from(sheet.cssRules)
@@ -266,18 +366,27 @@ const App = () => {
           }
         })
         .join("\n");
-      const fullHTML = `<html><head><meta charset="UTF-8"><style>${styles}</style></head><body>${htmlContent}</body></html>`;
+      const fullHTML = `<html>
+      <head>
+        <meta charset="UTF-8">
+        <style>${cssText}${fontCSS}</style>
+      </head>
+      <body>${htmlContent}</body>
+    </html>`;
       const response = await fetch("http://localhost:3001/api/screenshot", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ html: fullHTML, width: 2480, height: 3508 }),
+        body: JSON.stringify({
+          html: fullHTML,
+          paperSize: styles.poster.paperSize, // "A4", "A3", etc.
+        }),
       });
       if (!response.ok) throw new Error("Failed to capture screenshot");
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = "screenshot.png";
+      link.download = "poster.pdf";
       link.click();
       window.URL.revokeObjectURL(url);
     } catch (err) {
@@ -306,6 +415,7 @@ const App = () => {
                 positions={positions}
                 content={content}
                 onChangeContent={onChangeContent}
+                paperSize={getPaperSize(styles.poster.paperSize)}
               />
             </Suspense>
           </Spin>
@@ -330,6 +440,11 @@ const App = () => {
               updateSectionStyle={updateSectionStyle}
               onChangeContent={onChangeContent}
               content={content}
+              globalContentStyle={
+                drawerMode && drawerMode.startsWith("content.")
+                  ? styles.content
+                  : null
+              }
             />
           </Suspense>
         )}

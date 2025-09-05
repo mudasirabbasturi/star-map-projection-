@@ -1,6 +1,12 @@
 // src/components/map/Map.jsx
 import React, { useEffect, useRef, useState } from "react";
-import { makeCircle, makeRect, makeTriangle, makeHeart } from "./shapes";
+import {
+  makeCircle,
+  makeRect,
+  makeTriangle,
+  makeHeart,
+  makeApple,
+} from "./shapes";
 import { raDecToXY, starRadius } from "./helpers";
 import * as Astronomy from "astronomy-engine";
 
@@ -55,7 +61,6 @@ const Map = ({
     magLimit = 6.5,
   } = mapStyle;
 
-  // Update mask shape
   useEffect(() => {
     switch (maskShape) {
       case "heart":
@@ -66,6 +71,9 @@ const Map = ({
         break;
       case "triangle":
         setMaskElement(makeTriangle());
+        break;
+      case "apple":
+        setMaskElement(makeApple());
         break;
       default:
         setMaskElement(makeCircle());
@@ -398,10 +406,13 @@ const Map = ({
           : maskShape === "triangle"
           ? "100 70 1010 1010"
           : maskShape === "rect"
-          ? "90 90 1020 1020"
+          ? "96 96 1010 1010"
+          : maskShape === "apple"
+          ? "0 0 1200 1200" // fits scaled apple
           : null
       }
       aria-label="Celestial map"
+      preserveAspectRatio="none"
     >
       <defs>
         <clipPath id="maskShape">{maskElement}</clipPath>

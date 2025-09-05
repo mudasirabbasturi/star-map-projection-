@@ -86,10 +86,10 @@ const Poster = ({ styles, setStyles, fontFamilies }) => {
             onChange={(value) => setStyles({ ...styles, paperSize: value })}
             size="small"
             options={[
-              { label: "A0", value: "A0", disabled: true },
-              { label: "A1", value: "A1", disabled: true },
-              { label: "A2", value: "A2", disabled: true },
-              { label: "A3", value: "A3", disabled: true },
+              { label: "A0", value: "A0" },
+              { label: "A1", value: "A1" },
+              { label: "A2", value: "A2" },
+              { label: "A3", value: "A3" },
               { label: "A4", value: "A4" },
               { label: "A5", value: "A5" },
               { label: "A6", value: "A6" },

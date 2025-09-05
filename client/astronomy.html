@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Astronomy Watch Clock</title>
+<style>
+  body {
+    background-color: #0b0c1f;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  svg {
+    max-width: 90%;
+    height: auto;
+  }
+  .dash { stroke: white; stroke-width: 2; }
+  .majorDash { stroke: white; stroke-width: 4; }
+  .degreeText { fill: gold; font-family: serif; font-size: 18px; text-anchor: middle; dominant-baseline: middle; }
+  .cardinalWord { fill: gold; font-family: serif; font-size: 24px; font-weight: bold; text-anchor: middle; dominant-baseline: middle; }
+  .outerCircle { fill: none; stroke: white; stroke-width: 2; }
+</style>
+</head>
+<body>
+
+<svg width="800" height="800" viewBox="-50 -50 900 900" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="100%" height="100%" fill="#0b0c1f" />
+
+  <g transform="translate(400,400)">
+    <!-- Inner Circles -->
+    <circle cx="0" cy="0" r="360" fill="none" stroke="white" stroke-width="4" />
+    <circle cx="0" cy="0" r="340" fill="none" stroke="white" stroke-width="2" />
+
+    <!-- 60/180 Degree Marks -->
+    <g>
+      <script type="application/ecmascript"><![CDATA[
+        for(let deg=0; deg<360; deg+=2){
+          const angle = (deg*Math.PI/180) - Math.PI/2;
+          const outer = 360;
+          const inner = deg%10===0 ? 320 : 340; // longer for 10° marks
+          const x1 = inner * Math.cos(angle);
+          const y1 = inner * Math.sin(angle);
+          const x2 = outer * Math.cos(angle);
+          const y2 = outer * Math.sin(angle);
+          const cls = deg%10===0 ? "majorDash" : "dash";
+          document.write(`<line class="${cls}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`);
+        }
+      ]]></script>
+    </g>
+
+    <!-- Degree Numbers -->
+    <g>
+      <script type="application/ecmascript"><![CDATA[
+        for(let deg=0; deg<360; deg+=10){
+          const angle = (deg*Math.PI/180) - Math.PI/2;
+          const r = 300;
+          const x = r * Math.cos(angle);
+          const y = r * Math.sin(angle);
+          document.write(`<text class="degreeText" x="${x}" y="${y}">${deg}°</text>`);
+        }
+      ]]></script>
+    </g>
+
+    <!-- Outer Circle for Cardinal Words -->
+    <circle cx="0" cy="0" r="400" class="outerCircle" />
+
+<!-- Cardinal Words slightly back from outer circle -->
+<text class="cardinalWord" x="0" y="-370" transform="rotate(0 0 -370)">North</text>
+<text class="cardinalWord" x="0" y="370" transform="rotate(180 0 370)">South</text>
+<text class="cardinalWord" x="370" y="0" transform="rotate(90 370 0)">East</text>
+<text class="cardinalWord" x="-370" y="0" transform="rotate(-90 -370 0)">West</text>
+
+    <!-- Center Circle -->
+    <circle cx="0" cy="0" r="10" fill="white" />
+  </g>
+</svg>
+
+</body>
+</html>
