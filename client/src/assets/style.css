@@ -138,12 +138,13 @@ body {
   justify-content: center;
   align-items: center;
   top: 4%;
+  border: 1px solid white;
 }
 .map:hover {
   cursor: grab;
   background-color: #7d5cff0c;
 }
-
+ 
 .content {
   position: absolute;
   display: flex;
@@ -153,8 +154,9 @@ body {
   color: white;
   bottom: 4%;
   font-size: 14px;
+  border: 1px solid white;
 }
-
+/*
 .content:hover {
   background-color: #7d5cff2a;
 }
@@ -176,7 +178,7 @@ body {
 .textNode .editIcon {
   transform: translate(30%, -30%);
   color: white
-}
+} */
 
 .glb.active {
   outline: 1px dashed #7c5cffcc;

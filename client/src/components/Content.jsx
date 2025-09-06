@@ -16,11 +16,10 @@ const Content = ({
   const shouldShowLabel = (node) =>
     drawerMode === "content" || drawerMode === node || hoveredNode === node;
 
-  // Merge global + node-specific styles with proper inheritance
+  // Merge styles for SVG text
   const getNodeStyle = (nodeKey) => {
     const nodeStyle = contentStyle.nodes?.[nodeKey] || {};
     const globalStyle = {
-      bgColor: contentStyle.bgColor,
       textColor: contentStyle.textColor,
       fontFamily: contentStyle.fontFamily,
       fontStyle: contentStyle.fontStyle,
@@ -30,20 +29,13 @@ const Content = ({
       textDecoration: contentStyle.textDecoration,
     };
 
-    // Function to get the value with proper inheritance
-    const getValue = (key) => {
-      const nodeValue = nodeStyle[key];
-      // If node has a value, use it, otherwise use global value
-      return nodeValue !== undefined && nodeValue !== ""
-        ? nodeValue
+    const getValue = (key) =>
+      nodeStyle[key] !== undefined && nodeStyle[key] !== ""
+        ? nodeStyle[key]
         : globalStyle[key];
-    };
 
     return {
-      transform: `translateY(${positions[nodeKey]?.y || 0}px)`,
-      width: nodeStyle.width ? `${nodeStyle.width}%` : "auto",
-      backgroundColor: getValue("bgColor"),
-      color: getValue("textColor"),
+      fill: getValue("textColor"),
       fontFamily: getValue("fontFamily"),
       fontStyle: getValue("fontStyle"),
       fontWeight: getValue("fontWeight"),
@@ -56,72 +48,90 @@ const Content = ({
   const renderNode = (nodeKey, label, text) => {
     if (!contentStyle.show[`show${label}`]) return null;
 
+    const y = positions[nodeKey]?.y || 0;
+
     return (
-      <div
+      <g
         key={nodeKey}
-        className={`textNode ${nodeKey} glb ${
+        className={`svgTextNode ${nodeKey} glb ${
           drawerMode === nodeKey ? "active" : ""
         }`}
-        style={getNodeStyle(nodeKey)}
         onMouseDown={(e) => handleMouseDown(e, nodeKey)}
         onMouseEnter={() => setHoveredNode(nodeKey)}
         onMouseLeave={() => setHoveredNode(null)}
       >
-        {/* {shouldShowLabel(nodeKey) && (
-          <span
-            className="text-info fst-italic small"
-            style={{ fontSize: "9px" }}
+        <text
+          x="50%"
+          y={`${y}px`}
+          textAnchor="middle"
+          dominantBaseline="middle"
+          style={getNodeStyle(nodeKey)}
+        >
+          {text}
+        </text>
+        {/* Edit icon overlay (outside SVG space, optional) */}
+        <foreignObject x="90%" y={y - 10} width="30" height="30">
+          <div
+            xmlns="http://www.w3.org/1999/xhtml"
+            className="editIconWrapper"
+            onClick={() => showDrawer(nodeKey)}
           >
-            {label}:{" "}
-          </span>
-        )} */}
-        {text}
-        <div className="editIconWrapper" onClick={() => showDrawer(nodeKey)}>
-          <MdOutlineEditNote className="editIcon" />
-        </div>
-      </div>
+            <MdOutlineEditNote className="editIcon" />
+          </div>
+        </foreignObject>
+      </g>
     );
   };
 
   return (
-    <div
+    <svg
       className={`content glb ${drawerMode === "content" ? "active" : ""}`}
-      style={{
-        transform: `translateY(${positions.content?.y || 0}px)`,
-        width: `${contentStyle.width}%`,
-        height: `${contentStyle.height}%`,
-        backgroundColor: contentStyle.bgColor,
-        color: contentStyle.textColor,
-        fontFamily: contentStyle.fontFamily,
-        fontStyle: contentStyle.fontStyle,
-        fontWeight: contentStyle.fontWeight,
-        fontSize: `${contentStyle.fontSize}px`,
-        textTransform: contentStyle.textTransform,
-        textDecoration: contentStyle.textDecoration,
-        borderStyle: contentStyle.borderStyle,
-        borderWidth: `${contentStyle.borderWidth}px`,
-        borderRadius: `${contentStyle.borderRadius}px`,
-        borderColor: contentStyle.borderColor,
-      }}
+      width="100%"
+      height="100%"
+      viewBox="0 0 1200 1200"
+      xmlns="http://www.w3.org/2000/svg"
     >
-      {/* Grab + Edit icons for content */}
-      <div
-        className="grabbingIconWrapper"
-        onMouseDown={(e) => handleMouseDown(e, "content")}
-      >
-        <GoGrabber className="editIcon" />
-      </div>
-      <div className="editIconWrapper" onClick={() => showDrawer("content")}>
-        <MdOutlineEditNote className="editIcon" />
-      </div>
+      {/* Background border/frame */}
+      <rect
+        x="0"
+        y="0"
+        width="100%"
+        height="100%"
+        fill={contentStyle.bgColor}
+        stroke={contentStyle.borderColor}
+        strokeWidth={contentStyle.borderWidth}
+        rx={contentStyle.borderRadius}
+      />
 
-      {/* Render all nodes */}
+      {/* Grab icon as overlay */}
+      <foreignObject x="10" y="10" width="30" height="30">
+        <div
+          xmlns="http://www.w3.org/1999/xhtml"
+          className="grabbingIconWrapper"
+          onMouseDown={(e) => handleMouseDown(e, "content")}
+        >
+          <GoGrabber className="editIcon" />
+        </div>
+      </foreignObject>
+
+      {/* Edit icon as overlay */}
+      <foreignObject x="50" y="10" width="30" height="30">
+        <div
+          xmlns="http://www.w3.org/1999/xhtml"
+          className="editIconWrapper"
+          onClick={() => showDrawer("content")}
+        >
+          <MdOutlineEditNote className="editIcon" />
+        </div>
+      </foreignObject>
+
+      {/* Render all text nodes */}
       {renderNode("message", "Message", content.message)}
       {renderNode("title", "Title", content.title)}
       {renderNode("address", "Address", content.address)}
       {renderNode("date", "Date", content.date)}
       {renderNode("coordinate", "Coordinate", content.coordinate)}
-    </div>
+    </svg>
   );
 };
 

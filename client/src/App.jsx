@@ -7,6 +7,7 @@ const PosterCanvas = lazy(() => import("@components/PosterCanvas"));
 const Sections = lazy(() => import("@components/Sections"));
 
 const App = () => {
+  // Web safe fonts
   const webSafeFonts = [
     "Arial",
     "Helvetica",
@@ -195,6 +196,7 @@ const App = () => {
     setDrawerMode(section);
     setOpen(true);
   };
+
   const hideDrawer = () => {
     setDrawerMode(null);
     setOpen(false);
@@ -254,25 +256,6 @@ const App = () => {
     setLoading(true);
     try {
       const htmlContent = canvasRef.current.outerHTML;
-      const nodes = canvasRef.current.querySelectorAll(".textNode");
-      let fontCSS = "";
-      nodes.forEach((node) => {
-        const className = node.className.split(" ")[0];
-        const style = window.getComputedStyle(node);
-        const fontSizePt = parseFloat(style.fontSize) * 0.75;
-        fontCSS += `
-        .${className} {
-          font-size: ${fontSizePt}pt !important;
-          font-family: ${style.fontFamily} !important;
-          font-weight: ${style.fontWeight} !important;
-          font-style: ${style.fontStyle} !important;
-          text-transform: ${style.textTransform} !important;
-          text-decoration: ${style.textDecoration} !important;
-          color: ${style.color} !important;
-          background-color: ${style.backgroundColor} !important;
-        }
-      `;
-      });
       const cssText = Array.from(document.styleSheets)
         .map((sheet) => {
           try {
@@ -287,7 +270,7 @@ const App = () => {
       const fullHTML = `<html>
       <head>
         <meta charset="UTF-8">
-        <style>${cssText}${fontCSS}</style>
+        <style>${cssText}</style>
       </head>
       <body>${htmlContent}</body>
     </html>`;
