@@ -5,29 +5,33 @@ import { MdOutlineTextRotateVertical } from "react-icons/md";
 import { CiFolderOff } from "react-icons/ci";
 import { LiaFileDownloadSolid } from "react-icons/lia";
 
-const Sidebar = ({ handleScreenShot, showDrawer }) => {
+const Sidebar = ({ loading, handleScreenShot }) => {
   return (
     <>
-      <div className="sidebar">
-        <LuRectangleVertical
-          className="sidebarIcon"
-          onClick={() => showDrawer("poster")}
-        />
-        <HiOutlineRectangleGroup
-          className="sidebarIcon"
-          onClick={() => showDrawer("posterWrapper")}
-        />
-        <GiOrbital className="sidebarIcon" onClick={() => showDrawer("map")} />
-        <MdOutlineTextRotateVertical
-          className="sidebarIcon"
-          onClick={() => showDrawer("content")}
-        />
-        <CiFolderOff className="sidebarIcon" />
-        <LiaFileDownloadSolid
-          className="sidebarIcon"
+      <aside className="sidebar">
+        <button className="btn p-0 sidebarIcon" disabled={loading}>
+          <LuRectangleVertical />
+        </button>
+        <button className="btn p-0 sidebarIcon" disabled={loading}>
+          <HiOutlineRectangleGroup />
+        </button>
+        <button className="btn p-0 sidebarIcon" disabled={loading}>
+          <GiOrbital />
+        </button>
+        <button className="btn p-0 sidebarIcon" disabled={loading}>
+          <MdOutlineTextRotateVertical />
+        </button>
+        <button className="btn p-0 sidebarIcon" disabled={loading}>
+          <CiFolderOff />
+        </button>
+        <button
+          className="btn p-0 sidebarIcon"
+          disabled={loading}
           onClick={handleScreenShot}
-        />
-      </div>
+        >
+          <LiaFileDownloadSolid />
+        </button>
+      </aside>
     </>
   );
 };

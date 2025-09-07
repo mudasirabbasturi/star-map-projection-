@@ -1,4 +1,4 @@
-// src/components/setting/PosterWrapper.jsx
+// src/components/setting/PosterWrapperSetting.jsx
 import {
   red,
   volcano,
@@ -22,10 +22,10 @@ import {
   Divider,
   Row,
   theme,
+  Input,
   InputNumber,
   Select,
   Slider,
-  Checkbox,
 } from "antd";
 
 function genPresets(presets = presetPalettes) {
@@ -35,7 +35,8 @@ function genPresets(presets = presetPalettes) {
     key: label,
   }));
 }
-const PosterWrapper = ({ styles, setStyles, fontFamilies }) => {
+
+const PosterWrapperSetting = ({ styles, updateStyles }) => {
   const { token } = theme.useToken();
   const presets = genPresets({
     primary: generate(token.colorPrimary),
@@ -59,7 +60,12 @@ const PosterWrapper = ({ styles, setStyles, fontFamilies }) => {
       <Row justify="space-between" wrap={false}>
         <Col span={12}>
           <div
-            style={{ height: 300, overflowY: "auto", padding: "5px 0 5px 4px" }}
+            style={{
+              height: 300,
+              overflowY: "auto",
+              padding: "5px 0 5px 4px",
+              margin: "0px",
+            }}
           >
             <Presets />
           </div>
@@ -71,127 +77,9 @@ const PosterWrapper = ({ styles, setStyles, fontFamilies }) => {
       </Row>
     );
   };
+
   return (
     <>
-      {/* Background Color */}
-      <div className="mb-2">
-        <hr className="mb-1 mt-0" />
-        <div className="d-flex align-items-center">
-          <small className="me-2" style={{ whiteSpace: "nowrap" }}>
-            Background Color:
-          </small>
-          <ColorPicker
-            style={{
-              width: "100%",
-            }}
-            allowClear
-            value={styles.bgColor}
-            onChangeComplete={(color) =>
-              setStyles({ ...styles, bgColor: color.toCssString() })
-            }
-            styles={{ popupOverlayInner: { width: 480 } }}
-            presets={presets}
-            panelRender={customPanelRender}
-            size="small"
-            dropdownAlign={{
-              points: ["tl", "bl"],
-              overflow: { adjustY: true },
-            }}
-          />
-        </div>
-        <hr className="mb-0 mt-1" />
-      </div>
-      {/* Border Style */}
-      <div className="mb-2">
-        <hr className="mb-1 mt-0" />
-        <div className="d-flex align-items-center">
-          <small className="me-2" style={{ whiteSpace: "nowrap" }}>
-            Border Style:
-          </small>
-          <Select
-            className="w-100"
-            value={styles.borderStyle}
-            onChange={(value) => setStyles({ ...styles, borderStyle: value })}
-            size="small"
-            options={[
-              { label: "Solid", value: "solid" },
-              { label: "Dashed", value: "dashed" },
-              { label: "Dotted", value: "dotted" },
-              { label: "Double", value: "double" },
-              { label: "None", value: "none" },
-            ]}
-          />
-        </div>
-        <hr className="mb-0 mt-1" />
-      </div>
-      {/* Border Width */}
-      <div className="mb-2">
-        <hr className="mb-1 mt-0" />
-        <div className="d-flex align-items-center">
-          <small className="me-2" style={{ whiteSpace: "nowrap" }}>
-            Border Width:
-          </small>
-          <InputNumber
-            value={styles.borderWidth}
-            className="w-100"
-            size="small"
-            min={0}
-            max={20}
-            onChange={(value) =>
-              setStyles({ ...styles, borderWidth: value || 0 })
-            }
-          />
-        </div>
-        <hr className="mb-0 mt-1" />
-      </div>
-      {/* Border Radius */}
-      <div className="mb-2">
-        <hr className="mb-1 mt-0" />
-        <div className="d-flex align-items-center">
-          <small className="me-2" style={{ whiteSpace: "nowrap" }}>
-            Border Radius:
-          </small>
-          <InputNumber
-            value={styles.borderRadius}
-            className="w-100"
-            size="small"
-            min={0}
-            max={50}
-            onChange={(value) =>
-              setStyles({ ...styles, borderRadius: value || 0 })
-            }
-          />
-        </div>
-        <hr className="mb-0 mt-1" />
-      </div>
-      {/* Border Color */}
-      <div className="mb-2">
-        <hr className="mb-1 mt-0" />
-        <div className="d-flex align-items-center">
-          <small className="me-2" style={{ whiteSpace: "nowrap" }}>
-            Border Color:
-          </small>
-          <ColorPicker
-            style={{
-              width: "100%",
-            }}
-            allowClear
-            value={styles.borderColor || styles.color}
-            onChangeComplete={(color) =>
-              setStyles({ ...styles, borderColor: color.toCssString() })
-            }
-            styles={{ popupOverlayInner: { width: 480 } }}
-            presets={presets}
-            panelRender={customPanelRender}
-            size="small"
-            dropdownAlign={{
-              points: ["tl", "bl"],
-              overflow: { adjustY: true },
-            }}
-          />
-        </div>
-        <hr className="mb-0 mt-1" />
-      </div>
       {/* Width */}
       <div className="mb-2">
         <hr className="mb-1 mt-0" />
@@ -203,16 +91,16 @@ const PosterWrapper = ({ styles, setStyles, fontFamilies }) => {
             className="w-100 m-0 me-2"
             min={30}
             max={100}
-            value={styles.width}
-            onChange={(value) => setStyles({ ...styles, width: value || 0 })}
+            value={styles.posterWrapper.width}
+            onChange={(value) => updateStyles("posterWrapper.width", value)}
           />
           <InputNumber
-            value={styles.width}
+            value={styles.posterWrapper.width}
             className="w-80"
             size="small"
             min={30}
             max={100}
-            onChange={(value) => setStyles({ ...styles, width: value || 0 })}
+            onChange={(value) => updateStyles("posterWrapper.width", value)}
           />
         </div>
         <hr className="mb-0 mt-1" />
@@ -228,16 +116,139 @@ const PosterWrapper = ({ styles, setStyles, fontFamilies }) => {
             className="w-100 m-0 me-2"
             min={0}
             max={100}
-            value={styles.height}
-            onChange={(value) => setStyles({ ...styles, height: value || 0 })}
+            value={styles.posterWrapper.height}
+            onChange={(value) => updateStyles("posterWrapper.height", value)}
           />
           <InputNumber
-            value={styles.height}
+            value={styles.posterWrapper.height}
             className="w-80"
             size="small"
             min={30}
             max={100}
-            onChange={(value) => setStyles({ ...styles, height: value || 0 })}
+            onChange={(value) => updateStyles("posterWrapper.height", value)}
+          />
+        </div>
+        <hr className="mb-0 mt-1" />
+      </div>
+      {/* Background Color */}
+      <div className="mb-2">
+        <hr className="mb-1 mt-0" />
+        <div className="d-flex align-items-center">
+          <small className="me-2" style={{ whiteSpace: "nowrap" }}>
+            Background Color:
+          </small>
+          <ColorPicker
+            style={{ width: "100%" }}
+            allowClear
+            value={styles.posterWrapper.bgColor}
+            onChangeComplete={(color) =>
+              updateStyles("posterWrapper.bgColor", color.toCssString())
+            }
+            styles={{ popupOverlayInner: { width: 480 } }}
+            presets={presets}
+            panelRender={customPanelRender}
+            size="small"
+            dropdownAlign={{
+              points: ["tl", "bl"],
+              overflow: { adjustY: true },
+            }}
+          />
+        </div>
+        <hr className="mb-0 mt-1" />
+      </div>
+
+      {/* Border Style */}
+      <div className="mb-2">
+        <hr className="mb-1 mt-0" />
+        <div className="d-flex align-items-center">
+          <small className="me-2" style={{ whiteSpace: "nowrap" }}>
+            Border Style:
+          </small>
+          <Select
+            className="w-100"
+            value={styles.posterWrapper.borderStyle}
+            onChange={(value) =>
+              updateStyles("posterWrapper.borderStyle", value)
+            }
+            size="small"
+            options={[
+              { label: "Solid", value: "solid" },
+              { label: "Dashed", value: "dashed" },
+              { label: "Dotted", value: "dotted" },
+              { label: "Double", value: "double" },
+              { label: "None", value: "none" },
+            ]}
+          />
+        </div>
+        <hr className="mb-0 mt-1" />
+      </div>
+
+      {/* Border Width */}
+      <div className="mb-2">
+        <hr className="mb-1 mt-0" />
+        <div className="d-flex align-items-center">
+          <small className="me-2" style={{ whiteSpace: "nowrap" }}>
+            Border Width:
+          </small>
+          <InputNumber
+            value={styles.posterWrapper.borderWidth}
+            className="w-100"
+            size="small"
+            min={0}
+            max={20}
+            onChange={(value) =>
+              updateStyles("posterWrapper.borderWidth", value || 0)
+            }
+          />
+        </div>
+        <hr className="mb-0 mt-1" />
+      </div>
+
+      {/* Border Radius */}
+      <div className="mb-2">
+        <hr className="mb-1 mt-0" />
+        <div className="d-flex align-items-center">
+          <small className="me-2" style={{ whiteSpace: "nowrap" }}>
+            Border Radius:
+          </small>
+          <InputNumber
+            value={styles.posterWrapper.borderRadius}
+            className="w-100"
+            size="small"
+            min={0}
+            max={50}
+            onChange={(value) =>
+              updateStyles("posterWrapper.borderRadius", value || 0)
+            }
+          />
+        </div>
+        <hr className="mb-0 mt-1" />
+      </div>
+
+      {/* Border Color */}
+      <div className="mb-2">
+        <hr className="mb-1 mt-0" />
+        <div className="d-flex align-items-center">
+          <small className="me-2" style={{ whiteSpace: "nowrap" }}>
+            Border Color:
+          </small>
+          <ColorPicker
+            style={{
+              width: "100%",
+            }}
+            allowClear
+            value={styles.posterWrapper.borderColor}
+            onChangeComplete={(color) =>
+              updateStyles("posterWrapper.borderColor", color.toCssString())
+            }
+            styles={{ popupOverlayInner: { width: 480 } }}
+            presets={presets}
+            panelRender={customPanelRender}
+            size="small"
+            dropdownAlign={{
+              points: ["tl", "bl"],
+              overflow: { adjustY: true },
+            }}
           />
         </div>
         <hr className="mb-0 mt-1" />
@@ -245,4 +256,5 @@ const PosterWrapper = ({ styles, setStyles, fontFamilies }) => {
     </>
   );
 };
-export default PosterWrapper;
+
+export default PosterWrapperSetting;

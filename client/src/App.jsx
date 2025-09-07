@@ -1,254 +1,147 @@
-// src/App.jsx
-import { useState, useEffect, useRef, Suspense, lazy } from "react";
-import { Spin, Drawer } from "antd";
-
-const Sidebar = lazy(() => import("@components/Sidebar"));
-const PosterCanvas = lazy(() => import("@components/PosterCanvas"));
-const Sections = lazy(() => import("@components/Sections"));
+import { useState, useRef, Suspense } from "react";
+import { Drawer, notification, Spin } from "antd";
+import { MdOutlineEditNote } from "react-icons/md";
+import Sidebar from "./components/Sidebar";
+import PosterSetting from "./components/setting/PosterSetting";
+import PosterWrapperSetting from "./components/setting/PosterWrapperSetting";
+import ContentBodySetting from "./components/setting/ContentBodySetting";
 
 const App = () => {
-  // Web safe fonts
-  const webSafeFonts = [
-    "Arial",
-    "Helvetica",
-    "Times New Roman",
-    "Courier New",
-    "Georgia",
-    "Verdana",
-    "Trebuchet MS",
-    "Impact",
-    "Comic Sans MS",
-  ];
-
-  // Positions with X & Y for full draggable
+  const [loading, setLoading] = useState(false);
+  const canvasRef = useRef(null);
+  const [api, contextHolder] = notification.useNotification();
   const [positions, setPositions] = useState({
-    map: { x: 0, y: 0 },
-    content: { x: 0, y: 0 },
-    address: { x: 0, y: 0 },
-    date: { x: 0, y: 0 },
-    message: { x: 0, y: 0 },
-    title: { x: 0, y: 0 },
-    coordinate: { x: 0, y: 0 },
+    contentTitle: { y: 5 },
+    map: { y: 10 },
+    contentBody: { y: 70 },
   });
-
-  const handleMouseDown = (e, mode) => {
+  const [dragging, setDragging] = useState(false);
+  const handleMouseDown = (e, element) => {
     e.preventDefault();
-    const startX = e.clientX;
+    setDragging(true);
     const startY = e.clientY;
-    const startPos = positions[mode];
-
+    const wrapper = e.currentTarget.parentElement;
+    const wrapperHeight = wrapper.offsetHeight;
+    const initialPercent = positions[element].y;
     const handleMouseMove = (e) => {
+      const deltaY = e.clientY - startY;
+      const deltaPercent = (deltaY / wrapperHeight) * 100;
       setPositions((prev) => ({
         ...prev,
-        [mode]: {
-          x: startPos.x + (e.clientX - startX),
-          y: startPos.y + (e.clientY - startY),
-        },
+        [element]: { y: initialPercent + deltaPercent },
       }));
     };
-
     const handleMouseUp = () => {
+      setDragging(false);
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mouseup", handleMouseUp);
     };
-
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("mouseup", handleMouseUp);
   };
 
-  const [loading, setLoading] = useState(false);
-  const [drawerMode, setDrawerMode] = useState(null);
-  const [open, setOpen] = useState(false);
-
-  const [starsData, setStarsData] = useState({ features: [] });
-  const [mwData, setMwData] = useState({ features: [] });
-  const [constData, setConstData] = useState({ features: [] });
-  const [centerRA, setCenterRA] = useState(0);
-
+  // unified state for all styles
   const [styles, setStyles] = useState({
-    poster: {
-      paperSize: "A4",
-      bgColor: "#020202ff",
-      borderStyle: "solid",
-      borderWidth: 1,
-      borderRadius: 0,
-      borderColor: "#eee",
-    },
+    paperSize: "A4",
+    bgColor: "#020202ff",
+    borderStyle: "solid",
+    borderWidth: 1,
+    borderRadius: 0,
+    borderColor: "#7c5cffcc",
     posterWrapper: {
-      bgColor: "transparent",
       width: 90,
       height: 90,
+      bgColor: "transparent",
       borderStyle: "solid",
       borderWidth: 1,
       borderRadius: 0,
-      borderColor: "#eee",
+      borderColor: "#7c5cffcc",
     },
     map: {
       width: 90,
-      height: null,
-      maskShape: "circle",
-      bgColor: "transparent",
-      strokeColor: "#eee",
-      strokeStyle: "solid",
-      strokeWidth: 1,
-      showStars: true,
-      showMilkyway: true,
-      milkywayOpacity: 0.2,
-      showConstellations: true,
-      showPlanets: true,
-      showMoon: true,
-      sizeMult: 1,
-      magLimit: 6.5,
-      lat: 51.5,
-      log: -0.1,
     },
-    content: {
+    contentTitle: {
       width: 90,
-      height: 20,
+    },
+    contentBody: {
+      width: 90,
+      height: null,
       bgColor: "transparent",
-      textColor: "#ff9c6e",
+      fontSize: 14,
       fontFamily: "Verdana",
       fontStyle: "normal",
       fontWeight: "normal",
-      fontSize: 14,
+      textColor: "#ff9c6e",
       textTransform: "capitalize",
       textDecoration: "none",
       borderStyle: "solid",
-      borderWidth: 0,
+      borderWidth: 1,
       borderRadius: 0,
-      borderColor: "#eee",
-      show: {
-        showMessage: true,
-        showTitle: true,
-        showAddress: true,
-        showDate: true,
-        showCoordinate: true,
-      },
-      nodes: {
-        message: {
-          width: 100,
-        },
-        title: {
-          width: 100,
-        },
-        address: {
-          width: 100,
-        },
-        date: {
-          width: 100,
-        },
-        coordinate: {
-          width: 100,
-        },
-      },
+      borderColor: "#7c5cffcc",
     },
   });
 
-  const defaultContent = {
+  // content state
+  const [content, setContent] = useState({
+    downloadType: "pdf",
+    fileName: "Poster",
     message: "look up at the stars",
     title: "my star map",
     address: "london, uk",
     date: new Date().toISOString().split("T")[0],
     coordinate: "51.5°N, 0.1°W",
-  };
+  });
 
-  const [content, setContent] = useState(defaultContent);
-  const onChangeContent = (newContent) => {
-    setContent((prev) => ({ ...prev, ...newContent }));
-  };
-
-  const canvasRef = useRef(null);
-
-  useEffect(() => {
-    setLoading(true);
-    Promise.all([
-      fetch("/json/stars.6.json").then((r) => r.json()),
-      fetch("/json/mw.json").then((r) => r.json()),
-      fetch("/json/constellations.lines.json").then((r) => r.json()),
-    ])
-      .then(([stars, mw, constellations]) => {
-        setStarsData(stars);
-        setMwData(mw);
-        setConstData(constellations);
-      })
-      .catch((err) => console.error("Failed to load JSON data:", err))
-      .finally(() => setLoading(false));
-  }, []);
-
-  const updateSectionStyle = (path, newStyle) => {
+  // generic updater for any nested path
+  const updateStyles = (path, value) => {
     setStyles((prev) => {
       const keys = path.split(".");
-      const updated = { ...prev };
-
-      let current = updated;
-      for (let i = 0; i < keys.length - 1; i++) {
-        current[keys[i]] = { ...current[keys[i]] };
-        current = current[keys[i]];
-      }
-
-      const lastKey = keys[keys.length - 1];
-      current[lastKey] = { ...current[lastKey], ...newStyle };
-      return updated;
+      const newState = { ...prev };
+      let temp = newState;
+      keys.forEach((key, idx) => {
+        if (idx === keys.length - 1) temp[key] = value;
+        else temp[key] = { ...temp[key] };
+        temp = temp[key];
+      });
+      return newState;
     });
   };
 
-  const showDrawer = (section) => {
-    setDrawerMode(section);
-    setOpen(true);
-  };
-
-  const hideDrawer = () => {
-    setDrawerMode(null);
-    setOpen(false);
-  };
-
-  const getFinalStyle = (section) => {
-    if (section in styles.content.nodes) {
-      return { ...styles.content, ...styles.content.nodes[section] };
-    }
-    return styles[section] || {};
-  };
+  const onChangeContent = (key, value) =>
+    setContent((prev) => ({ ...prev, [key]: value }));
 
   const drawerTitles = {
     poster: "Poster Settings",
     posterWrapper: "Inner Poster Settings",
     map: "Map Settings",
-    content: "Content Settings",
-    message: "Message Settings",
-    title: "Title Settings",
-    address: "Address Settings",
-    date: "Date Settings",
-    coordinate: "Coordinate Settings",
+    contentTitle: "Title Settings",
+    contentBody: "Text Setting",
+  };
+  const [drawerMode, setDrawerMode] = useState(null);
+  const [open, setOpen] = useState(null);
+
+  const showDrawer = (mode) => {
+    setDrawerMode(mode);
+    setOpen(true);
+  };
+  const closeDrawer = () => {
+    setDrawerMode(null);
+    setOpen(null);
   };
 
-  // ISO A sizes (in pixels at 300dpi) + extras
-  const PAPER_SIZES = {
-    A0: { width: 9933, height: 14043 },
-    A1: { width: 7016, height: 9933 },
-    A2: { width: 4961, height: 7016 },
-    A3: { width: 3508, height: 4961 },
-    A4: { width: 2480, height: 3508 },
-    A5: { width: 1748, height: 2480 },
-    A6: { width: 1240, height: 1748 },
-    Letter: { width: 2550, height: 3300 },
-    Legal: { width: 2550, height: 4200 },
-    Tabloid: { width: 3300, height: 5100 },
-    B0: { width: 10000, height: 14140 },
-    B1: { width: 7070, height: 10000 },
-    B2: { width: 5000, height: 7070 },
-    B3: { width: 3530, height: 5000 },
-    B4: { width: 2500, height: 3530 },
-    B5: { width: 1760, height: 2500 },
-    C0: { width: 9170, height: 12970 },
-    C1: { width: 6480, height: 9170 },
-    C2: { width: 4580, height: 6480 },
-    C3: { width: 3240, height: 4580 },
-    C4: { width: 2290, height: 3240 },
-    C5: { width: 1620, height: 2290 },
-  };
-
-  const getPaperSize = (name) => {
-    return PAPER_SIZES[name] || PAPER_SIZES["A4"];
+  const openNotificationWithIcon = (fileName, folder, url) => {
+    api.success({
+      message: `✅ ${fileName} saved!`,
+      description: (
+        <span>
+          Saved in folder: <b>{folder}</b> <br />
+          <a href={url} target="_blank" rel="noreferrer">
+            Open File
+          </a>
+        </span>
+      ),
+      duration: 6,
+    });
   };
 
   const handleScreenShot = async () => {
@@ -267,31 +160,33 @@ const App = () => {
           }
         })
         .join("\n");
+
       const fullHTML = `<html>
-      <head>
-        <meta charset="UTF-8">
-        <style>${cssText}</style>
-      </head>
-      <body>${htmlContent}</body>
-    </html>`;
+        <head><meta charset="UTF-8"><style>${cssText}</style></head>
+        <body>${htmlContent}</body>
+      </html>`;
+
       const response = await fetch("http://localhost:3001/api/screenshot", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           html: fullHTML,
-          paperSize: styles.poster.paperSize, // "A4", "A3", etc.
+          paperSize: styles.paperSize,
+          fileName: content.fileName,
+          downloadType: content.downloadType,
         }),
       });
       if (!response.ok) throw new Error("Failed to capture screenshot");
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "poster.pdf";
-      link.click();
-      window.URL.revokeObjectURL(url);
+      const data = await response.json();
+      openNotificationWithIcon(data.fileName, data.folder, data.url);
+      window.open(data.url, "_blank");
+      console.log("✅ File saved:", data);
     } catch (err) {
       console.error("Error capturing screenshot:", err);
+      api.error({
+        message: "❌ Error saving file",
+        description: err.message,
+      });
     } finally {
       setLoading(false);
     }
@@ -299,28 +194,122 @@ const App = () => {
 
   return (
     <>
+      {contextHolder}
       <div className="app-container">
-        <Suspense fallback={<div>Loading Sidebar...</div>}>
-          <Sidebar
-            handleScreenShot={handleScreenShot}
-            showDrawer={showDrawer}
-          />
-        </Suspense>
+        <Sidebar loading={loading} handleScreenShot={handleScreenShot} />
         <div className="main-body">
           <Spin spinning={loading} tip="Generating poster..." size="large">
-            <Suspense fallback={<div>Loading Canvas...</div>}>
-              <PosterCanvas
-                canvasRef={canvasRef}
-                drawerMode={drawerMode}
-                showDrawer={showDrawer}
-                mapData={{ starsData, mwData, constData, centerRA }}
-                styles={styles}
-                handleMouseDown={handleMouseDown}
-                positions={positions}
-                content={content}
-                onChangeContent={onChangeContent}
-                paperSize={getPaperSize(styles.poster.paperSize)}
-              />
+            <Suspense fallback={<div>Loading Map...</div>}>
+              <div
+                ref={canvasRef}
+                className={`poster hasIcon ${
+                  drawerMode === "poster" ? "active" : ""
+                }`}
+                style={{
+                  backgroundColor: styles.bgColor,
+                  borderStyle: styles.borderStyle,
+                  borderWidth: `${styles.borderWidth}px`,
+                  borderRadius: `${styles.borderRadius}%`,
+                  borderColor: styles.borderColor,
+                }}
+              >
+                <div
+                  className="iconWrapper"
+                  onClick={() => showDrawer("poster")}
+                >
+                  <MdOutlineEditNote className="editIcon" />
+                </div>
+                <div
+                  className={`posterWrapper hasIcon ${
+                    drawerMode === "posterWrapper" ? "active" : ""
+                  }`}
+                  style={{
+                    width: `${styles.posterWrapper.width}%`,
+                    height: `${styles.posterWrapper.height}%`,
+                    backgroundColor: styles.posterWrapper.bgColor,
+                    borderStyle: styles.posterWrapper.borderStyle,
+                    borderWidth: `${styles.posterWrapper.borderWidth}px`,
+                    borderRadius: `${styles.posterWrapper.borderRadius}%`,
+                    borderColor: styles.posterWrapper.borderColor,
+                  }}
+                >
+                  <div
+                    className="iconWrapper"
+                    onClick={() => showDrawer("posterWrapper")}
+                  >
+                    <MdOutlineEditNote className="editIcon" />
+                  </div>
+                  <div
+                    className={`map hasIcon ${
+                      drawerMode === "map" ? "active" : ""
+                    }`}
+                    style={{
+                      width: `${styles.map.width}%`,
+                      top: `${positions.map.y}%`,
+                    }}
+                    onMouseDown={(e) => handleMouseDown(e, "map")}
+                  >
+                    <div
+                      className="iconWrapper"
+                      onClick={() => showDrawer("map")}
+                    >
+                      <MdOutlineEditNote className="editIcon" />
+                    </div>
+                    Map
+                  </div>
+                  <div
+                    className={`contentTitle hasIcon ${
+                      drawerMode === "contentTitle" ? "active" : ""
+                    }`}
+                    style={{
+                      width: `${styles.contentTitle.width}%`,
+                      top: `${positions.contentTitle.y}%`,
+                    }}
+                    onMouseDown={(e) => handleMouseDown(e, "contentTitle")}
+                  >
+                    <div
+                      className="iconWrapper"
+                      onClick={() => showDrawer("contentTitle")}
+                    >
+                      <MdOutlineEditNote className="editIcon" />
+                    </div>
+                    contentTitle
+                  </div>
+                  <div
+                    className={`contentBody hasIcon ${
+                      drawerMode === "contentBody" ? "active" : ""
+                    }`}
+                    style={{
+                      width: `${styles.contentBody.width}%`,
+                      backgroundColor: styles.contentBody.bgColor,
+                      top: `${positions.contentBody.y}%`,
+                      color: styles.contentBody.textColor,
+                      fontSize: styles.contentBody.fontSize,
+                      fontFamily: styles.contentBody.fontFamily,
+                      fontStyle: styles.contentBody.fontStyle,
+                      fontWeight: styles.contentBody.fontWeight,
+                      textTransform: styles.contentBody.textTransform,
+                      textDecoration: styles.contentBody.textDecoration,
+                      borderStyle: styles.contentBody.borderStyle,
+                      borderWidth: `${styles.contentBody.borderWidth}px`,
+                      borderRadius: `${styles.contentBody.borderRadius}%`,
+                      borderColor: styles.contentBody.borderColor,
+                    }}
+                    onMouseDown={(e) => handleMouseDown(e, "contentBody")}
+                  >
+                    <div
+                      className="iconWrapper"
+                      onClick={() => showDrawer("contentBody")}
+                    >
+                      <MdOutlineEditNote className="editIcon" />
+                    </div>
+                    <div className="address">{content.address}</div>
+                    <div className="address">{content.date}</div>
+                    <div className="address">{content.message}</div>
+                    <div className="address">{content.coordinate}</div>
+                  </div>
+                </div>
+              </div>
             </Suspense>
           </Spin>
         </div>
@@ -329,27 +318,34 @@ const App = () => {
       <Drawer
         title={drawerTitles[drawerMode]}
         open={open}
-        onClose={hideDrawer}
-        placement="left"
-        width="300px"
+        onClose={closeDrawer}
         mask={false}
+        placement="left"
       >
         {open && (
           <Suspense fallback={<div>Loading Sections...</div>}>
-            <Sections
-              drawerMode={drawerMode}
-              styles={getFinalStyle(drawerMode)}
-              setStyles={(s) => updateSectionStyle(drawerMode, s)}
-              fontFamilies={webSafeFonts}
-              updateSectionStyle={updateSectionStyle}
-              onChangeContent={onChangeContent}
-              content={content}
-              globalContentStyle={
-                drawerMode && drawerMode.startsWith("content.")
-                  ? styles.content
-                  : null
-              }
-            />
+            {drawerMode === "poster" ? (
+              <PosterSetting
+                styles={styles}
+                updateStyles={updateStyles}
+                content={content}
+                onChangeContent={onChangeContent}
+              />
+            ) : drawerMode === "posterWrapper" ? (
+              <PosterWrapperSetting
+                styles={styles}
+                updateStyles={updateStyles}
+                content={content}
+                onChangeContent={onChangeContent}
+              />
+            ) : drawerMode === "contentBody" ? (
+              <ContentBodySetting
+                styles={styles}
+                updateStyles={updateStyles}
+                content={content}
+                onChangeContent={onChangeContent}
+              />
+            ) : null}
           </Suspense>
         )}
       </Drawer>

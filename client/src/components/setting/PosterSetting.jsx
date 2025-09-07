@@ -1,4 +1,4 @@
-// src/components/setting/Poster.jsx
+// src/components/setting/PosterSetting.jsx
 import {
   red,
   volcano,
@@ -22,10 +22,9 @@ import {
   Divider,
   Row,
   theme,
+  Input,
   InputNumber,
   Select,
-  Slider,
-  Checkbox,
 } from "antd";
 
 function genPresets(presets = presetPalettes) {
@@ -35,7 +34,8 @@ function genPresets(presets = presetPalettes) {
     key: label,
   }));
 }
-const Poster = ({ styles, setStyles, fontFamilies }) => {
+
+const PosterSetting = ({ styles, updateStyles, content, onChangeContent }) => {
   const { token } = theme.useToken();
   const presets = genPresets({
     primary: generate(token.colorPrimary),
@@ -59,7 +59,12 @@ const Poster = ({ styles, setStyles, fontFamilies }) => {
       <Row justify="space-between" wrap={false}>
         <Col span={12}>
           <div
-            style={{ height: 300, overflowY: "auto", padding: "5px 0 5px 4px" }}
+            style={{
+              height: 300,
+              overflowY: "auto",
+              padding: "5px 0 5px 4px",
+              margin: "0px",
+            }}
           >
             <Presets />
           </div>
@@ -71,6 +76,7 @@ const Poster = ({ styles, setStyles, fontFamilies }) => {
       </Row>
     );
   };
+
   return (
     <>
       {/* Paper Size */}
@@ -83,8 +89,7 @@ const Poster = ({ styles, setStyles, fontFamilies }) => {
           <Select
             className="w-100"
             value={styles.paperSize}
-            onChange={(value) => setStyles({ ...styles, paperSize: value })}
-            size="small"
+            onChange={(value) => updateStyles("paperSize", value)}
             options={[
               { label: "A0", value: "A0" },
               { label: "A1", value: "A1" },
@@ -95,9 +100,42 @@ const Poster = ({ styles, setStyles, fontFamilies }) => {
               { label: "A6", value: "A6" },
               { label: "Letter", value: "Letter" },
               { label: "Legal", value: "Legal" },
-              { label: "Tabloid", value: "Tabloid" },
-              { label: "Ledger", value: "Ledger" },
             ]}
+          />
+        </div>
+        <hr className="mb-0 mt-1" />
+      </div>
+      {/* Download Type */}
+      <div className="mb-2">
+        <hr className="mb-1 mt-0" />
+        <div className="d-flex align-items-center">
+          <small className="me-2" style={{ whiteSpace: "nowrap" }}>
+            Download Type:
+          </small>
+          <Select
+            className="w-100"
+            value={content.downloadType}
+            onChange={(value) => onChangeContent("downloadType", value)}
+            options={[
+              { label: "PDF", value: "pdf" },
+              { label: "PNG", value: "png" },
+              { label: "JPEG", value: "jpeg" },
+            ]}
+          />
+        </div>
+        <hr className="mb-0 mt-1" />
+      </div>
+      {/* Download File Name */}
+      <div className="mb-2">
+        <hr className="mb-1 mt-0" />
+        <div className="d-flex align-items-center">
+          <small className="me-2" style={{ whiteSpace: "nowrap" }}>
+            File Name:
+          </small>
+          <Input
+            value={content.fileName}
+            onChange={(e) => onChangeContent("fileName", e.target.value)}
+            size="small"
           />
         </div>
         <hr className="mb-0 mt-1" />
@@ -110,13 +148,11 @@ const Poster = ({ styles, setStyles, fontFamilies }) => {
             Background Color:
           </small>
           <ColorPicker
-            style={{
-              width: "100%",
-            }}
+            style={{ width: "100%" }}
             allowClear
             value={styles.bgColor}
             onChangeComplete={(color) =>
-              setStyles({ ...styles, bgColor: color.toCssString() })
+              updateStyles("bgColor", color.toCssString())
             }
             styles={{ popupOverlayInner: { width: 480 } }}
             presets={presets}
@@ -130,6 +166,7 @@ const Poster = ({ styles, setStyles, fontFamilies }) => {
         </div>
         <hr className="mb-0 mt-1" />
       </div>
+
       {/* Border Style */}
       <div className="mb-2">
         <hr className="mb-1 mt-0" />
@@ -140,7 +177,7 @@ const Poster = ({ styles, setStyles, fontFamilies }) => {
           <Select
             className="w-100"
             value={styles.borderStyle}
-            onChange={(value) => setStyles({ ...styles, borderStyle: value })}
+            onChange={(value) => updateStyles("borderStyle", value)}
             size="small"
             options={[
               { label: "Solid", value: "solid" },
@@ -153,6 +190,7 @@ const Poster = ({ styles, setStyles, fontFamilies }) => {
         </div>
         <hr className="mb-0 mt-1" />
       </div>
+
       {/* Border Width */}
       <div className="mb-2">
         <hr className="mb-1 mt-0" />
@@ -166,13 +204,12 @@ const Poster = ({ styles, setStyles, fontFamilies }) => {
             size="small"
             min={0}
             max={20}
-            onChange={(value) =>
-              setStyles({ ...styles, borderWidth: value || 0 })
-            }
+            onChange={(value) => updateStyles("borderWidth", value || 0)}
           />
         </div>
         <hr className="mb-0 mt-1" />
       </div>
+
       {/* Border Radius */}
       <div className="mb-2">
         <hr className="mb-1 mt-0" />
@@ -186,13 +223,12 @@ const Poster = ({ styles, setStyles, fontFamilies }) => {
             size="small"
             min={0}
             max={50}
-            onChange={(value) =>
-              setStyles({ ...styles, borderRadius: value || 0 })
-            }
+            onChange={(value) => updateStyles("borderRadius", value || 0)}
           />
         </div>
         <hr className="mb-0 mt-1" />
       </div>
+
       {/* Border Color */}
       <div className="mb-2">
         <hr className="mb-1 mt-0" />
@@ -205,9 +241,9 @@ const Poster = ({ styles, setStyles, fontFamilies }) => {
               width: "100%",
             }}
             allowClear
-            value={styles.borderColor || styles.color}
+            value={styles.borderColor}
             onChangeComplete={(color) =>
-              setStyles({ ...styles, borderColor: color.toCssString() })
+              updateStyles("borderColor", color.toCssString())
             }
             styles={{ popupOverlayInner: { width: 480 } }}
             presets={presets}
@@ -224,4 +260,5 @@ const Poster = ({ styles, setStyles, fontFamilies }) => {
     </>
   );
 };
-export default Poster;
+
+export default PosterSetting;
