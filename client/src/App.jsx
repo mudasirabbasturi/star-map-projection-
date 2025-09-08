@@ -4,16 +4,17 @@ import { MdOutlineEditNote } from "react-icons/md";
 import Sidebar from "./components/Sidebar";
 import PosterSetting from "./components/setting/PosterSetting";
 import PosterWrapperSetting from "./components/setting/PosterWrapperSetting";
-import ContentBodySetting from "./components/setting/ContentBodySetting";
+import ContentSetting from "./components/setting/ContentSetting";
+import Map from "./components/Map";
 
 const App = () => {
   const [loading, setLoading] = useState(false);
   const canvasRef = useRef(null);
   const [api, contextHolder] = notification.useNotification();
   const [positions, setPositions] = useState({
-    contentTitle: { y: 5 },
     map: { y: 10 },
-    contentBody: { y: 70 },
+    title: { y: -25 },
+    content: { y: 70 },
   });
   const [dragging, setDragging] = useState(false);
   const handleMouseDown = (e, element) => {
@@ -64,17 +65,14 @@ const App = () => {
     map: {
       width: 90,
     },
-    contentTitle: {
+    content: {
       width: 90,
-    },
-    contentBody: {
-      width: 90,
-      height: null,
+      height: 20,
       bgColor: "transparent",
-      fontSize: 14,
       fontFamily: "Verdana",
       fontStyle: "normal",
       fontWeight: "normal",
+      fontSize: 14,
       textColor: "#ff9c6e",
       textTransform: "capitalize",
       textDecoration: "none",
@@ -82,6 +80,14 @@ const App = () => {
       borderWidth: 1,
       borderRadius: 0,
       borderColor: "#7c5cffcc",
+    },
+    show: {
+      title: false,
+      address: true,
+      message: true,
+      date: true,
+      time: true,
+      coordinate: true,
     },
   });
 
@@ -99,17 +105,6 @@ const App = () => {
     }
   };
 
-  // content state
-  const [content, setContent] = useState({
-    downloadType: "pdf",
-    fileName: "Poster",
-    message: "look up at the stars",
-    title: "my star map",
-    address: "london, uk",
-    date: new Date().toISOString().split("T")[0],
-    coordinate: "51.5°N, 0.1°W",
-  });
-
   // generic updater for any nested path
   const updateStyles = (path, value) => {
     setStyles((prev) => {
@@ -125,6 +120,23 @@ const App = () => {
     });
   };
 
+  // content state
+  const [content, setContent] = useState({
+    downloadType: "pdf",
+    fileName: "Poster",
+    message: "look up at the stars",
+    title: "my star map",
+    address: "london, uk",
+    date: new Date().toISOString().split("T")[0],
+    time: new Date()
+      .toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      })
+      .toUpperCase(),
+    coordinate: "51.5°N, 0.1°W",
+  });
   const onChangeContent = (key, value) =>
     setContent((prev) => ({ ...prev, [key]: value }));
 
@@ -132,8 +144,7 @@ const App = () => {
     poster: "Poster Settings",
     posterWrapper: "Inner Poster Settings",
     map: "Map Settings",
-    contentTitle: "Title Settings",
-    contentBody: "Text Setting",
+    content: "Content Setting",
   };
   const [drawerMode, setDrawerMode] = useState(null);
   const [open, setOpen] = useState(null);
@@ -224,12 +235,6 @@ const App = () => {
                   drawerMode === "poster" ? "active" : ""
                 }`}
                 style={{
-                  // background:
-                  //   styles.bgType === "solid"
-                  //     ? styles.bgColor
-                  //     : `linear-gradient(to top, ${styles.bgGradientColor.join(
-                  //         ", "
-                  //       )})`,
                   background: getBackground(),
                   borderStyle: styles.borderStyle,
                   borderWidth: `${styles.borderWidth}px`,
@@ -279,58 +284,71 @@ const App = () => {
                     >
                       <MdOutlineEditNote className="editIcon" />
                     </div>
-                    Map
+                    <Map />
                   </div>
                   <div
-                    className={`contentTitle hasIcon ${
-                      drawerMode === "contentTitle" ? "active" : ""
+                    className={`content hasIcon ${
+                      drawerMode === "content" ? "active" : ""
                     }`}
                     style={{
-                      width: `${styles.contentTitle.width}%`,
-                      top: `${positions.contentTitle.y}%`,
+                      width: `${styles.content.width}%`,
+                      height: `${styles.content.height}%`,
+                      backgroundColor: styles.content.bgColor,
+                      top: `${positions.content.y}%`,
+                      color: styles.content.textColor,
+                      fontSize: styles.content.fontSize,
+                      fontFamily: styles.content.fontFamily,
+                      fontStyle: styles.content.fontStyle,
+                      fontWeight: styles.content.fontWeight,
+                      textTransform: styles.content.textTransform,
+                      textDecoration: styles.content.textDecoration,
+                      borderStyle: styles.content.borderStyle,
+                      borderWidth: `${styles.content.borderWidth}px`,
+                      borderRadius: `${styles.content.borderRadius}%`,
+                      borderColor: styles.content.borderColor,
                     }}
-                    onMouseDown={(e) => handleMouseDown(e, "contentTitle")}
+                    onMouseDown={(e) => handleMouseDown(e, "content")}
                   >
                     <div
                       className="iconWrapper"
-                      onClick={() => showDrawer("contentTitle")}
+                      onClick={() => showDrawer("content")}
                     >
                       <MdOutlineEditNote className="editIcon" />
                     </div>
-                    contentTitle
-                  </div>
-                  <div
-                    className={`contentBody hasIcon ${
-                      drawerMode === "contentBody" ? "active" : ""
-                    }`}
-                    style={{
-                      width: `${styles.contentBody.width}%`,
-                      backgroundColor: styles.contentBody.bgColor,
-                      top: `${positions.contentBody.y}%`,
-                      color: styles.contentBody.textColor,
-                      fontSize: styles.contentBody.fontSize,
-                      fontFamily: styles.contentBody.fontFamily,
-                      fontStyle: styles.contentBody.fontStyle,
-                      fontWeight: styles.contentBody.fontWeight,
-                      textTransform: styles.contentBody.textTransform,
-                      textDecoration: styles.contentBody.textDecoration,
-                      borderStyle: styles.contentBody.borderStyle,
-                      borderWidth: `${styles.contentBody.borderWidth}px`,
-                      borderRadius: `${styles.contentBody.borderRadius}%`,
-                      borderColor: styles.contentBody.borderColor,
-                    }}
-                    onMouseDown={(e) => handleMouseDown(e, "contentBody")}
-                  >
-                    <div
-                      className="iconWrapper"
-                      onClick={() => showDrawer("contentBody")}
-                    >
-                      <MdOutlineEditNote className="editIcon" />
-                    </div>
-                    <div className="address">{content.address}</div>
-                    <div className="address">{content.date}</div>
-                    <div className="address">{content.message}</div>
-                    <div className="address">{content.coordinate}</div>
+
+                    {styles.show.title && (
+                      <div
+                        className={`title hasIcon ${
+                          drawerMode === "title" ? "active" : ""
+                        }`}
+                        style={{
+                          top: `${positions.title.y}%`,
+                        }}
+                        onMouseDown={(e) => {
+                          e.stopPropagation();
+                          handleMouseDown(e, "title");
+                        }}
+                      >
+                        {content.title}
+                      </div>
+                    )}
+                    {styles.show.address && (
+                      <div className="address">{content.address}</div>
+                    )}
+                    {styles.show.date && (
+                      <div className="date">
+                        {content.date}
+                        {styles.show.time && (
+                          <span className="ms-1">{content.time}</span>
+                        )}
+                      </div>
+                    )}
+                    {styles.show.message && (
+                      <div className="message">{content.message}</div>
+                    )}
+                    {styles.show.coordinate && (
+                      <div className="coordinate">{content.coordinate}</div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -362,8 +380,8 @@ const App = () => {
                 content={content}
                 onChangeContent={onChangeContent}
               />
-            ) : drawerMode === "contentBody" ? (
-              <ContentBodySetting
+            ) : drawerMode === "content" ? (
+              <ContentSetting
                 styles={styles}
                 updateStyles={updateStyles}
                 content={content}

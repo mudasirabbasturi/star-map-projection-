@@ -105,21 +105,28 @@ body {
    Star Map , content body, title
 ------------------------------ */
 .map, 
-.contentTitle,
-.contentBody {
+.content {
   position: absolute;
   display: flex;
-  justify-content: center;
+  justify-content: end;
   align-items: center;
 }
+.map {
+  justify-content: center;
+}
 
-.contentBody {
+.content {
   flex-direction: column;
+  text-align: center;
+  padding-bottom: 10px;
+}
+
+.title {
+  position: absolute;
 }
 
 .map:hover,
-.contentTitle:hover,
-.contentBody:hover {
+.content:hover {
   cursor: grab;
   background-color: #7d5cff0c;
 }
