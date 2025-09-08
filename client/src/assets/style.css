@@ -105,10 +105,11 @@ body {
    Star Map , content body, title
 ------------------------------ */
 .map, 
-.content {
+.content,
+.title {
   position: absolute;
   display: flex;
-  justify-content: end;
+  justify-content: center;
   align-items: center;
 }
 .map {
@@ -118,7 +119,6 @@ body {
 .content {
   flex-direction: column;
   text-align: center;
-  padding-bottom: 10px;
 }
 
 .title {
@@ -178,4 +178,9 @@ body {
 .mw {
   fill: rgba(255, 255, 255, 0.08);
   pointer-events: none;
+}
+
+h5 {
+  font-size: 14px;
+  display: inline-block;
 }

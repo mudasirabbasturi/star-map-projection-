@@ -12,9 +12,9 @@ const App = () => {
   const canvasRef = useRef(null);
   const [api, contextHolder] = notification.useNotification();
   const [positions, setPositions] = useState({
-    map: { y: 10 },
-    title: { y: -25 },
-    content: { y: 70 },
+    map: { y: 12 },
+    title: { y: 4 },
+    content: { y: 80 },
   });
   const [dragging, setDragging] = useState(false);
   const handleMouseDown = (e, element) => {
@@ -67,7 +67,7 @@ const App = () => {
     },
     content: {
       width: 90,
-      height: 20,
+      height: 15,
       bgColor: "transparent",
       fontFamily: "Verdana",
       fontStyle: "normal",
@@ -80,9 +80,18 @@ const App = () => {
       borderWidth: 1,
       borderRadius: 0,
       borderColor: "#7c5cffcc",
+      title: {
+        fontFamily: "Verdana",
+        fontStyle: "normal",
+        fontWeight: "normal",
+        fontSize: 16,
+        textColor: "#ff783aff",
+        textTransform: "none",
+        textDecoration: "none",
+      },
     },
     show: {
-      title: false,
+      title: true,
       address: true,
       message: true,
       date: true,
@@ -286,6 +295,29 @@ const App = () => {
                     </div>
                     <Map />
                   </div>
+                  {styles.show.title && (
+                    <div
+                      className={`title hasIcon ${
+                        drawerMode === "title" ? "active" : ""
+                      }`}
+                      style={{
+                        top: `${positions.title.y}%`,
+                        color: styles.content.title.textColor,
+                        fontSize: styles.content.title.fontSize,
+                        fontFamily: styles.content.title.fontFamily,
+                        fontStyle: styles.content.title.fontStyle,
+                        fontWeight: styles.content.title.fontWeight,
+                        textTransform: styles.content.title.textTransform,
+                        textDecoration: styles.content.title.textDecoration,
+                      }}
+                      onMouseDown={(e) => {
+                        e.stopPropagation();
+                        handleMouseDown(e, "title");
+                      }}
+                    >
+                      {content.title}
+                    </div>
+                  )}
                   <div
                     className={`content hasIcon ${
                       drawerMode === "content" ? "active" : ""
@@ -315,23 +347,6 @@ const App = () => {
                     >
                       <MdOutlineEditNote className="editIcon" />
                     </div>
-
-                    {styles.show.title && (
-                      <div
-                        className={`title hasIcon ${
-                          drawerMode === "title" ? "active" : ""
-                        }`}
-                        style={{
-                          top: `${positions.title.y}%`,
-                        }}
-                        onMouseDown={(e) => {
-                          e.stopPropagation();
-                          handleMouseDown(e, "title");
-                        }}
-                      >
-                        {content.title}
-                      </div>
-                    )}
                     {styles.show.address && (
                       <div className="address">{content.address}</div>
                     )}
