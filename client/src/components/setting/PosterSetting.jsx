@@ -143,10 +143,23 @@ const PosterSetting = ({ styles, updateStyles, content, onChangeContent }) => {
       {/* Background Color */}
       <div className="mb-2">
         <hr className="mb-1 mt-0" />
-        <div className="d-flex align-items-center">
+        <div className="d-flex align-items-center mb-2">
           <small className="me-2" style={{ whiteSpace: "nowrap" }}>
-            Background Color:
+            Background Type:
           </small>
+          <Select
+            value={styles.bgType}
+            style={{ width: 120 }}
+            onChange={(value) => updateStyles("bgType", value)}
+            options={[
+              { label: "Solid", value: "solid" },
+              { label: "Gradient", value: "gradient" },
+            ]}
+          />
+        </div>
+
+        {styles.bgType === "solid" ? (
+          // --- SOLID COLOR PICKER ---
           <ColorPicker
             style={{ width: "100%" }}
             allowClear
@@ -163,7 +176,116 @@ const PosterSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               overflow: { adjustY: true },
             }}
           />
-        </div>
+        ) : (
+          // --- GRADIENT SETTINGS ---
+          <div>
+            {/* Gradient Type Selector */}
+            <div className="d-flex align-items-center mb-2">
+              <small className="me-2">Gradient Type:</small>
+              <Select
+                value={styles.bgGradientType}
+                style={{ width: 140 }}
+                onChange={(val) => updateStyles("bgGradientType", val)}
+                options={[
+                  { label: "Linear", value: "linear" },
+                  { label: "Radial", value: "radial" },
+                  { label: "Conic", value: "conic" },
+                ]}
+              />
+            </div>
+
+            {/* Angle only for Linear & Conic */}
+            {(styles.bgGradientType === "linear" ||
+              styles.bgGradientType === "conic") && (
+              <div className="d-flex align-items-center mb-2">
+                <small className="me-2">Angle:</small>
+                <InputNumber
+                  min={0}
+                  max={360}
+                  value={styles.bgGradientAngle}
+                  onChange={(val) => updateStyles("bgGradientAngle", val || 0)}
+                />
+                <span className="ms-1">°</span>
+              </div>
+            )}
+
+            {/* Gradient preview bar */}
+            <div
+              style={{
+                height: 30,
+                borderRadius: 6,
+                marginBottom: 8,
+                border: "1px solid #ccc",
+                background: `linear-gradient(to right, ${styles.bgGradientColor.join(
+                  ", "
+                )})`,
+              }}
+            />
+
+            {/* Gradient color pickers */}
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              {styles.bgGradientColor.map((color, index) => (
+                <div
+                  key={index}
+                  style={{ display: "flex", alignItems: "center" }}
+                >
+                  <ColorPicker
+                    value={color}
+                    onChangeComplete={(c) => {
+                      const newColors = [...styles.bgGradientColor];
+                      newColors[index] = c.toCssString();
+                      updateStyles("bgGradientColor", newColors);
+                    }}
+                    styles={{ popupOverlayInner: { width: 480 } }}
+                    presets={presets}
+                    panelRender={customPanelRender}
+                    size="small"
+                  />
+                  {styles.bgGradientColor.length > 2 && (
+                    <button
+                      onClick={() => {
+                        const newColors = styles.bgGradientColor.filter(
+                          (_, i) => i !== index
+                        );
+                        updateStyles("bgGradientColor", newColors);
+                      }}
+                      style={{
+                        marginLeft: 4,
+                        border: "none",
+                        background: "transparent",
+                        cursor: "pointer",
+                        color: "red",
+                      }}
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Add stop button */}
+            <button
+              onClick={() =>
+                updateStyles("bgGradientColor", [
+                  ...styles.bgGradientColor,
+                  "#ffffff",
+                ])
+              }
+              style={{
+                marginTop: 8,
+                padding: "2px 6px",
+                border: "1px solid #ccc",
+                borderRadius: 4,
+                background: "#f9f9f9",
+                cursor: "pointer",
+              }}
+            >
+              + Add Color Stop
+            </button>
+          </div>
+        )}
+
         <hr className="mb-0 mt-1" />
       </div>
 

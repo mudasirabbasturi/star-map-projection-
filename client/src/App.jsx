@@ -43,7 +43,11 @@ const App = () => {
   // unified state for all styles
   const [styles, setStyles] = useState({
     paperSize: "A4",
+    bgType: "solid",
     bgColor: "#020202ff",
+    bgGradientColor: ["#a80077ff", "#66ff00"],
+    bgGradientType: "linear", // linear | radial | conic
+    bgGradientAngle: 90, // only for linear/conic
     borderStyle: "solid",
     borderWidth: 1,
     borderRadius: 0,
@@ -80,6 +84,20 @@ const App = () => {
       borderColor: "#7c5cffcc",
     },
   });
+
+  const getBackground = () => {
+    if (styles.bgType === "solid") return styles.bgColor;
+    const colors = styles.bgGradientColor.join(", ");
+    if (styles.bgGradientType === "linear") {
+      return `linear-gradient(${styles.bgGradientAngle}deg, ${colors})`;
+    }
+    if (styles.bgGradientType === "radial") {
+      return `radial-gradient(circle, ${colors})`;
+    }
+    if (styles.bgGradientType === "conic") {
+      return `conic-gradient(from ${styles.bgGradientAngle}deg, ${colors})`;
+    }
+  };
 
   // content state
   const [content, setContent] = useState({
@@ -206,7 +224,13 @@ const App = () => {
                   drawerMode === "poster" ? "active" : ""
                 }`}
                 style={{
-                  backgroundColor: styles.bgColor,
+                  // background:
+                  //   styles.bgType === "solid"
+                  //     ? styles.bgColor
+                  //     : `linear-gradient(to top, ${styles.bgGradientColor.join(
+                  //         ", "
+                  //       )})`,
+                  background: getBackground(),
                   borderStyle: styles.borderStyle,
                   borderWidth: `${styles.borderWidth}px`,
                   borderRadius: `${styles.borderRadius}%`,
