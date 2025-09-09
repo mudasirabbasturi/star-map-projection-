@@ -1,11 +1,17 @@
-import { useState, useRef, Suspense } from "react";
+import { useState, useEffect, useRef, Suspense, lazy } from "react";
 import { Drawer, notification, Spin } from "antd";
 import { MdOutlineEditNote } from "react-icons/md";
-import Sidebar from "./components/Sidebar";
-import PosterSetting from "./components/setting/PosterSetting";
-import PosterWrapperSetting from "./components/setting/PosterWrapperSetting";
-import ContentSetting from "./components/setting/ContentSetting";
-import Map from "./components/Map";
+
+const Sidebar = lazy(() => import("./components/Sidebar"));
+const PosterSetting = lazy(() => import("./components/setting/PosterSetting"));
+const PosterWrapperSetting = lazy(() =>
+  import("./components/setting/PosterWrapperSetting")
+);
+const ContentSetting = lazy(() =>
+  import("./components/setting/ContentSetting")
+);
+const MapSetting = lazy(() => import("./components/setting/MapSetting"));
+const Map = lazy(() => import("./components/Map"));
 
 const App = () => {
   const [loading, setLoading] = useState(false);
@@ -64,6 +70,22 @@ const App = () => {
     },
     map: {
       width: 90,
+      height: null,
+      maskShape: "heart",
+      bgColor: "transparent",
+      strokeColor: "#eee",
+      strokeStyle: "solid",
+      strokeWidth: 1,
+      showStars: true,
+      showMilkyway: true,
+      milkywayOpacity: 0.2,
+      showConstellations: true,
+      showPlanets: true,
+      showMoon: true,
+      sizeMult: 1,
+      magLimit: 6.5,
+      lat: 51.5,
+      lon: -0.1,
     },
     content: {
       width: 90,
@@ -76,8 +98,8 @@ const App = () => {
       textColor: "#ff9c6e",
       textTransform: "capitalize",
       textDecoration: "none",
-      borderStyle: "solid",
-      borderWidth: 1,
+      borderStyle: "none",
+      borderWidth: 0,
       borderRadius: 0,
       borderColor: "#7c5cffcc",
       title: {
@@ -86,7 +108,7 @@ const App = () => {
         fontWeight: "normal",
         fontSize: 16,
         textColor: "#ff783aff",
-        textTransform: "none",
+        textTransform: "capitalize",
         textDecoration: "none",
       },
     },
@@ -129,120 +151,37 @@ const App = () => {
     });
   };
 
-  // content state
-  const [content, setContent] = useState({
-    downloadType: "pdf",
-    fileName: "Poster",
-    message: "look up at the stars",
-    title: "my star map",
-    address: "london, uk",
-    date: new Date().toISOString().split("T")[0],
-    time: new Date()
-      .toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: true,
-      })
-      .toUpperCase(),
-    coordinate: "51.5°N, 0.1°W",
-  });
-  const onChangeContent = (key, value) =>
-    setContent((prev) => ({ ...prev, [key]: value }));
+  // stars,map state
+  const [starsData, setStarsData] = useState({ features: [] });
+  const [mwData, setMwData] = useState({ features: [] });
+  const [constData, setConstData] = useState({ features: [] });
+  const [centerRA, setCenterRA] = useState(0);
 
-  const drawerTitles = {
-    poster: "Poster Settings",
-    posterWrapper: "Inner Poster Settings",
-    map: "Map Settings",
-    content: "Content Setting",
-  };
-  const [drawerMode, setDrawerMode] = useState(null);
-  const [open, setOpen] = useState(null);
-
-  const showDrawer = (mode) => {
-    setDrawerMode(mode);
-    setOpen(true);
-  };
-  const closeDrawer = () => {
-    setDrawerMode(null);
-    setOpen(null);
-  };
-
-  const openNotificationWithIcon = (fileName, folder, url) => {
-    api.success({
-      message: `✅ ${fileName} saved!`,
-      description: (
-        <span>
-          Saved in folder: <b>{folder}</b> <br />
-          <a href={url} target="_blank" rel="noreferrer">
-            Open File
-          </a>
-        </span>
-      ),
-      duration: 6,
-    });
-  };
-
-  const handleScreenShot = async () => {
-    if (!canvasRef.current) return;
+  useEffect(() => {
     setLoading(true);
-    try {
-      const htmlContent = canvasRef.current.outerHTML;
-      const cssText = Array.from(document.styleSheets)
-        .map((sheet) => {
-          try {
-            return Array.from(sheet.cssRules)
-              .map((rule) => rule.cssText)
-              .join("");
-          } catch {
-            return "";
-          }
-        })
-        .join("\n");
-
-      const fullHTML = `<html>
-        <head><meta charset="UTF-8"><style>${cssText}</style></head>
-        <body>${htmlContent}</body>
-      </html>`;
-
-      const response = await fetch("http://localhost:3001/api/screenshot", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          html: fullHTML,
-          paperSize: styles.paperSize,
-          fileName: content.fileName,
-          downloadType: content.downloadType,
-        }),
-      });
-      if (!response.ok) throw new Error("Failed to capture screenshot");
-      const data = await response.json();
-      openNotificationWithIcon(data.fileName, data.folder, data.url);
-      window.open(data.url, "_blank");
-      console.log("✅ File saved:", data);
-    } catch (err) {
-      console.error("Error capturing screenshot:", err);
-      api.error({
-        message: "❌ Error saving file",
-        description: err.message,
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+    Promise.all([
+      fetch("/json/stars.6.json").then((r) => r.json()),
+      fetch("/json/mw.json").then((r) => r.json()),
+      fetch("/json/constellations.lines.json").then((r) => r.json()),
+    ])
+      .then(([stars, mw, constellations]) => {
+        setStarsData(stars);
+        setMwData(mw);
+        setConstData(constellations);
+      })
+      .catch((err) => console.error("Failed to load JSON data:", err))
+      .finally(() => setLoading(false));
+  }, []);
 
   return (
     <>
-      {contextHolder}
       <div className="app-container">
-        <Sidebar loading={loading} handleScreenShot={handleScreenShot} />
         <div className="main-body">
           <Spin spinning={loading} tip="Generating poster..." size="large">
             <Suspense fallback={<div>Loading Map...</div>}>
               <div
                 ref={canvasRef}
-                className={`poster hasIcon ${
-                  drawerMode === "poster" ? "active" : ""
-                }`}
+                className={`poster hasIcon `}
                 style={{
                   background: getBackground(),
                   borderStyle: styles.borderStyle,
@@ -251,16 +190,11 @@ const App = () => {
                   borderColor: styles.borderColor,
                 }}
               >
-                <div
-                  className="iconWrapper"
-                  onClick={() => showDrawer("poster")}
-                >
+                <div className="iconWrapper">
                   <MdOutlineEditNote className="editIcon" />
                 </div>
                 <div
-                  className={`posterWrapper hasIcon ${
-                    drawerMode === "posterWrapper" ? "active" : ""
-                  }`}
+                  className={`posterWrapper hasIcon`}
                   style={{
                     width: `${styles.posterWrapper.width}%`,
                     height: `${styles.posterWrapper.height}%`,
@@ -271,99 +205,24 @@ const App = () => {
                     borderColor: styles.posterWrapper.borderColor,
                   }}
                 >
-                  <div
-                    className="iconWrapper"
-                    onClick={() => showDrawer("posterWrapper")}
-                  >
+                  <div className="iconWrapper">
                     <MdOutlineEditNote className="editIcon" />
                   </div>
                   <div
-                    className={`map hasIcon ${
-                      drawerMode === "map" ? "active" : ""
-                    }`}
+                    className={`map hasIcon `}
                     style={{
                       width: `${styles.map.width}%`,
                       top: `${positions.map.y}%`,
                     }}
                     onMouseDown={(e) => handleMouseDown(e, "map")}
                   >
-                    <div
-                      className="iconWrapper"
-                      onClick={() => showDrawer("map")}
-                    >
+                    <div className="iconWrapper">
                       <MdOutlineEditNote className="editIcon" />
                     </div>
-                    <Map />
-                  </div>
-                  {styles.show.title && (
-                    <div
-                      className={`title hasIcon ${
-                        drawerMode === "title" ? "active" : ""
-                      }`}
-                      style={{
-                        top: `${positions.title.y}%`,
-                        color: styles.content.title.textColor,
-                        fontSize: styles.content.title.fontSize,
-                        fontFamily: styles.content.title.fontFamily,
-                        fontStyle: styles.content.title.fontStyle,
-                        fontWeight: styles.content.title.fontWeight,
-                        textTransform: styles.content.title.textTransform,
-                        textDecoration: styles.content.title.textDecoration,
-                      }}
-                      onMouseDown={(e) => {
-                        e.stopPropagation();
-                        handleMouseDown(e, "title");
-                      }}
-                    >
-                      {content.title}
-                    </div>
-                  )}
-                  <div
-                    className={`content hasIcon ${
-                      drawerMode === "content" ? "active" : ""
-                    }`}
-                    style={{
-                      width: `${styles.content.width}%`,
-                      height: `${styles.content.height}%`,
-                      backgroundColor: styles.content.bgColor,
-                      top: `${positions.content.y}%`,
-                      color: styles.content.textColor,
-                      fontSize: styles.content.fontSize,
-                      fontFamily: styles.content.fontFamily,
-                      fontStyle: styles.content.fontStyle,
-                      fontWeight: styles.content.fontWeight,
-                      textTransform: styles.content.textTransform,
-                      textDecoration: styles.content.textDecoration,
-                      borderStyle: styles.content.borderStyle,
-                      borderWidth: `${styles.content.borderWidth}px`,
-                      borderRadius: `${styles.content.borderRadius}%`,
-                      borderColor: styles.content.borderColor,
-                    }}
-                    onMouseDown={(e) => handleMouseDown(e, "content")}
-                  >
-                    <div
-                      className="iconWrapper"
-                      onClick={() => showDrawer("content")}
-                    >
-                      <MdOutlineEditNote className="editIcon" />
-                    </div>
-                    {styles.show.address && (
-                      <div className="address">{content.address}</div>
-                    )}
-                    {styles.show.date && (
-                      <div className="date">
-                        {content.date}
-                        {styles.show.time && (
-                          <span className="ms-1">{content.time}</span>
-                        )}
-                      </div>
-                    )}
-                    {styles.show.message && (
-                      <div className="message">{content.message}</div>
-                    )}
-                    {styles.show.coordinate && (
-                      <div className="coordinate">{content.coordinate}</div>
-                    )}
+                    <Map
+                      mapData={{ starsData, mwData, constData, centerRA }}
+                      mapStyle={styles.map}
+                    />
                   </div>
                 </div>
               </div>
@@ -371,41 +230,6 @@ const App = () => {
           </Spin>
         </div>
       </div>
-
-      <Drawer
-        title={drawerTitles[drawerMode]}
-        open={open}
-        onClose={closeDrawer}
-        mask={false}
-        placement="left"
-      >
-        {open && (
-          <Suspense fallback={<div>Loading Sections...</div>}>
-            {drawerMode === "poster" ? (
-              <PosterSetting
-                styles={styles}
-                updateStyles={updateStyles}
-                content={content}
-                onChangeContent={onChangeContent}
-              />
-            ) : drawerMode === "posterWrapper" ? (
-              <PosterWrapperSetting
-                styles={styles}
-                updateStyles={updateStyles}
-                content={content}
-                onChangeContent={onChangeContent}
-              />
-            ) : drawerMode === "content" ? (
-              <ContentSetting
-                styles={styles}
-                updateStyles={updateStyles}
-                content={content}
-                onChangeContent={onChangeContent}
-              />
-            ) : null}
-          </Suspense>
-        )}
-      </Drawer>
     </>
   );
 };
