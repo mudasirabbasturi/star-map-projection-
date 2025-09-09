@@ -1,28 +1,22 @@
 // src/components/shapes.jsx
 import React from "react";
 
-export const makeCircle = () => (
-  <circle
-    cx={600}
-    cy={600}
-    r={500}
-    fill="none"
-    stroke="white"
-    strokeWidth={2}
-  />
-);
-
-export const makeRect = () => (
-  <rect
-    x="100"
-    y="100"
-    width="1000"
-    height="1000"
-    fill="none"
-    stroke="white"
-    strokeWidth={2}
-  />
-);
+// export const makeRect = () => (
+//   <rect
+//     x="100"
+//     y="100"
+//     width="1000"
+//     height="1000"
+//     fill="none"
+//     stroke="white"
+//     strokeWidth={2}
+//   />
+// );
+export const makeRect = () => {
+  return (
+    <rect x="0" y="0" width="1200" height="1200" preserveAspectRatio="none" />
+  );
+};
 
 export const makeTriangle = () => (
   <polygon

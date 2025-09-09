@@ -1,12 +1,6 @@
 // src/components/map/Map.jsx
 import React, { useEffect, useRef, useState } from "react";
-import {
-  makeCircle,
-  makeRect,
-  makeTriangle,
-  makeHeart,
-  makeApple,
-} from "./shapes";
+import { makeRect, makeTriangle, makeHeart, makeApple } from "./shapes";
 import { starRadius } from "./helpers";
 import * as Astronomy from "astronomy-engine";
 import * as d3 from "d3-geo";
@@ -60,7 +54,7 @@ const Map = ({
   },
 }) => {
   const svgRef = useRef(null);
-  const [maskElement, setMaskElement] = useState(makeCircle());
+  const [maskElement, setMaskElement] = useState(makeHeart());
 
   const {
     maskShape = "circle",
@@ -73,8 +67,7 @@ const Map = ({
     strokeColor = "#eee",
     strokeWidth = 1,
     strokeStyle = "solid",
-    fill = "transparent",
-    bgColor = "transparent",
+    fill = "transparent", // This will now be used for projection background
     lat = 51.5,
     lon = -0.1,
     milkywayOpacity = 0.2,
@@ -95,11 +88,8 @@ const Map = ({
       case "triangle":
         setMaskElement(makeTriangle());
         break;
-      case "apple":
-        setMaskElement(makeApple());
-        break;
       default:
-        setMaskElement(makeCircle());
+        setMaskElement(makeApple());
     }
   }, [maskShape]);
 
@@ -127,6 +117,24 @@ const Map = ({
     } catch {
       return { x: NaN, y: NaN };
     }
+  };
+
+  // Create projection background (the sphere/globe fill)
+  const createProjectionBackground = () => {
+    if (fill === "transparent" || fill === "none") return null;
+
+    // For all shapes, create a background that fills the entire clip area
+    // This will be clipped by the maskShape
+    return (
+      <rect
+        x="0"
+        y="0"
+        width="1200"
+        height="1200"
+        fill={fill}
+        className="projection-background"
+      />
+    );
   };
 
   // ---------------------- Stars ------------------------------------------
@@ -411,11 +419,25 @@ const Map = ({
   ]);
 
   const calculateShapeTransform = (shapeElement, maskShape) => {
+    if (maskShape === "circle") {
+      return "translate(0,0) scale(1)";
+    }
     if (maskShape === "apple") {
       return "translate(-30, -10) scale(1.11)";
     }
     if (maskShape === "heart") {
-      return "translate(-600, -600) scale(1.8)";
+      return "translate(-207, -450) scale(1.35)";
+    }
+    if (maskShape === "triangle") {
+      return "translate(-60,-10) scale(1.1)";
+    }
+    if (maskShape === "rect") {
+      // Calculate the transform to make the rectangle fill the entire 1200x1200 viewbox
+      const rectWidth = 1000; // Assuming your rectangle's original width
+      const rectHeight = 800; // Assuming your rectangle's original height
+      const scaleX = 1200 / rectWidth;
+      const scaleY = 1200 / rectHeight;
+      return `translate(0,0) scale(${scaleX}, ${scaleY})`;
     }
     if (maskShape === "circle") {
       const r = shapeElement.props.r || 500;
@@ -481,6 +503,11 @@ const Map = ({
   };
 
   const getShapeTransform = (shape) => {
+    if (shape === "circle") {
+      // return "";
+      return "translate(18,18) scale(.97)";
+    }
+    if (!shape || shape === "circle") return "";
     let shapeElement;
 
     switch (shape) {
@@ -496,24 +523,37 @@ const Map = ({
       case "rect":
         shapeElement = makeRect();
         break;
-      default: // circle
-        shapeElement = makeCircle();
-        break;
+      default:
+        return "";
     }
 
     return calculateShapeTransform(shapeElement, shape);
   };
 
   return (
-    <svg width="100%" height="100%" ref={svgRef} viewBox="0 0 1200 1200">
+    <svg
+      width="100%"
+      height="100%"
+      ref={svgRef}
+      viewBox="0 0 1200 1200"
+      preserveAspectRatio={maskShape === "rect" ? "none" : undefined}
+    >
       <defs>
+        {/* Always define clipPath, even for circle */}
         <clipPath id="maskShape" transform={getShapeTransform(maskShape)}>
-          {maskElement}
+          {maskShape === "circle" ? (
+            <circle cx="600" cy="600" r="600" />
+          ) : (
+            maskElement
+          )}
         </clipPath>
       </defs>
 
-      {/* Apply clip path to content */}
+      {/* Always apply clipPath to contain all elements */}
       <g clipPath="url(#maskShape)">
+        {/* Projection background - appears behind everything but inside the clip */}
+        {createProjectionBackground()}
+
         <g id="mwLayer" />
         <g id="starsLayer" />
         <g id="constLinesLayer" />
@@ -521,14 +561,26 @@ const Map = ({
         <g id="planetsLayer" />
       </g>
 
-      {/* Optional: Add shape outline */}
+      {/* Always render outline for all shapes including circle */}
       <g id="shapeOutline" transform={getShapeTransform(maskShape)}>
-        {React.cloneElement(maskElement, {
-          fill: "none",
-          stroke: strokeColor,
-          strokeWidth,
-          strokeDasharray: getStrokeDashArray(strokeStyle),
-        })}
+        {maskShape === "circle" ? (
+          <circle
+            cx="600"
+            cy="600"
+            r="600"
+            fill="transparent"
+            stroke={strokeColor}
+            strokeWidth={strokeWidth}
+            strokeDasharray={getStrokeDashArray(strokeStyle)}
+          />
+        ) : (
+          React.cloneElement(maskElement, {
+            fill: "transparent",
+            stroke: strokeColor,
+            strokeWidth,
+            strokeDasharray: getStrokeDashArray(strokeStyle),
+          })
+        )}
       </g>
     </svg>
   );

@@ -257,7 +257,7 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               value={styles.content.height}
               className="w-100 me-2 mt-0 mb-0"
               size="small"
-              min={30}
+              min={10}
               max={100}
               onChange={(value) => updateStyles("content.height", value)}
             />

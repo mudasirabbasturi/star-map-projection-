@@ -114,7 +114,7 @@ body {
 }
 .map {
   justify-content: center;
-  border: 1px solid #ddd;
+  /* border: 1px solid #ddd; */
 }
 
 .content {

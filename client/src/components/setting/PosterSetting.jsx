@@ -54,28 +54,26 @@ const PosterSetting = ({ styles, updateStyles, content, onChangeContent }) => {
     grey,
   });
 
-  const customPanelRender = (_, { components: { Picker, Presets } }) => {
-    return (
-      <Row justify="space-between" wrap={false}>
-        <Col span={12}>
-          <div
-            style={{
-              height: 300,
-              overflowY: "auto",
-              padding: "5px 0 5px 4px",
-              margin: "0px",
-            }}
-          >
-            <Presets />
-          </div>
-        </Col>
-        <Divider type="vertical" style={{ height: "auto" }} />
-        <Col flex="auto">
-          <Picker />
-        </Col>
-      </Row>
-    );
-  };
+  const customPanelRender = (_, { components: { Picker, Presets } }) => (
+    <Row justify="space-between" wrap={false}>
+      <Col span={12}>
+        <div
+          style={{
+            height: 300,
+            overflowY: "auto",
+            padding: "5px 0 5px 4px",
+            margin: 0,
+          }}
+        >
+          <Presets />
+        </div>
+      </Col>
+      <Divider type="vertical" style={{ height: "auto" }} />
+      <Col flex="auto">
+        <Picker />
+      </Col>
+    </Row>
+  );
 
   return (
     <>
@@ -83,13 +81,13 @@ const PosterSetting = ({ styles, updateStyles, content, onChangeContent }) => {
       <div className="mb-2">
         <hr className="mb-1 mt-0" />
         <div className="d-flex align-items-center">
-          <small className="me-2" style={{ whiteSpace: "nowrap" }}>
+          <small style={{ whiteSpace: "nowrap" }} className="me-2">
             Paper Size:
           </small>
           <Select
             className="w-100"
             value={styles.paperSize}
-            onChange={(value) => updateStyles("paperSize", value)}
+            onChange={(val) => updateStyles("paperSize", val)}
             options={[
               { label: "A0", value: "A0" },
               { label: "A1", value: "A1" },
@@ -105,17 +103,18 @@ const PosterSetting = ({ styles, updateStyles, content, onChangeContent }) => {
         </div>
         <hr className="mb-0 mt-1" />
       </div>
+
       {/* Download Type */}
       <div className="mb-2">
         <hr className="mb-1 mt-0" />
         <div className="d-flex align-items-center">
-          <small className="me-2" style={{ whiteSpace: "nowrap" }}>
+          <small style={{ whiteSpace: "nowrap" }} className="me-2">
             Download Type:
           </small>
           <Select
             className="w-100"
             value={content.downloadType}
-            onChange={(value) => onChangeContent("downloadType", value)}
+            onChange={(val) => onChangeContent("downloadType", val)}
             options={[
               { label: "PDF", value: "pdf" },
               { label: "PNG", value: "png" },
@@ -125,11 +124,12 @@ const PosterSetting = ({ styles, updateStyles, content, onChangeContent }) => {
         </div>
         <hr className="mb-0 mt-1" />
       </div>
-      {/* Download File Name */}
+
+      {/* File Name */}
       <div className="mb-2">
         <hr className="mb-1 mt-0" />
         <div className="d-flex align-items-center">
-          <small className="me-2" style={{ whiteSpace: "nowrap" }}>
+          <small style={{ whiteSpace: "nowrap" }} className="me-2">
             File Name:
           </small>
           <Input
@@ -140,17 +140,18 @@ const PosterSetting = ({ styles, updateStyles, content, onChangeContent }) => {
         </div>
         <hr className="mb-0 mt-1" />
       </div>
-      {/* Background Color */}
+
+      {/* Background */}
       <div className="mb-2">
         <hr className="mb-1 mt-0" />
         <div className="d-flex align-items-center mb-2">
-          <small className="me-2" style={{ whiteSpace: "nowrap" }}>
+          <small style={{ whiteSpace: "nowrap" }} className="me-2">
             Background Type:
           </small>
           <Select
             value={styles.bgType}
             style={{ width: 120 }}
-            onChange={(value) => updateStyles("bgType", value)}
+            onChange={(val) => updateStyles("bgType", val)}
             options={[
               { label: "Solid", value: "solid" },
               { label: "Gradient", value: "gradient" },
@@ -159,29 +160,23 @@ const PosterSetting = ({ styles, updateStyles, content, onChangeContent }) => {
         </div>
 
         {styles.bgType === "solid" ? (
-          // --- SOLID COLOR PICKER ---
           <ColorPicker
             style={{ width: "100%" }}
             allowClear
             value={styles.bgColor}
-            onChangeComplete={(color) =>
-              updateStyles("bgColor", color.toCssString())
-            }
+            onChangeComplete={(c) => updateStyles("bgColor", c.toCssString())}
             styles={{ popupOverlayInner: { width: 480 } }}
             presets={presets}
             panelRender={customPanelRender}
             size="small"
-            dropdownAlign={{
-              points: ["tl", "bl"],
-              overflow: { adjustY: true },
-            }}
           />
         ) : (
-          // --- GRADIENT SETTINGS ---
           <div>
-            {/* Gradient Type Selector */}
+            {/* Gradient Type */}
             <div className="d-flex align-items-center mb-2">
-              <small className="me-2">Gradient Type:</small>
+              <small style={{ whiteSpace: "nowrap" }} className="me-2">
+                Gradient Type:
+              </small>
               <Select
                 value={styles.bgGradientType}
                 style={{ width: 140 }}
@@ -194,11 +189,13 @@ const PosterSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               />
             </div>
 
-            {/* Angle only for Linear & Conic */}
+            {/* Angle for Linear/Conic */}
             {(styles.bgGradientType === "linear" ||
               styles.bgGradientType === "conic") && (
               <div className="d-flex align-items-center mb-2">
-                <small className="me-2">Angle:</small>
+                <small style={{ whiteSpace: "nowrap" }} className="me-2">
+                  Angle:
+                </small>
                 <InputNumber
                   min={0}
                   max={360}
@@ -209,7 +206,7 @@ const PosterSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               </div>
             )}
 
-            {/* Gradient preview bar */}
+            {/* Gradient Preview */}
             <div
               style={{
                 height: 30,
@@ -222,18 +219,18 @@ const PosterSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               }}
             />
 
-            {/* Gradient color pickers */}
+            {/* Gradient Colors */}
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              {styles.bgGradientColor.map((color, index) => (
+              {styles.bgGradientColor.map((color, idx) => (
                 <div
-                  key={index}
+                  key={idx}
                   style={{ display: "flex", alignItems: "center" }}
                 >
                   <ColorPicker
                     value={color}
                     onChangeComplete={(c) => {
                       const newColors = [...styles.bgGradientColor];
-                      newColors[index] = c.toCssString();
+                      newColors[idx] = c.toCssString();
                       updateStyles("bgGradientColor", newColors);
                     }}
                     styles={{ popupOverlayInner: { width: 480 } }}
@@ -245,7 +242,7 @@ const PosterSetting = ({ styles, updateStyles, content, onChangeContent }) => {
                     <button
                       onClick={() => {
                         const newColors = styles.bgGradientColor.filter(
-                          (_, i) => i !== index
+                          (_, i) => i !== idx
                         );
                         updateStyles("bgGradientColor", newColors);
                       }}
@@ -264,7 +261,6 @@ const PosterSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               ))}
             </div>
 
-            {/* Add stop button */}
             <button
               onClick={() =>
                 updateStyles("bgGradientColor", [
@@ -289,92 +285,82 @@ const PosterSetting = ({ styles, updateStyles, content, onChangeContent }) => {
         <hr className="mb-0 mt-1" />
       </div>
 
-      {/* Border Style */}
-      <div className="mb-2">
-        <hr className="mb-1 mt-0" />
-        <div className="d-flex align-items-center">
-          <small className="me-2" style={{ whiteSpace: "nowrap" }}>
-            Border Style:
-          </small>
-          <Select
-            className="w-100"
-            value={styles.borderStyle}
-            onChange={(value) => updateStyles("borderStyle", value)}
-            size="small"
-            options={[
-              { label: "Solid", value: "solid" },
-              { label: "Dashed", value: "dashed" },
-              { label: "Dotted", value: "dotted" },
-              { label: "Double", value: "double" },
-              { label: "None", value: "none" },
-            ]}
-          />
+      {/* Border Settings */}
+      {[
+        {
+          label: "Border Style",
+          key: "borderStyle",
+          type: "select",
+          options: [
+            { label: "Solid", value: "solid" },
+            { label: "Dashed", value: "dashed" },
+            { label: "Dotted", value: "dotted" },
+            { label: "Double", value: "double" },
+            { label: "None", value: "none" },
+          ],
+        },
+        {
+          label: "Border Width",
+          key: "borderWidth",
+          type: "number",
+          min: 0,
+          max: 20,
+        },
+        {
+          label: "Border Radius",
+          key: "borderRadius",
+          type: "number",
+          min: 0,
+          max: 50,
+        },
+      ].map((item) => (
+        <div className="mb-2" key={item.key}>
+          <hr className="mb-1 mt-0" />
+          <div className="d-flex align-items-center">
+            <small style={{ whiteSpace: "nowrap" }} className="me-2">
+              {item.label}:
+            </small>
+            {item.type === "select" ? (
+              <Select
+                className="w-100"
+                size="small"
+                value={styles[item.key]}
+                onChange={(val) => updateStyles(item.key, val)}
+                options={item.options}
+              />
+            ) : (
+              <InputNumber
+                className="w-100"
+                size="small"
+                min={item.min}
+                max={item.max}
+                value={styles[item.key]}
+                onChange={(val) => updateStyles(item.key, val || 0)}
+              />
+            )}
+          </div>
+          <hr className="mb-0 mt-1" />
         </div>
-        <hr className="mb-0 mt-1" />
-      </div>
-
-      {/* Border Width */}
-      <div className="mb-2">
-        <hr className="mb-1 mt-0" />
-        <div className="d-flex align-items-center">
-          <small className="me-2" style={{ whiteSpace: "nowrap" }}>
-            Border Width:
-          </small>
-          <InputNumber
-            value={styles.borderWidth}
-            className="w-100"
-            size="small"
-            min={0}
-            max={20}
-            onChange={(value) => updateStyles("borderWidth", value || 0)}
-          />
-        </div>
-        <hr className="mb-0 mt-1" />
-      </div>
-
-      {/* Border Radius */}
-      <div className="mb-2">
-        <hr className="mb-1 mt-0" />
-        <div className="d-flex align-items-center">
-          <small className="me-2" style={{ whiteSpace: "nowrap" }}>
-            Border Radius:
-          </small>
-          <InputNumber
-            value={styles.borderRadius}
-            className="w-100"
-            size="small"
-            min={0}
-            max={50}
-            onChange={(value) => updateStyles("borderRadius", value || 0)}
-          />
-        </div>
-        <hr className="mb-0 mt-1" />
-      </div>
+      ))}
 
       {/* Border Color */}
       <div className="mb-2">
         <hr className="mb-1 mt-0" />
         <div className="d-flex align-items-center">
-          <small className="me-2" style={{ whiteSpace: "nowrap" }}>
+          <small style={{ whiteSpace: "nowrap" }} className="me-2">
             Border Color:
           </small>
           <ColorPicker
-            style={{
-              width: "100%",
-            }}
+            style={{ width: "100%" }}
             allowClear
             value={styles.borderColor}
-            onChangeComplete={(color) =>
-              updateStyles("borderColor", color.toCssString())
+            onChangeComplete={(c) =>
+              updateStyles("borderColor", c.toCssString())
             }
             styles={{ popupOverlayInner: { width: 480 } }}
             presets={presets}
             panelRender={customPanelRender}
             size="small"
-            dropdownAlign={{
-              points: ["tl", "bl"],
-              overflow: { adjustY: true },
-            }}
           />
         </div>
         <hr className="mb-0 mt-1" />
