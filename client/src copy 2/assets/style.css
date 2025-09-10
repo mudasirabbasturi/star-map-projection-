@@ -49,14 +49,12 @@ body {
   padding: 0px;
   cursor: pointer;
   border: 1px solid #7c5cffcc;
-  border: 1px solid #ffffffcc;
   border-radius: 6px;
   color: #7c5cffcc;
-  color: #ffffffcc;
 }
 
 .sidebarIcon:hover {
-  background-color: rgb(48, 48, 48);
+  background-color: #7c5cffcc;
   color: #ffffff;
 }
 

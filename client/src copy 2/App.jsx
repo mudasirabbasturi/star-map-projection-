@@ -227,8 +227,7 @@ const App = () => {
       duration: 6,
     });
   };
-
-  // screen shot
+  // screenShot
   const handleScreenShot = async () => {
     if (!canvasRef.current) return;
     setLoading(true);
@@ -277,100 +276,11 @@ const App = () => {
     }
   };
 
-  // Export
-  // const handleExport = () => {
-  //   const finalState = { positions, styles, content };
-  //   const dataStr = JSON.stringify(finalState, null, 2);
-  //   const blob = new Blob([dataStr], { type: "application/json" });
-  //   const folder = `files/styles/${styles.paperSize}`;
-  //   const fileName = `${content.fileName}Styles.json`;
-  //   const fullPath = `${folder}/${fileName}`;
-  //   const link = document.createElement("a");
-  //   link.href = URL.createObjectURL(blob);
-  //   link.download = fileName;
-  //   link.click();
-  //   URL.revokeObjectURL(link.href);
-  //   console.log("📁 Export path (for backend style):", fullPath);
-  // };
-
-  // const handleExport = async () => {
-  //   try {
-  //     const finalState = { positions, styles, content };
-  //     const res = await fetch("http://localhost:3001/api/export-style", {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify(finalState),
-  //     });
-  //     const data = await res.json();
-  //     if (data.success) {
-  //       console.log("✅ File saved at:", data.url);
-  //     } else {
-  //       console.error("❌ Export failed");
-  //     }
-  //   } catch (err) {
-  //     console.error("Export error:", err);
-  //   }
-  // };
-  // Export
-  const handleExport = async () => {
-    try {
-      const finalState = { positions, styles, content };
-      const res = await fetch("http://localhost:3001/api/export-style", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(finalState),
-      });
-      if (!res.ok) throw new Error("Export request failed");
-      const data = await res.json();
-      if (data.success) {
-        openNotificationWithIcon(data.fileName, data.folder, data.url);
-        console.log("✅ File saved at:", data.url);
-      } else {
-        api.error({
-          message: "❌ Export failed",
-          description: data.message || "Unknown error",
-        });
-      }
-    } catch (err) {
-      console.error("Export error:", err);
-      api.error({
-        message: "❌ Error exporting file",
-        description: err.message,
-      });
-    }
-  };
-
-  // import
-  const handleImport = (event) => {
-    setLoading(true);
-    const file = event.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const importedState = JSON.parse(e.target.result);
-        if (importedState.positions) setPositions(importedState.positions);
-        if (importedState.styles) setStyles(importedState.styles);
-        if (importedState.content) setContent(importedState.content);
-        setLoading(false);
-      } catch (err) {
-        console.error("Failed to import JSON:", err);
-        alert("Invalid JSON file.");
-      }
-    };
-    reader.readAsText(file);
-  };
-
   return (
     <>
       {contextHolder}
       <div className="app-container">
-        <Sidebar
-          loading={loading}
-          handleScreenShot={handleScreenShot}
-          handleExport={handleExport}
-          handleImport={handleImport}
-        />
+        <Sidebar loading={loading} handleScreenShot={handleScreenShot} />
         <div className="main-body">
           <Spin spinning={loading} tip="Generating poster..." size="large">
             <Suspense fallback={<div>Loading Map...</div>}>

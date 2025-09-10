@@ -76,6 +76,36 @@ app.post("/api/screenshot", async (req, res) => {
     res.status(500).send("Error generating file");
   }
 });
+
+app.post("/api/export-style", (req, res) => {
+  try {
+    const { positions, styles, content } = req.body;
+    const folderPath = path.join(
+      __dirname,
+      "../client/public/files/styles",
+      styles.paperSize
+    );
+    fs.mkdirSync(folderPath, { recursive: true });
+
+    const fileName = `${content.fileName}Styles.json`;
+    const filePath = path.join(folderPath, fileName);
+
+    fs.writeFileSync(
+      filePath,
+      JSON.stringify({ positions, styles, content }, null, 2)
+    );
+
+    res.json({
+      success: true,
+      fileName,
+      url: `http://localhost:5173/files/styles/${styles.paperSize}/${fileName}`,
+    });
+  } catch (error) {
+    console.error("Error exporting style:", error);
+    res.status(500).json({ success: false, message: "Export failed" });
+  }
+});
+
 app.listen(port, () => {
   console.log(`Express server running on http://localhost:${port}`);
 });

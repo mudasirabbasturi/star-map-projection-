@@ -4,33 +4,89 @@ import { GiOrbital } from "react-icons/gi";
 import { MdOutlineTextRotateVertical } from "react-icons/md";
 import { CiFolderOff } from "react-icons/ci";
 import { LiaFileDownloadSolid } from "react-icons/lia";
+import { CiImport } from "react-icons/ci";
+import { CiExport } from "react-icons/ci";
+import { Tooltip } from "antd";
 
-const Sidebar = ({ loading, handleScreenShot }) => {
+const Sidebar = ({ loading, handleScreenShot, handleExport, handleImport }) => {
   return (
     <>
       <aside className="sidebar">
-        <button className="btn p-0 sidebarIcon" disabled={loading}>
-          <LuRectangleVertical />
-        </button>
-        <button className="btn p-0 sidebarIcon" disabled={loading}>
-          <HiOutlineRectangleGroup />
-        </button>
-        <button className="btn p-0 sidebarIcon" disabled={loading}>
-          <GiOrbital />
-        </button>
-        <button className="btn p-0 sidebarIcon" disabled={loading}>
-          <MdOutlineTextRotateVertical />
-        </button>
-        <button className="btn p-0 sidebarIcon" disabled={loading}>
-          <CiFolderOff />
-        </button>
-        <button
-          className="btn p-0 sidebarIcon"
-          disabled={loading}
-          onClick={handleScreenShot}
+        <Tooltip placement="right" title="Edit Poster" color="geekblue">
+          <button className="btn p-0 sidebarIcon" disabled={loading}>
+            <LuRectangleVertical />
+          </button>
+        </Tooltip>
+        <Tooltip
+          placement="right"
+          title="Edit Map / Content Inner Body"
+          color="geekblue"
         >
-          <LiaFileDownloadSolid />
-        </button>
+          <button className="btn p-0 sidebarIcon" disabled={loading}>
+            <HiOutlineRectangleGroup />
+          </button>
+        </Tooltip>
+        <Tooltip
+          placement="right"
+          title="Edit Map / Mask Shape"
+          color="geekblue"
+        >
+          <button className="btn p-0 sidebarIcon" disabled={loading}>
+            <GiOrbital />
+          </button>
+        </Tooltip>
+
+        <Tooltip placement="right" title="Edit Content / Text" color="geekblue">
+          <button className="btn p-0 sidebarIcon" disabled={loading}>
+            <MdOutlineTextRotateVertical />
+          </button>
+        </Tooltip>
+
+        <Tooltip placement="right" title="View Dowload Files" color="geekblue">
+          <button className="btn p-0 sidebarIcon" disabled={loading}>
+            <CiFolderOff />
+          </button>
+        </Tooltip>
+        <Tooltip placement="right" title="Import Style" color="geekblue">
+          <button className="btn p-0 sidebarIcon" disabled={loading}>
+            <label htmlFor="importFile">
+              <CiImport />
+            </label>
+          </button>
+          <input
+            type="file"
+            accept="application/json"
+            style={{
+              visibility: "hidden",
+              position: "absolute",
+              width: 0,
+              height: 0,
+              margin: 0,
+              padding: 0,
+            }}
+            id="importFile"
+            onChange={handleImport}
+          />
+        </Tooltip>
+
+        <Tooltip placement="right" title="Export Style" color="geekblue">
+          <button
+            className="btn p-0 sidebarIcon"
+            disabled={loading}
+            onClick={handleExport}
+          >
+            <CiExport />
+          </button>
+        </Tooltip>
+        <Tooltip placement="right" title="Download File" color="geekblue">
+          <button
+            className="btn p-0 sidebarIcon"
+            disabled={loading}
+            onClick={handleScreenShot}
+          >
+            <LiaFileDownloadSolid />
+          </button>
+        </Tooltip>
       </aside>
     </>
   );
