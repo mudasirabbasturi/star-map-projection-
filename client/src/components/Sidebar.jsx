@@ -8,12 +8,22 @@ import { CiImport } from "react-icons/ci";
 import { CiExport } from "react-icons/ci";
 import { Tooltip } from "antd";
 
-const Sidebar = ({ loading, handleScreenShot, handleExport, handleImport }) => {
+const Sidebar = ({
+  loading,
+  showDrawer,
+  handleScreenShot,
+  handleExport,
+  handleImport,
+}) => {
   return (
     <>
       <aside className="sidebar">
         <Tooltip placement="right" title="Edit Poster" color="geekblue">
-          <button className="btn p-0 sidebarIcon" disabled={loading}>
+          <button
+            className="btn p-0 sidebarIcon"
+            disabled={loading}
+            onClick={() => showDrawer("poster")}
+          >
             <LuRectangleVertical />
           </button>
         </Tooltip>
@@ -42,7 +52,12 @@ const Sidebar = ({ loading, handleScreenShot, handleExport, handleImport }) => {
           </button>
         </Tooltip>
 
-        <Tooltip placement="right" title="View Dowload Files" color="geekblue">
+        <Tooltip
+          placement="right"
+          title="View Download Files"
+          color="geekblue"
+          onClick={() => showDrawer("showDownloadFiles")}
+        >
           <button className="btn p-0 sidebarIcon" disabled={loading}>
             <CiFolderOff />
           </button>
@@ -68,7 +83,6 @@ const Sidebar = ({ loading, handleScreenShot, handleExport, handleImport }) => {
             onChange={handleImport}
           />
         </Tooltip>
-
         <Tooltip placement="right" title="Export Style" color="geekblue">
           <button
             className="btn p-0 sidebarIcon"

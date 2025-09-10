@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, Suspense, lazy } from "react";
-import { Drawer, notification, Spin } from "antd";
+import { Drawer, notification, Spin, List } from "antd";
 import { MdOutlineEditNote } from "react-icons/md";
 
 const Sidebar = lazy(() => import("./components/Sidebar"));
@@ -199,17 +199,20 @@ const App = () => {
     posterWrapper: "Inner Poster Settings",
     map: "Map Settings",
     content: "Content Setting",
+    showDownloadFiles: "Downloaded files",
   };
   const [drawerMode, setDrawerMode] = useState(null);
   const [open, setOpen] = useState(null);
 
   const showDrawer = (mode) => {
+    fetchFiles();
     setDrawerMode(mode);
     setOpen(true);
   };
   const closeDrawer = () => {
     setDrawerMode(null);
     setOpen(null);
+    setFiles([]);
   };
 
   // notification
@@ -278,40 +281,6 @@ const App = () => {
   };
 
   // Export
-  // const handleExport = () => {
-  //   const finalState = { positions, styles, content };
-  //   const dataStr = JSON.stringify(finalState, null, 2);
-  //   const blob = new Blob([dataStr], { type: "application/json" });
-  //   const folder = `files/styles/${styles.paperSize}`;
-  //   const fileName = `${content.fileName}Styles.json`;
-  //   const fullPath = `${folder}/${fileName}`;
-  //   const link = document.createElement("a");
-  //   link.href = URL.createObjectURL(blob);
-  //   link.download = fileName;
-  //   link.click();
-  //   URL.revokeObjectURL(link.href);
-  //   console.log("📁 Export path (for backend style):", fullPath);
-  // };
-
-  // const handleExport = async () => {
-  //   try {
-  //     const finalState = { positions, styles, content };
-  //     const res = await fetch("http://localhost:3001/api/export-style", {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify(finalState),
-  //     });
-  //     const data = await res.json();
-  //     if (data.success) {
-  //       console.log("✅ File saved at:", data.url);
-  //     } else {
-  //       console.error("❌ Export failed");
-  //     }
-  //   } catch (err) {
-  //     console.error("Export error:", err);
-  //   }
-  // };
-  // Export
   const handleExport = async () => {
     try {
       const finalState = { positions, styles, content };
@@ -361,12 +330,29 @@ const App = () => {
     reader.readAsText(file);
   };
 
+  useEffect(() => {
+    if (open && drawerMode === "showDownloadFiles") {
+      fetchFiles();
+    }
+  }, [open, drawerMode]);
+
+  const [files, setFiles] = useState([]);
+  const fetchFiles = async () => {
+    try {
+      const res = await fetch("http://localhost:3001/api/files/posters");
+      const data = await res.json();
+      if (data.success) setFiles(data.files);
+    } catch (err) {
+      console.error("Error fetching files:", err);
+    }
+  };
   return (
     <>
       {contextHolder}
       <div className="app-container">
         <Sidebar
           loading={loading}
+          showDrawer={showDrawer}
           handleScreenShot={handleScreenShot}
           handleExport={handleExport}
           handleImport={handleImport}
@@ -537,13 +523,34 @@ const App = () => {
                 content={content}
                 onChangeContent={onChangeContent}
               />
-            ) : (
+            ) : drawerMode === "map" ? (
               <MapSetting
                 styles={styles}
                 updateStyles={updateStyles}
                 content={content}
                 onChangeContent={onChangeContent}
               />
+            ) : drawerMode === "showDownloadFiles" ? (
+              <>
+                {" "}
+                <List
+                  bordered
+                  dataSource={files}
+                  renderItem={(item) => (
+                    <List.Item>
+                      <a
+                        href={`http://localhost:5173/files/posters/${item}`}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        {item}
+                      </a>
+                    </List.Item>
+                  )}
+                />
+              </>
+            ) : (
+              ""
             )}
           </Suspense>
         )}
