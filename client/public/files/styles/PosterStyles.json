@@ -1,0 +1,99 @@
+{
+  "positions": {
+    "map": {
+      "y": 12
+    },
+    "title": {
+      "y": 4
+    },
+    "content": {
+      "y": 80
+    }
+  },
+  "styles": {
+    "paperSize": "A4",
+    "bgType": "solid",
+    "bgColor": "#020202ff",
+    "bgGradientColor": [
+      "#a80077ff",
+      "#66ff00"
+    ],
+    "bgGradientType": "linear",
+    "bgGradientAngle": 90,
+    "borderStyle": "solid",
+    "borderWidth": 1,
+    "borderRadius": 0,
+    "borderColor": "#ffff",
+    "posterWrapper": {
+      "width": 90,
+      "height": 90,
+      "bgColor": "transparent",
+      "borderStyle": "solid",
+      "borderWidth": 1,
+      "borderRadius": 0,
+      "borderColor": "#ffff"
+    },
+    "map": {
+      "width": 90,
+      "height": null,
+      "maskShape": "circle",
+      "fill": "transparent",
+      "strokeColor": "#eee",
+      "strokeStyle": "solid",
+      "strokeWidth": 1,
+      "showStars": true,
+      "showMilkyway": true,
+      "milkywayOpacity": 0.2,
+      "showConstellations": true,
+      "showPlanets": true,
+      "showMoon": true,
+      "sizeMult": 1,
+      "magLimit": 6.5,
+      "lat": 51.5,
+      "lon": -0.1
+    },
+    "content": {
+      "width": 90,
+      "height": 15,
+      "bgColor": "transparent",
+      "fontFamily": "Verdana",
+      "fontStyle": "normal",
+      "fontWeight": "normal",
+      "fontSize": 14,
+      "textColor": "#ffff",
+      "textTransform": "capitalize",
+      "textDecoration": "none",
+      "borderStyle": "none",
+      "borderWidth": 0,
+      "borderRadius": 0,
+      "borderColor": "#ffff",
+      "title": {
+        "fontFamily": "Verdana",
+        "fontStyle": "normal",
+        "fontWeight": "normal",
+        "fontSize": 16,
+        "textColor": "#ffff",
+        "textTransform": "capitalize",
+        "textDecoration": "none"
+      }
+    },
+    "show": {
+      "title": true,
+      "address": true,
+      "message": true,
+      "date": true,
+      "time": true,
+      "coordinate": true
+    }
+  },
+  "content": {
+    "downloadType": "pdf",
+    "fileName": "Poster",
+    "message": "look up at the stars",
+    "title": "my star map",
+    "address": "london, uk",
+    "date": "2025-09-10",
+    "time": "01:41 PM",
+    "coordinate": "51.5°N, 0.1°W"
+  }
+}

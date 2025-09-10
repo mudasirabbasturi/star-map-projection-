@@ -145,11 +145,9 @@ app.get("/api/files/:type", (req, res) => {
   try {
     const { type } = req.params; // posters or styles
     const folderPath = path.join(__dirname, "../client/public/files", type);
-
     if (!fs.existsSync(folderPath)) {
       return res.json({ success: true, files: [] });
     }
-
     const files = fs.readdirSync(folderPath);
     res.json({ success: true, files });
   } catch (err) {

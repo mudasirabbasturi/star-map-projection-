@@ -46,7 +46,12 @@ const Sidebar = ({
           </button>
         </Tooltip>
 
-        <Tooltip placement="right" title="Edit Content / Text" color="geekblue">
+        <Tooltip
+          placement="right"
+          title="Edit Content / Text"
+          color="geekblue"
+          onClick={() => showDrawer("showImportFiles")}
+        >
           <button className="btn p-0 sidebarIcon" disabled={loading}>
             <MdOutlineTextRotateVertical />
           </button>

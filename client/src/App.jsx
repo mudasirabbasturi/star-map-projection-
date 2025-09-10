@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, Suspense, lazy } from "react";
 import { Drawer, notification, Spin, List } from "antd";
 import { MdOutlineEditNote } from "react-icons/md";
+import { AiFillFilePdf } from "react-icons/ai";
 
 const Sidebar = lazy(() => import("./components/Sidebar"));
 const PosterSetting = lazy(() => import("./components/setting/PosterSetting"));
@@ -200,6 +201,7 @@ const App = () => {
     map: "Map Settings",
     content: "Content Setting",
     showDownloadFiles: "Downloaded files",
+    showImportFiles: "All Save Styles",
   };
   const [drawerMode, setDrawerMode] = useState(null);
   const [open, setOpen] = useState(null);
@@ -213,6 +215,7 @@ const App = () => {
     setDrawerMode(null);
     setOpen(null);
     setFiles([]);
+    setStyleFiles([]);
   };
 
   // notification
@@ -334,6 +337,9 @@ const App = () => {
     if (open && drawerMode === "showDownloadFiles") {
       fetchFiles();
     }
+    if (open && drawerMode === "showImportFiles") {
+      fetchStyleFiles();
+    }
   }, [open, drawerMode]);
 
   const [files, setFiles] = useState([]);
@@ -346,6 +352,19 @@ const App = () => {
       console.error("Error fetching files:", err);
     }
   };
+
+  const [styleFiles, setStyleFiles] = useState([]);
+  const fetchStyleFiles = async () => {
+    try {
+      const res = await fetch("http://localhost:3001/api/files/styles");
+      const data = await res.json();
+      if (data.success)
+        setStyleFiles(data.files.filter((f) => f.endsWith(".json")));
+    } catch (err) {
+      console.error("Error fetching style files:", err);
+    }
+  };
+
   return (
     <>
       {contextHolder}
@@ -499,6 +518,7 @@ const App = () => {
         onClose={closeDrawer}
         mask={false}
         placement="left"
+        width={drawerMode === "showDownloadFiles" ? "100%" : null}
       >
         {open && (
           <Suspense fallback={<div>Loading Sections...</div>}>
@@ -532,22 +552,76 @@ const App = () => {
               />
             ) : drawerMode === "showDownloadFiles" ? (
               <>
-                {" "}
-                <List
-                  bordered
-                  dataSource={files}
-                  renderItem={(item) => (
-                    <List.Item>
-                      <a
-                        href={`http://localhost:5173/files/posters/${item}`}
-                        target="_blank"
-                        rel="noreferrer"
+                <div className="d-flex flex-wrap">
+                  {files.map((file, index) => {
+                    const isPdf = file.toLowerCase().endsWith(".pdf");
+                    const url = `http://localhost:5173/files/posters/${file}`;
+
+                    return (
+                      <div
+                        key={index}
+                        className="img_pdf border mb-3 me-3 p-2 d-flex flex-column align-items-center justify-content-center"
+                        style={{ width: "23%" }}
                       >
-                        {item}
-                      </a>
-                    </List.Item>
+                        <a
+                          href={url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-100 d-flex justify-content-center"
+                          style={{ textDecoration: "none" }}
+                        >
+                          {isPdf ? (
+                            <AiFillFilePdf size={64} color="red" />
+                          ) : (
+                            <img
+                              src={url}
+                              alt={`Poster ${index + 1}`}
+                              className="img-fluid w-100"
+                            />
+                          )}
+                        </a>
+                        <div
+                          className="mt-2 text-truncate w-100 text-center"
+                          style={{ fontSize: "0.9rem" }}
+                          title={file}
+                        >
+                          {file}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
+            ) : drawerMode === "showImportFiles" ? (
+              <>
+                <div className="p-3">
+                  {styleFiles.length === 0 ? (
+                    <div>No style files found.</div>
+                  ) : (
+                    styleFiles.map((file, idx) => {
+                      const url = `http://localhost:5173/files/styles/${file}`;
+                      return (
+                        <div
+                          key={idx}
+                          className="border rounded p-2 mb-2 d-flex justify-content-between align-items-center"
+                        >
+                          <span
+                            className="text-truncate"
+                            style={{ maxWidth: "70%" }}
+                          >
+                            {file}
+                          </span>
+                          <button
+                            className="btn btn-sm btn-primary"
+                            // onClick={() => handleSelectStyle(url)}
+                          >
+                            Import
+                          </button>
+                        </div>
+                      );
+                    })
                   )}
-                />
+                </div>
               </>
             ) : (
               ""
