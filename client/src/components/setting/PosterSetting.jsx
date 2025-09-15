@@ -25,7 +25,9 @@ import {
   Input,
   InputNumber,
   Select,
+  Slider,
 } from "antd";
+import BackgroundImagePicker from "./BackgroundImagePicker";
 
 function genPresets(presets = presetPalettes) {
   return Object.entries(presets).map(([label, colors]) => ({
@@ -79,78 +81,54 @@ const PosterSetting = ({ styles, updateStyles, content, onChangeContent }) => {
     <>
       {/* Paper Size */}
       <div className="mb-2">
-        <hr className="mb-1 mt-0" />
-        <div className="d-flex align-items-center">
-          <small style={{ whiteSpace: "nowrap" }} className="me-2">
-            Paper Size:
-          </small>
-          <Select
-            className="w-100"
-            value={styles.paperSize}
-            onChange={(val) => updateStyles("paperSize", val)}
-            options={[
-              { label: "A0", value: "A0" },
-              { label: "A1", value: "A1" },
-              { label: "A2", value: "A2" },
-              { label: "A3", value: "A3" },
-              { label: "A4", value: "A4" },
-              { label: "A5", value: "A5" },
-              { label: "A6", value: "A6" },
-              { label: "Letter", value: "Letter" },
-              { label: "Legal", value: "Legal" },
-            ]}
-          />
-        </div>
-        <hr className="mb-0 mt-1" />
+        <Divider>Paper Size</Divider>
+        <Select
+          className="w-100"
+          value={styles.paperSize}
+          onChange={(val) => updateStyles("paperSize", val)}
+          options={[
+            { label: "A0", value: "A0" },
+            { label: "A1", value: "A1" },
+            { label: "A2", value: "A2" },
+            { label: "A3", value: "A3" },
+            { label: "A4", value: "A4" },
+            { label: "A5", value: "A5" },
+            { label: "A6", value: "A6" },
+            { label: "Letter", value: "Letter" },
+            { label: "Legal", value: "Legal" },
+          ]}
+        />
       </div>
 
-      {/* Download Type */}
+      {/* Download / Export */}
       <div className="mb-2">
-        <hr className="mb-1 mt-0" />
-        <div className="d-flex align-items-center">
-          <small style={{ whiteSpace: "nowrap" }} className="me-2">
-            Download Type:
-          </small>
-          <Select
-            className="w-100"
-            value={content.downloadType}
-            onChange={(val) => onChangeContent("downloadType", val)}
-            options={[
-              { label: "PDF", value: "pdf" },
-              { label: "PNG", value: "png" },
-              { label: "JPEG", value: "jpeg" },
-            ]}
-          />
-        </div>
-        <hr className="mb-0 mt-1" />
-      </div>
-
-      {/* File Name */}
-      <div className="mb-2">
-        <hr className="mb-1 mt-0" />
-        <div className="d-flex align-items-center">
-          <small style={{ whiteSpace: "nowrap" }} className="me-2">
-            File Name:
-          </small>
-          <Input
-            value={content.fileName}
-            onChange={(e) => onChangeContent("fileName", e.target.value)}
-            size="small"
-          />
-        </div>
-        <hr className="mb-0 mt-1" />
+        <Divider>Export</Divider>
+        <Select
+          className="w-100 mb-2"
+          value={content.downloadType}
+          onChange={(val) => onChangeContent("downloadType", val)}
+          options={[
+            { label: "PDF", value: "pdf" },
+            { label: "PNG", value: "png" },
+            { label: "JPEG", value: "jpeg" },
+          ]}
+        />
+        <Input
+          placeholder="File name"
+          value={content.fileName}
+          onChange={(e) => onChangeContent("fileName", e.target.value)}
+          size="small"
+        />
       </div>
 
       {/* Background */}
       <div className="mb-2">
-        <hr className="mb-1 mt-0" />
+        <Divider>Background</Divider>
         <div className="d-flex align-items-center mb-2">
-          <small style={{ whiteSpace: "nowrap" }} className="me-2">
-            Background Type:
-          </small>
+          <small className="me-2">Type:</small>
           <Select
             value={styles.bgType}
-            style={{ width: 120 }}
+            style={{ width: 140 }}
             onChange={(val) => updateStyles("bgType", val)}
             options={[
               { label: "Solid", value: "solid" },
@@ -159,7 +137,8 @@ const PosterSetting = ({ styles, updateStyles, content, onChangeContent }) => {
           />
         </div>
 
-        {styles.bgType === "solid" ? (
+        {/* Solid */}
+        {styles.bgType === "solid" && (
           <ColorPicker
             style={{ width: "100%" }}
             allowClear
@@ -170,13 +149,13 @@ const PosterSetting = ({ styles, updateStyles, content, onChangeContent }) => {
             panelRender={customPanelRender}
             size="small"
           />
-        ) : (
+        )}
+
+        {/* Gradient */}
+        {styles.bgType === "gradient" && (
           <div>
-            {/* Gradient Type */}
             <div className="d-flex align-items-center mb-2">
-              <small style={{ whiteSpace: "nowrap" }} className="me-2">
-                Gradient Type:
-              </small>
+              <small className="me-2">Type:</small>
               <Select
                 value={styles.bgGradientType}
                 style={{ width: 140 }}
@@ -189,13 +168,10 @@ const PosterSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               />
             </div>
 
-            {/* Angle for Linear/Conic */}
             {(styles.bgGradientType === "linear" ||
               styles.bgGradientType === "conic") && (
               <div className="d-flex align-items-center mb-2">
-                <small style={{ whiteSpace: "nowrap" }} className="me-2">
-                  Angle:
-                </small>
+                <small className="me-2">Angle:</small>
                 <InputNumber
                   min={0}
                   max={360}
@@ -206,22 +182,20 @@ const PosterSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               </div>
             )}
 
-            {/* Gradient Preview */}
             <div
               style={{
                 height: 30,
                 borderRadius: 6,
                 marginBottom: 8,
                 border: "1px solid #ccc",
-                background: `linear-gradient(to right, ${styles.bgGradientColor.join(
+                background: `linear-gradient(to right, ${styles.bgGradientColors.join(
                   ", "
                 )})`,
               }}
             />
 
-            {/* Gradient Colors */}
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              {styles.bgGradientColor.map((color, idx) => (
+              {styles.bgGradientColors.map((color, idx) => (
                 <div
                   key={idx}
                   style={{ display: "flex", alignItems: "center" }}
@@ -229,22 +203,22 @@ const PosterSetting = ({ styles, updateStyles, content, onChangeContent }) => {
                   <ColorPicker
                     value={color}
                     onChangeComplete={(c) => {
-                      const newColors = [...styles.bgGradientColor];
+                      const newColors = [...styles.bgGradientColors];
                       newColors[idx] = c.toCssString();
-                      updateStyles("bgGradientColor", newColors);
+                      updateStyles("bgGradientColors", newColors);
                     }}
                     styles={{ popupOverlayInner: { width: 480 } }}
                     presets={presets}
                     panelRender={customPanelRender}
                     size="small"
                   />
-                  {styles.bgGradientColor.length > 2 && (
+                  {styles.bgGradientColors.length > 2 && (
                     <button
                       onClick={() => {
-                        const newColors = styles.bgGradientColor.filter(
+                        const newColors = styles.bgGradientColors.filter(
                           (_, i) => i !== idx
                         );
-                        updateStyles("bgGradientColor", newColors);
+                        updateStyles("bgGradientColors", newColors);
                       }}
                       style={{
                         marginLeft: 4,
@@ -263,8 +237,8 @@ const PosterSetting = ({ styles, updateStyles, content, onChangeContent }) => {
 
             <button
               onClick={() =>
-                updateStyles("bgGradientColor", [
-                  ...styles.bgGradientColor,
+                updateStyles("bgGradientColors", [
+                  ...styles.bgGradientColors,
                   "#ffffff",
                 ])
               }
@@ -281,75 +255,85 @@ const PosterSetting = ({ styles, updateStyles, content, onChangeContent }) => {
             </button>
           </div>
         )}
-
-        <hr className="mb-0 mt-1" />
       </div>
 
-      {/* Border Settings */}
-      {[
-        {
-          label: "Border Style",
-          key: "borderStyle",
-          type: "select",
-          options: [
-            { label: "Solid", value: "solid" },
-            { label: "Dashed", value: "dashed" },
-            { label: "Dotted", value: "dotted" },
-            { label: "Double", value: "double" },
-            { label: "None", value: "none" },
-          ],
-        },
-        {
-          label: "Border Width",
-          key: "borderWidth",
-          type: "number",
-          min: 0,
-          max: 20,
-        },
-        {
-          label: "Border Radius",
-          key: "borderRadius",
-          type: "number",
-          min: 0,
-          max: 50,
-        },
-      ].map((item) => (
-        <div className="mb-2" key={item.key}>
-          <hr className="mb-1 mt-0" />
-          <div className="d-flex align-items-center">
-            <small style={{ whiteSpace: "nowrap" }} className="me-2">
-              {item.label}:
-            </small>
-            {item.type === "select" ? (
-              <Select
-                className="w-100"
-                size="small"
-                value={styles[item.key]}
-                onChange={(val) => updateStyles(item.key, val)}
-                options={item.options}
-              />
-            ) : (
-              <InputNumber
-                className="w-100"
-                size="small"
-                min={item.min}
-                max={item.max}
-                value={styles[item.key]}
-                onChange={(val) => updateStyles(item.key, val || 0)}
-              />
-            )}
-          </div>
-          <hr className="mb-0 mt-1" />
-        </div>
-      ))}
-
-      {/* Border Color */}
+      {/* Background Image */}
       <div className="mb-2">
-        <hr className="mb-1 mt-0" />
+        <BackgroundImagePicker styles={styles} updateStyles={updateStyles} />
+        <Select
+          value={styles.bgImageMode}
+          onChange={(val) => updateStyles("bgImageMode", val)}
+          style={{ width: "100%", marginTop: 8 }}
+          options={[
+            { label: "Cover", value: "cover" },
+            { label: "Contain", value: "contain" },
+            { label: "Stretch", value: "100% 100%" }, // map stretch to CSS
+          ]}
+        />
         <div className="d-flex align-items-center">
-          <small style={{ whiteSpace: "nowrap" }} className="me-2">
-            Border Color:
-          </small>
+          <small className="me-1">Opacity</small>
+          <Slider
+            className="w-75"
+            min={0}
+            max={1}
+            step={0.1}
+            value={styles.bgImageOpacity}
+            onChange={(val) => updateStyles("bgImageOpacity", val)}
+          />
+          <InputNumber
+            className="w-25"
+            size="small"
+            min={0}
+            max={1}
+            step={0.1}
+            value={styles.bgImageOpacity}
+            onChange={(val) => updateStyles("bgImageOpacity", val)}
+          />
+        </div>
+      </div>
+      {/* Border */}
+      <div className="mb-2">
+        <Divider>Border</Divider>
+        <div className="mb-2">
+          <small className="me-2">Style:</small>
+          <Select
+            className="w-100"
+            size="small"
+            value={styles.borderStyle}
+            onChange={(val) => updateStyles("borderStyle", val)}
+            options={[
+              { label: "Solid", value: "solid" },
+              { label: "Dashed", value: "dashed" },
+              { label: "Dotted", value: "dotted" },
+              { label: "Double", value: "double" },
+              { label: "None", value: "none" },
+            ]}
+          />
+        </div>
+        <div className="mb-2">
+          <small className="me-2">Width:</small>
+          <InputNumber
+            className="w-100"
+            size="small"
+            min={0}
+            max={20}
+            value={styles.borderWidth}
+            onChange={(val) => updateStyles("borderWidth", val || 0)}
+          />
+        </div>
+        <div className="mb-2">
+          <small className="me-2">Radius:</small>
+          <InputNumber
+            className="w-100"
+            size="small"
+            min={0}
+            max={50}
+            value={styles.borderRadius}
+            onChange={(val) => updateStyles("borderRadius", val || 0)}
+          />
+        </div>
+        <div className="mb-2">
+          <small className="me-2">Color:</small>
           <ColorPicker
             style={{ width: "100%" }}
             allowClear
@@ -363,7 +347,6 @@ const PosterSetting = ({ styles, updateStyles, content, onChangeContent }) => {
             size="small"
           />
         </div>
-        <hr className="mb-0 mt-1" />
       </div>
     </>
   );

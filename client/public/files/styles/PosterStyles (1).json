@@ -24,6 +24,7 @@
     "borderWidth": 1,
     "borderRadius": 0,
     "borderColor": "#ffff",
+    "negativeIndex": -999,
     "posterWrapper": {
       "width": 90,
       "height": 90,
@@ -36,7 +37,7 @@
     "map": {
       "width": 90,
       "height": null,
-      "maskShape": "circle",
+      "maskShape": "heart",
       "fill": "transparent",
       "strokeColor": "#eee",
       "strokeStyle": "solid",
@@ -92,8 +93,8 @@
     "message": "look up at the stars",
     "title": "my star map",
     "address": "london, uk",
-    "date": "2025-09-10",
-    "time": "01:41 PM",
+    "date": "2025-09-11",
+    "time": "05:28 AM",
     "coordinate": "51.5°N, 0.1°W"
   }
 }

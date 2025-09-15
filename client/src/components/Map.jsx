@@ -1,11 +1,11 @@
 // src/components/map/Map.jsx
 import React, { useEffect, useRef, useState } from "react";
+import { MdOutlineEditNote } from "react-icons/md";
 import { makeRect, makeTriangle, makeHeart, makeApple } from "./shapes";
 import { starRadius } from "./helpers";
 import * as Astronomy from "astronomy-engine";
 import * as d3 from "d3-geo";
 import * as d3Projection from "d3-geo-projection";
-
 // Stroke style helper
 const getStrokeDashArray = (style) => {
   switch (style) {
@@ -21,7 +21,6 @@ const getStrokeDashArray = (style) => {
       return "";
   }
 };
-
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const centerRAFromLon = (lon) => {
   let v = -lon;
@@ -29,7 +28,6 @@ const centerRAFromLon = (lon) => {
   while (v > 180) v -= 360;
   return v;
 };
-
 // -------------------- Aitoff Projection -----------------------
 const makeProjection = (
   width = 1200,
@@ -43,7 +41,6 @@ const makeProjection = (
     .scale(width / Math.PI)
     .rotate([-centerRA, -centerDec, 0]);
 };
-
 const Map = ({
   mapStyle = {},
   mapData = {
@@ -52,10 +49,13 @@ const Map = ({
     constData: { features: [] },
     centerRA: 0,
   },
+  showDrawer,
+  positions,
+  handleMouseDown,
+  drawerMode,
 }) => {
   const svgRef = useRef(null);
   const [maskElement, setMaskElement] = useState(makeHeart());
-
   const {
     maskShape = "circle",
     showStars = true,
@@ -73,9 +73,7 @@ const Map = ({
     milkywayOpacity = 0.2,
     magLimit = 6.5,
   } = mapStyle;
-
   const { starsData, mwData, constData, centerRA } = mapData;
-
   // Setup mask shape
   useEffect(() => {
     switch (maskShape) {
@@ -92,10 +90,8 @@ const Map = ({
         setMaskElement(makeApple());
     }
   }, [maskShape]);
-
   const derivedCenterRA = centerRAFromLon(lon);
   const derivedCenterDec = clamp(lat, -90, 90);
-
   // Projection (static per render)
   const projection = makeProjection(
     1200,
@@ -103,7 +99,6 @@ const Map = ({
     derivedCenterRA,
     derivedCenterDec
   );
-
   const safeProject = (ra, dec) => {
     if (ra == null || dec == null) return { x: NaN, y: NaN };
     try {
@@ -118,11 +113,9 @@ const Map = ({
       return { x: NaN, y: NaN };
     }
   };
-
   // Create projection background (the sphere/globe fill)
   const createProjectionBackground = () => {
     if (fill === "transparent" || fill === "none") return null;
-
     // For all shapes, create a background that fills the entire clip area
     // This will be clipped by the maskShape
     return (
@@ -136,17 +129,14 @@ const Map = ({
       />
     );
   };
-
-  // ---------------------- Stars ------------------------------------------
+  // ---------------------- Stars ------------------------------------------ //
   useEffect(() => {
     const svg = svgRef.current;
     if (!svg) return;
     const layer = svg.querySelector("#starsLayer");
     if (!layer) return;
     layer.innerHTML = "";
-
     if (!showStars || !starsData?.features?.length) return;
-
     const frag = document.createDocumentFragment();
     for (const f of starsData.features) {
       const mag = f.properties?.mag ?? 6.5;
@@ -154,7 +144,6 @@ const Map = ({
       const [ra, dec] = f.geometry?.coordinates || [];
       const { x, y } = safeProject(ra, dec);
       if (!isFinite(x) || !isFinite(y)) continue;
-
       const r = starRadius(mag, sizeMult);
       const c = document.createElementNS(
         "http://www.w3.org/2000/svg",
@@ -178,7 +167,6 @@ const Map = ({
     showStars,
     magLimit,
   ]);
-
   // ---------------------- Milky Way (via d3.geoPath) ----------------------
   useEffect(() => {
     const svg = svgRef.current;
@@ -187,7 +175,6 @@ const Map = ({
     if (!layer) return;
     layer.innerHTML = "";
     if (!showMilkyway || !mwData?.features?.length) return;
-
     const pathGen = d3.geoPath(projection);
     const frag = document.createDocumentFragment();
     for (const f of mwData.features) {
@@ -208,7 +195,6 @@ const Map = ({
     showMilkyway,
     milkywayOpacity,
   ]);
-
   // ---------------------- Constellations (lines + labels) ----------------
   useEffect(() => {
     const svg = svgRef.current;
@@ -218,16 +204,12 @@ const Map = ({
     if (!linesLayer || !labelsLayer) return;
     linesLayer.innerHTML = "";
     labelsLayer.innerHTML = "";
-
     if (!showConstellations || !constData?.features?.length) return;
-
     const fragLines = document.createDocumentFragment();
     const fragLabels = document.createDocumentFragment();
-
     for (const f of constData.features) {
       const geom = f.geometry;
       if (!geom) continue;
-
       const drawLine = (coords) => {
         let d = "";
         for (let i = 0; i < coords.length; i++) {
@@ -237,7 +219,6 @@ const Map = ({
           if (!isFinite(x) || !isFinite(y)) continue;
           d += (i === 0 ? "M" : "L") + x.toFixed(2) + " " + y.toFixed(2);
         }
-
         if (d) {
           const path = document.createElementNS(
             "http://www.w3.org/2000/svg",
@@ -253,12 +234,10 @@ const Map = ({
           fragLines.appendChild(path);
         }
       };
-
       if (geom.type === "LineString") drawLine(geom.coordinates);
       else if (geom.type === "MultiLineString") {
         for (const line of geom.coordinates) drawLine(line);
       }
-
       // Label
       const props = f.properties || {};
       let labelName = props.name || props.n || null;
@@ -293,11 +272,9 @@ const Map = ({
         }
       }
     }
-
     linesLayer.appendChild(fragLines);
     labelsLayer.appendChild(fragLabels);
   }, [constData, derivedCenterRA, derivedCenterDec, showConstellations]);
-
   // ---------------------- Planets & Moon ---------------------------------
   useEffect(() => {
     const svg = svgRef.current;
@@ -305,16 +282,13 @@ const Map = ({
     const layer = svg.querySelector("#planetsLayer");
     if (!layer) return;
     layer.innerHTML = "";
-
     if (!showPlanets && !showMoon) return;
-
     const observer = new Astronomy.Observer(
       clamp(lat, -90, 90),
       clamp(lon, -180, 180),
       0
     );
     const now = new Date();
-
     if (showPlanets) {
       const bodies = [
         { name: "Mercury", body: Astronomy.Body.Mercury },
@@ -332,7 +306,6 @@ const Map = ({
           const decDeg = eq.dec || 0;
           const { x, y } = safeProject(raDeg, decDeg);
           if (isNaN(x) || isNaN(y)) continue;
-
           const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
           const circ = document.createElementNS(
             "http://www.w3.org/2000/svg",
@@ -345,7 +318,6 @@ const Map = ({
           circ.setAttribute("fill", "#ffda6b");
           circ.setAttribute("stroke", "rgba(0,0,0,0.4)");
           circ.setAttribute("stroke-width", "0.6");
-
           const label = document.createElementNS(
             "http://www.w3.org/2000/svg",
             "text"
@@ -355,7 +327,6 @@ const Map = ({
           label.setAttribute("fill", "#ffdca0");
           label.setAttribute("font-size", "12");
           label.textContent = p.name;
-
           g.appendChild(circ);
           g.appendChild(label);
           layer.appendChild(g);
@@ -364,7 +335,6 @@ const Map = ({
         }
       }
     }
-
     if (showMoon) {
       try {
         const eq = Astronomy.Equator(
@@ -377,7 +347,6 @@ const Map = ({
         const raDeg = (eq.ra || 0) * 15; // Convert hours to degrees
         const decDeg = eq.dec || 0;
         const { x, y } = safeProject(raDeg, decDeg);
-
         if (!isNaN(x) && !isNaN(y)) {
           const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
           const circ = document.createElementNS(
@@ -389,7 +358,6 @@ const Map = ({
           circ.setAttribute("r", Math.max(4, starRadius(-1, sizeMult)));
           circ.setAttribute("class", "moon");
           circ.setAttribute("fill", "#dfe9f5");
-
           const label = document.createElementNS(
             "http://www.w3.org/2000/svg",
             "text"
@@ -399,7 +367,6 @@ const Map = ({
           label.setAttribute("fill", "#cdd9ea");
           label.setAttribute("font-size", "12");
           label.textContent = "Moon";
-
           g.appendChild(circ);
           g.appendChild(label);
           layer.appendChild(g);
@@ -417,7 +384,6 @@ const Map = ({
     lat,
     lon,
   ]);
-
   const calculateShapeTransform = (shapeElement, maskShape) => {
     if (maskShape === "circle") {
       return "translate(0,0) scale(1)";
@@ -477,31 +443,24 @@ const Map = ({
         const h = parseFloat(element.props.height || 0);
         points.push([x, y], [x + w, y], [x, y + h], [x + w, y + h]);
       }
-
       return points;
     };
-
     const points = extractPoints(shapeElement);
-
     points.forEach(([x, y]) => {
       minX = Math.min(minX, x);
       minY = Math.min(minY, y);
       maxX = Math.max(maxX, x);
       maxY = Math.max(maxY, y);
     });
-
     const centerX = (minX + maxX) / 2;
     const centerY = (minY + maxY) / 2;
     const width = maxX - minX;
     const height = maxY - minY;
-
     const scale = Math.min(1000 / width, 1000 / height) * 0.9;
     const translateX = 600 - centerX * scale;
     const translateY = 600 - centerY * scale;
-
     return `translate(${translateX}, ${translateY}) scale(${scale})`;
   };
-
   const getShapeTransform = (shape) => {
     if (shape === "circle") {
       // return "";
@@ -509,7 +468,6 @@ const Map = ({
     }
     if (!shape || shape === "circle") return "";
     let shapeElement;
-
     switch (shape) {
       case "heart":
         shapeElement = makeHeart();
@@ -526,64 +484,72 @@ const Map = ({
       default:
         return "";
     }
-
     return calculateShapeTransform(shapeElement, shape);
   };
-
   return (
-    <svg
-      width="100%"
-      height="100%"
-      ref={svgRef}
-      viewBox="0 0 1200 1200"
-      preserveAspectRatio={maskShape === "rect" ? "none" : undefined}
+    <div
+      className={`map hasIcon ${drawerMode === "map" ? "active" : ""}`}
+      style={{
+        width: `${mapStyle.width}%`,
+        height: `${mapStyle.height}%`,
+        top: `${positions.map.y}%`,
+      }}
+      onMouseDown={(e) => handleMouseDown(e, "map")}
     >
-      <defs>
-        {/* Always define clipPath, even for circle */}
-        <clipPath id="maskShape" transform={getShapeTransform(maskShape)}>
+      <div className="iconWrapper" onClick={() => showDrawer("map")}>
+        <MdOutlineEditNote className="editIcon" />
+      </div>
+
+      <svg
+        width="100%"
+        height="100%"
+        ref={svgRef}
+        viewBox="0 0 1200 1200"
+        preserveAspectRatio={maskShape === "rect" ? "none" : undefined}
+      >
+        <defs>
+          {/* Always define clipPath, even for circle */}
+          <clipPath id="maskShape" transform={getShapeTransform(maskShape)}>
+            {maskShape === "circle" ? (
+              <circle cx="600" cy="600" r="600" />
+            ) : (
+              maskElement
+            )}
+          </clipPath>
+        </defs>
+        {/* Always apply clipPath to contain all elements */}
+        <g clipPath="url(#maskShape)">
+          {/* Projection background - appears behind everything but inside the clip */}
+          {createProjectionBackground()}
+          <g id="mwLayer" />
+          <g id="starsLayer" />
+          <g id="constLinesLayer" />
+          <g id="constLabelsLayer" />
+          <g id="planetsLayer" />
+        </g>
+        {/* Always render outline for all shapes including circle */}
+        <g id="shapeOutline" transform={getShapeTransform(maskShape)}>
           {maskShape === "circle" ? (
-            <circle cx="600" cy="600" r="600" />
+            <circle
+              cx="600"
+              cy="600"
+              r="600"
+              fill="transparent"
+              stroke={strokeColor}
+              strokeWidth={strokeWidth}
+              strokeDasharray={getStrokeDashArray(strokeStyle)}
+            />
           ) : (
-            maskElement
+            React.cloneElement(maskElement, {
+              fill: "transparent",
+              stroke: strokeColor,
+              strokeWidth,
+              strokeDasharray: getStrokeDashArray(strokeStyle),
+            })
           )}
-        </clipPath>
-      </defs>
-
-      {/* Always apply clipPath to contain all elements */}
-      <g clipPath="url(#maskShape)">
-        {/* Projection background - appears behind everything but inside the clip */}
-        {createProjectionBackground()}
-
-        <g id="mwLayer" />
-        <g id="starsLayer" />
-        <g id="constLinesLayer" />
-        <g id="constLabelsLayer" />
-        <g id="planetsLayer" />
-      </g>
-
-      {/* Always render outline for all shapes including circle */}
-      <g id="shapeOutline" transform={getShapeTransform(maskShape)}>
-        {maskShape === "circle" ? (
-          <circle
-            cx="600"
-            cy="600"
-            r="600"
-            fill="transparent"
-            stroke={strokeColor}
-            strokeWidth={strokeWidth}
-            strokeDasharray={getStrokeDashArray(strokeStyle)}
-          />
-        ) : (
-          React.cloneElement(maskElement, {
-            fill: "transparent",
-            stroke: strokeColor,
-            strokeWidth,
-            strokeDasharray: getStrokeDashArray(strokeStyle),
-          })
-        )}
-      </g>
-    </svg>
+        </g>
+      </svg>
+    </div>
   );
 };
-
 export default Map;

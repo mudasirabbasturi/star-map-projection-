@@ -3,7 +3,6 @@ import { Drawer, notification, Spin, List } from "antd";
 import { MdOutlineEditNote } from "react-icons/md";
 import { AiFillFilePdf } from "react-icons/ai";
 
-const Sidebar = lazy(() => import("./components/Sidebar"));
 const PosterSetting = lazy(() => import("./components/setting/PosterSetting"));
 const PosterWrapperSetting = lazy(() =>
   import("./components/setting/PosterWrapperSetting")
@@ -11,8 +10,14 @@ const PosterWrapperSetting = lazy(() =>
 const ContentSetting = lazy(() =>
   import("./components/setting/ContentSetting")
 );
+import TitleSetting from "./components/setting/TitleSetting";
 const MapSetting = lazy(() => import("./components/setting/MapSetting"));
+
+const Sidebar = lazy(() => import("./components/Sidebar"));
+const Title = lazy(() => import("./components/Title"));
 const Map = lazy(() => import("./components/Map"));
+const ChordImg = lazy(() => import("./components/ChordImg"));
+const Content = lazy(() => import("./components/Content"));
 
 const App = () => {
   const [loading, setLoading] = useState(false);
@@ -20,6 +25,7 @@ const App = () => {
   const [api, contextHolder] = notification.useNotification();
   const [positions, setPositions] = useState({
     map: { y: 12 },
+    couple_img: { y: 12 },
     title: { y: 4 },
     content: { y: 80 },
   });
@@ -60,6 +66,12 @@ const App = () => {
     borderWidth: 1,
     borderRadius: 0,
     borderColor: "#ffff",
+
+    bgGradientColors: ["#a80077ff", "#66ff00"],
+    bgImage: "https://picsum.photos/800/600",
+    bgImageMode: "cover",
+    bgImageOpacity: 0.1,
+
     posterWrapper: {
       width: 90,
       height: 90,
@@ -88,6 +100,9 @@ const App = () => {
       lat: 51.5,
       lon: -0.1,
     },
+    couple_img: {
+      width: 30,
+    },
     content: {
       width: 90,
       height: 15,
@@ -104,13 +119,20 @@ const App = () => {
       borderRadius: 0,
       borderColor: "#ffff",
       title: {
+        width: 90,
+        height: 5,
+        bgColor: "transparent",
         fontFamily: "Verdana",
         fontStyle: "normal",
         fontWeight: "normal",
-        fontSize: 16,
+        fontSize: 14,
         textColor: "#ffff",
         textTransform: "capitalize",
         textDecoration: "none",
+        borderStyle: "none",
+        borderWidth: 0,
+        borderRadius: 0,
+        borderColor: "#ffff",
       },
     },
     show: {
@@ -135,6 +157,47 @@ const App = () => {
     if (styles.bgGradientType === "conic") {
       return `conic-gradient(from ${styles.bgGradientAngle}deg, ${colors})`;
     }
+  };
+
+  const getBaseBackground = () => {
+    if (styles.bgType === "solid") return styles.bgColor;
+    if (styles.bgType === "gradient") {
+      if (styles.bgGradientType === "linear") {
+        return `linear-gradient(${
+          styles.bgGradientAngle
+        }deg, ${styles.bgGradientColors.join(", ")})`;
+      }
+      if (styles.bgGradientType === "radial") {
+        return `radial-gradient(${styles.bgGradientColors.join(", ")})`;
+      }
+      if (styles.bgGradientType === "conic") {
+        return `conic-gradient(from ${
+          styles.bgGradientAngle
+        }deg, ${styles.bgGradientColors.join(", ")})`;
+      }
+    }
+    return "#fff";
+  };
+  const getImageOverlayStyle = () => {
+    if (!styles.bgImage) return {};
+    let backgroundSize = "cover";
+    if (styles.bgImageMode === "contain") backgroundSize = "contain";
+    if (styles.bgImageMode === "stretch") backgroundSize = "100% 100%";
+
+    return {
+      backgroundImage: `url(${styles.bgImage})`,
+      backgroundSize,
+      backgroundRepeat: "no-repeat",
+      backgroundPosition: "center",
+      opacity: styles.bgImageOpacity,
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      borderRadius: styles.borderRadius,
+      pointerEvents: "none",
+    };
   };
 
   // generic updater for any nested path
@@ -199,6 +262,7 @@ const App = () => {
     poster: "Poster Settings",
     posterWrapper: "Inner Poster Settings",
     map: "Map Settings",
+    Image: "Custom Image Settings",
     content: "Content Setting",
     showDownloadFiles: "Downloaded files",
     showImportFiles: "All Save Styles",
@@ -234,6 +298,18 @@ const App = () => {
     });
   };
 
+  // scaling factors by paper size (relative to A4)
+  const PAPER_SCALE = {
+    A0: 4.0,
+    A1: 2.8,
+    A2: 2.0,
+    A3: 1.4,
+    A4: 1.0, // base
+    A5: 0.7,
+    A6: 0.5,
+    Letter: 1.0,
+    Legal: 1.2,
+  };
   // screen shot
   const handleScreenShot = async () => {
     if (!canvasRef.current) return;
@@ -252,10 +328,29 @@ const App = () => {
         })
         .join("\n");
 
+      // pick scale factor based on paperSize
+      const scale = PAPER_SCALE[styles.paperSize] || 1.0;
+
+      // override CSS for print
+      const overrideCss = `
+      .title {
+        font-size: ${Math.round(
+          styles.content.title.fontSize * scale
+        )}px !important;
+      }
+      .content {
+        font-size: ${Math.round(styles.content.fontSize * scale)}px !important;
+      }
+    `;
+
       const fullHTML = `<html>
-        <head><meta charset="UTF-8"><style>${cssText}</style></head>
-        <body>${htmlContent}</body>
-      </html>`;
+      <head>
+        <meta charset="UTF-8">
+        <style>${cssText}</style>
+        <style>${overrideCss}</style>
+      </head>
+      <body>${htmlContent}</body>
+    </html>`;
 
       const response = await fetch("http://localhost:3001/api/screenshot", {
         method: "POST",
@@ -313,24 +408,39 @@ const App = () => {
   };
 
   // import
-  const handleImport = (event) => {
+  const handleImport = async (input) => {
     setLoading(true);
-    const file = event.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const importedState = JSON.parse(e.target.result);
-        if (importedState.positions) setPositions(importedState.positions);
-        if (importedState.styles) setStyles(importedState.styles);
-        if (importedState.content) setContent(importedState.content);
-        setLoading(false);
-      } catch (err) {
-        console.error("Failed to import JSON:", err);
-        alert("Invalid JSON file.");
+    try {
+      if (input?.target?.files?.[0]) {
+        const file = input.target.files[0];
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          try {
+            const importedState = JSON.parse(e.target.result);
+            applyImportedState(importedState);
+          } catch (err) {
+            console.error("Failed to import JSON:", err);
+            alert("Invalid JSON file.");
+            setLoading(false);
+          }
+        };
+        reader.readAsText(file);
+      } else if (typeof input === "string") {
+        const res = await fetch(input);
+        const importedState = await res.json();
+        applyImportedState(importedState);
       }
-    };
-    reader.readAsText(file);
+    } catch (err) {
+      console.error("Failed to import JSON:", err);
+      alert("Could not load JSON file.");
+      setLoading(false);
+    }
+  };
+  const applyImportedState = (importedState) => {
+    if (importedState.positions) setPositions(importedState.positions);
+    if (importedState.styles) setStyles(importedState.styles);
+    if (importedState.content) setContent(importedState.content);
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -381,9 +491,12 @@ const App = () => {
             <Suspense fallback={<div>Loading Map...</div>}>
               <div
                 ref={canvasRef}
-                className={`poster hasIcon `}
+                className={`poster hasIcon ${
+                  drawerMode === "poster" ? "active" : ""
+                }`}
                 style={{
-                  background: getBackground(),
+                  // background: getBackground(),
+                  background: getBaseBackground(),
                   borderStyle: styles.borderStyle,
                   borderWidth: `${styles.borderWidth}px`,
                   borderRadius: `${styles.borderRadius}%`,
@@ -396,8 +509,11 @@ const App = () => {
                 >
                   <MdOutlineEditNote className="editIcon" />
                 </div>
+                <div style={getImageOverlayStyle()} />
                 <div
-                  className={`posterWrapper hasIcon`}
+                  className={`posterWrapper hasIcon ${
+                    drawerMode === "posterWrapper" ? "active" : ""
+                  }`}
                   style={{
                     width: `${styles.posterWrapper.width}%`,
                     height: `${styles.posterWrapper.height}%`,
@@ -414,97 +530,43 @@ const App = () => {
                   >
                     <MdOutlineEditNote className="editIcon" />
                   </div>
+
                   {/* Map */}
-                  <div
-                    className={`map hasIcon `}
-                    style={{
-                      width: `${styles.map.width}%`,
-                      height: `${styles.map.height}%`,
-                      top: `${positions.map.y}%`,
-                    }}
-                    onMouseDown={(e) => handleMouseDown(e, "map")}
-                  >
-                    <div
-                      className="iconWrapper"
-                      onClick={() => showDrawer("map")}
-                    >
-                      <MdOutlineEditNote className="editIcon" />
-                    </div>
-                    <Map
-                      mapData={{ starsData, mwData, constData, centerRA }}
-                      mapStyle={styles.map}
-                    />
-                  </div>
-                  {styles.show.title && (
-                    <div
-                      className={`title hasIcon ${
-                        drawerMode === "title" ? "active" : ""
-                      }`}
-                      style={{
-                        top: `${positions.title.y}%`,
-                        color: styles.content.title.textColor,
-                        fontSize: styles.content.title.fontSize,
-                        fontFamily: styles.content.title.fontFamily,
-                        fontStyle: styles.content.title.fontStyle,
-                        fontWeight: styles.content.title.fontWeight,
-                        textTransform: styles.content.title.textTransform,
-                        textDecoration: styles.content.title.textDecoration,
-                      }}
-                      onMouseDown={(e) => {
-                        e.stopPropagation();
-                        handleMouseDown(e, "title");
-                      }}
-                    >
-                      {content.title}
-                    </div>
-                  )}
-                  <div
-                    className={`content hasIcon ${
-                      drawerMode === "content" ? "active" : ""
-                    }`}
-                    style={{
-                      width: `${styles.content.width}%`,
-                      height: `${styles.content.height}%`,
-                      backgroundColor: styles.content.bgColor,
-                      top: `${positions.content.y}%`,
-                      color: styles.content.textColor,
-                      fontSize: styles.content.fontSize,
-                      fontFamily: styles.content.fontFamily,
-                      fontStyle: styles.content.fontStyle,
-                      fontWeight: styles.content.fontWeight,
-                      textTransform: styles.content.textTransform,
-                      textDecoration: styles.content.textDecoration,
-                      borderStyle: styles.content.borderStyle,
-                      borderWidth: `${styles.content.borderWidth}px`,
-                      borderRadius: `${styles.content.borderRadius}%`,
-                      borderColor: styles.content.borderColor,
-                    }}
-                    onMouseDown={(e) => handleMouseDown(e, "content")}
-                  >
-                    <div
-                      className="iconWrapper"
-                      onClick={() => showDrawer("content")}
-                    >
-                      <MdOutlineEditNote className="editIcon" />
-                    </div>
-                    {styles.show.address && (
-                      <div className="address">{content.address}</div>
-                    )}
-                    {styles.show.date && (
-                      <div className="date">
-                        {content.date}
-                        {styles.show.time && (
-                          <span className="ms-1">{content.time}</span>
-                        )}
-                      </div>
-                    )}
-                    {styles.show.message && (
-                      <div className="message">{content.message}</div>
-                    )}
-                    {styles.show.coordinate && (
-                      <div className="coordinate">{content.coordinate}</div>
-                    )}
-                  </div>
+
+                  <Map
+                    mapData={{ starsData, mwData, constData, centerRA }}
+                    mapStyle={styles.map}
+                    showDrawer={showDrawer}
+                    positions={positions}
+                    handleMouseDown={handleMouseDown}
+                    drawerMode={drawerMode}
+                  />
+
+                  <ChordImg
+                    styles={styles}
+                    positions={positions}
+                    handleMouseDown={handleMouseDown}
+                    showDrawer={showDrawer}
+                    drawerMode={drawerMode}
+                  />
+                  {/* title */}
+                  <Title
+                    styles={styles}
+                    positions={positions}
+                    handleMouseDown={handleMouseDown}
+                    showDrawer={showDrawer}
+                    drawerMode={drawerMode}
+                    content={content}
+                  />
+                  {/* content */}
+                  <Content
+                    styles={styles}
+                    positions={positions}
+                    handleMouseDown={handleMouseDown}
+                    showDrawer={showDrawer}
+                    drawerMode={drawerMode}
+                    content={content}
+                  />
                 </div>
               </div>
             </Suspense>
@@ -538,6 +600,13 @@ const App = () => {
               />
             ) : drawerMode === "content" ? (
               <ContentSetting
+                styles={styles}
+                updateStyles={updateStyles}
+                content={content}
+                onChangeContent={onChangeContent}
+              />
+            ) : drawerMode === "title" ? (
+              <TitleSetting
                 styles={styles}
                 updateStyles={updateStyles}
                 content={content}
@@ -594,7 +663,7 @@ const App = () => {
               </>
             ) : drawerMode === "showImportFiles" ? (
               <>
-                <div className="p-3">
+                <div className="p-2">
                   {styleFiles.length === 0 ? (
                     <div>No style files found.</div>
                   ) : (
@@ -611,9 +680,10 @@ const App = () => {
                           >
                             {file}
                           </span>
+
                           <button
                             className="btn btn-sm btn-primary"
-                            // onClick={() => handleSelectStyle(url)}
+                            onClick={() => handleImport(url)}
                           >
                             Import
                           </button>

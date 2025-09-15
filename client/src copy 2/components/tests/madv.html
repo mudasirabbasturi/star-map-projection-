@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>SVG Paper Sizes (A0–A4) Zoom + Pan + Download</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #f0f0f0;
+            font-family: sans-serif;
+        }
+
+        #controls {
+            margin-bottom: 10px;
+        }
+
+        select,
+        button {
+            padding: 6px 12px;
+            margin: 0 5px;
+            font-size: 16px;
+            border: none;
+            border-radius: 6px;
+        }
+
+        button {
+            background: #333;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #555;
+        }
+
+        svg {
+            border: 1px solid #ccc;
+            background: white;
+            flex-shrink: 0;
+            width: 80%;
+            height: auto;
+            cursor: grab;
+        }
+
+        svg:active {
+            cursor: grabbing;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="controls">
+        <label for="paperSize">📄 Paper: </label>
+        <select id="paperSize" onchange="setPaperSize(this.value)">
+            <option value="A0">A0</option>
+            <option value="A1">A1</option>
+            <option value="A2">A2</option>
+            <option value="A3">A3</option>
+            <option value="A4" selected>A4</option>
+        </select>
+        <button onclick="zoomIn()">➕ Zoom In</button>
+        <button onclick="zoomOut()">➖ Zoom Out</button>
+        <button onclick="resetView()">🔄 Reset</button>
+        <button onclick="downloadSVG()">⬇️ SVG</button>
+        <button onclick="downloadPNG()">⬇️ PNG</button>
+    </div>
+
+    <svg id="paperSvg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 796.8 1123.2">
+        <g id="viewport" transform="translate(0,0)">
+            <g id="content" transform="scale(1)">
+                <rect id="paperRect" x="0" y="0" width="796.8" height="1123.2" fill="white" stroke="black" />
+                <circle id="centerMark" cx="398.4" cy="561.6" r="10" fill="red" />
+                <text id="paperText" x="398.4" y="200" font-size="32" text-anchor="middle">Hello A4 SVG</text>
+            </g>
+        </g>
+    </svg>
+
+    <script>
+        // ISO A sizes in px at 96 DPI
+        const paperSizes = {
+            A0: { w: 3177.6, h: 4492.8 },
+            A1: { w: 2246.4, h: 3177.6 },
+            A2: { w: 1584, h: 2246.4 },
+            A3: { w: 1123.2, h: 1584 },
+            A4: { w: 796.8, h: 1123.2 }
+        };
+
+        let scale = 1, panX = 0, panY = 0, currentSize = "A4";
+
+        const svgEl = document.getElementById("paperSvg");
+        const viewport = document.getElementById("viewport");
+        const content = document.getElementById("content");
+        const rect = document.getElementById("paperRect");
+        const center = document.getElementById("centerMark");
+        const text = document.getElementById("paperText");
+
+        function applyTransform() {
+            viewport.setAttribute("transform", `translate(${panX},${panY})`);
+            content.setAttribute("transform", `scale(${scale})`);
+        }
+
+        function zoomIn() { scale *= 1.2; applyTransform(); }
+        function zoomOut() { scale /= 1.2; applyTransform(); }
+        function resetView() { scale = 1; panX = 0; panY = 0; applyTransform(); }
+
+        function setPaperSize(size) {
+            currentSize = size;
+            const { w, h } = paperSizes[size];
+            svgEl.setAttribute("viewBox", `0 0 ${w} ${h}`);
+            rect.setAttribute("width", w);
+            rect.setAttribute("height", h);
+            center.setAttribute("cx", w / 2);
+            center.setAttribute("cy", h / 2);
+            text.setAttribute("x", w / 2);
+            text.setAttribute("y", 200);
+            text.textContent = `Hello ${size} SVG`;
+            resetView();
+        }
+
+        // --- Dragging ---
+        let isDragging = false, lastX, lastY;
+        svgEl.addEventListener("mousedown", e => {
+            isDragging = true; lastX = e.clientX; lastY = e.clientY;
+        });
+        window.addEventListener("mousemove", e => {
+            if (!isDragging) return;
+            panX += e.clientX - lastX;
+            panY += e.clientY - lastY;
+            lastX = e.clientX; lastY = e.clientY;
+            applyTransform();
+        });
+        window.addEventListener("mouseup", () => isDragging = false);
+
+        // Touch support
+        svgEl.addEventListener("touchstart", e => {
+            if (e.touches.length === 1) {
+                isDragging = true;
+                lastX = e.touches[0].clientX;
+                lastY = e.touches[0].clientY;
+            }
+        });
+        svgEl.addEventListener("touchmove", e => {
+            if (!isDragging || e.touches.length !== 1) return;
+            panX += e.touches[0].clientX - lastX;
+            panY += e.touches[0].clientY - lastY;
+            lastX = e.touches[0].clientX;
+            lastY = e.touches[0].clientY;
+            applyTransform();
+        });
+        svgEl.addEventListener("touchend", () => isDragging = false);
+
+        // --- Downloads ---
+        function downloadSVG() {
+            const { w, h } = paperSizes[currentSize];
+            const clone = svgEl.cloneNode(true);
+            clone.querySelector("#viewport").setAttribute("transform", "translate(0,0)");
+            clone.querySelector("#content").setAttribute("transform", "scale(1)");
+            const serializer = new XMLSerializer();
+            const source = serializer.serializeToString(clone);
+            const blob = new Blob([source], { type: "image/svg+xml;charset=utf-8" });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = `${currentSize}_canvas.svg`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        function downloadPNG() {
+            const { w, h } = paperSizes[currentSize];
+            const clone = svgEl.cloneNode(true);
+            clone.querySelector("#viewport").setAttribute("transform", "translate(0,0)");
+            clone.querySelector("#content").setAttribute("transform", "scale(1)");
+            const serializer = new XMLSerializer();
+            const source = serializer.serializeToString(clone);
+            const svg64 = btoa(unescape(encodeURIComponent(source)));
+            const image64 = "data:image/svg+xml;base64," + svg64;
+            const img = new Image();
+            img.onload = function () {
+                const canvas = document.createElement("canvas");
+                canvas.width = w;
+                canvas.height = h;
+                const ctx = canvas.getContext("2d");
+                ctx.drawImage(img, 0, 0);
+                const png = canvas.toDataURL("image/png");
+                const link = document.createElement("a");
+                link.href = png;
+                link.download = `${currentSize}_canvas.png`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            };
+            img.src = image64;
+        }
+    </script>
+</body>
+
+</html>

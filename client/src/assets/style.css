@@ -91,7 +91,13 @@ body {
   cursor: url('imgs/transform.png'), auto !important;
 }
 
-
+.printed_poster {
+  position: fixed;
+  left: 0;
+  top: 0;
+  /* z-index: -999;
+  overflow: hidden; */
+}
 
 /* ------------------------------
   posterWrapper
@@ -106,7 +112,8 @@ body {
 /* ------------------------------
    Star Map , content body, title
 ------------------------------ */
-.map, 
+.map,
+.couple_img,
 .content,
 .title {
   position: absolute;
@@ -128,7 +135,9 @@ body {
   position: absolute;
 }
 
+.couple_img:hover,
 .map:hover,
+.title:hover,
 .content:hover {
   cursor: grab;
   background-color: #7d5cff0c;

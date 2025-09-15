@@ -84,11 +84,8 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
   return (
     <>
       {/* Checkbox show/hide Content */}
-      <div className="mb-2">
-        <h5 style={{ fontStyle: "italic" }}>
-          Show / Hide Content
-          <hr className="mb-0 mt-1" />
-        </h5>
+      <div className="">
+        <Divider style={{ fontStyle: "italic" }}>Show / Hide Content</Divider>
         <div>
           <Checkbox
             checked={styles.show.title}
@@ -132,11 +129,8 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
         </div>
       </div>
       {/* Input Value */}
-      <div className="mb-2">
-        <h5 style={{ fontStyle: "italic" }}>
-          Content Input
-          <hr className="mb-0 mt-1" />
-        </h5>
+      <div className="">
+        <Divider style={{ fontStyle: "italic" }}>Text</Divider>
         {/* Title */}
         {styles.show.title && (
           <div className="mb-2">
@@ -218,11 +212,10 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
       </div>
 
       {/* Content Width And Heigth */}
-      <div className="mb-2">
-        <h5 style={{ fontStyle: "italic" }}>
+      <div className="">
+        <Divider style={{ fontStyle: "italic" }}>
           Content Width & Height
-          <hr className="mb-0 mt-1" />
-        </h5>
+        </Divider>
         {/* Content Width */}
         <div className="">
           <div className="d-flex align-items-center">
@@ -273,15 +266,9 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
         </div>
       </div>
       {/* Content Background Color */}
-      <div className="mb-2">
-        <h5 style={{ fontStyle: "italic" }}>
-          Content Background
-          <hr className="mb-0 mt-1" />{" "}
-        </h5>
+      <div className="">
+        <Divider style={{ fontStyle: "italic" }}>Content Background</Divider>
         <div className="d-flex align-items-center">
-          <small className="me-2" style={{ whiteSpace: "nowrap" }}>
-            Background Color:
-          </small>
           <ColorPicker
             style={{ width: "100%" }}
             allowClear
@@ -301,16 +288,13 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
         </div>
       </div>
       {/* Content Border */}
-      <div className="mb-2">
-        <h5 style={{ fontStyle: "italic" }}>
-          Content Border
-          <hr className="mb-0 mt-1" />
-        </h5>
+      <div className="">
+        <Divider style={{ fontStyle: "italic" }}>Content Border</Divider>
         {/* Border Style */}
         <div className="mb-2">
           <div className="d-flex align-items-center">
             <small className="me-2" style={{ whiteSpace: "nowrap" }}>
-              Border Style:
+              Style:
             </small>
             <Select
               className="w-100"
@@ -331,7 +315,7 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
         <div className="mb-2">
           <div className="d-flex align-items-center">
             <small className="me-2" style={{ whiteSpace: "nowrap" }}>
-              Border Width:
+              Width:
             </small>
             <Slider
               value={styles.content.borderWidth}
@@ -359,7 +343,7 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
         <div className="mb-2">
           <div className="d-flex align-items-center">
             <small className="me-2" style={{ whiteSpace: "nowrap" }}>
-              Border Radius:
+              Radius:
             </small>
             <Slider
               value={styles.content.borderRadius}
@@ -387,7 +371,7 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
         <div className="mb-2">
           <div className="d-flex align-items-center">
             <small className="me-2" style={{ whiteSpace: "nowrap" }}>
-              Border Color:
+              Color:
             </small>
             <ColorPicker
               style={{
@@ -411,16 +395,13 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
         </div>
       </div>
       {/* Text Styling */}
-      <div className="mb-2">
-        <h5 style={{ fontStyle: "italic" }}>
-          Text Styling
-          <hr className="mb-0 mt-1" />
-        </h5>
+      <div className="">
+        <Divider style={{ fontStyle: "italic" }}>Font</Divider>
         {/* Font Family */}
         <div className="mb-2">
           <div className="d-flex align-items-center">
             <small className="me-2" style={{ whiteSpace: "nowrap" }}>
-              Font Family:
+              Family:
             </small>
             <Select
               className="w-100"
@@ -455,7 +436,7 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
         <div className="mb-2">
           <div className="d-flex align-items-center">
             <small className="me-2" style={{ whiteSpace: "nowrap" }}>
-              Font Style:
+              Style:
             </small>
             <Select
               className="w-100"
@@ -474,7 +455,7 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
         <div className="mb-2">
           <div className="d-flex align-items-center">
             <small className="me-2" style={{ whiteSpace: "nowrap" }}>
-              Font Width:
+              Width:
             </small>
             <Select
               className="w-100"
@@ -503,7 +484,7 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
         <div className="mb-2">
           <div className="d-flex align-items-center">
             <small className="me-2" style={{ whiteSpace: "nowrap" }}>
-              Font Size:
+              Size:
             </small>
             <Slider
               className="w-100 me-2 mt-0 mb-0"
@@ -524,9 +505,10 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
         </div>
         {/* Text Color */}
         <div className="mb-2">
+          <Divider style={{ fontStyle: "italic" }}>Text</Divider>
           <div className="d-flex align-items-center">
             <small className="me-2" style={{ whiteSpace: "nowrap" }}>
-              Text Color:
+              Color:
             </small>
             <ColorPicker
               style={{ width: "100%" }}
@@ -550,7 +532,7 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
         <div className="mb-2">
           <div className="d-flex align-items-center">
             <small className="me-2" style={{ whiteSpace: "nowrap" }}>
-              Text Transform:
+              Transform:
             </small>
             <Select
               className="w-100"
@@ -571,7 +553,7 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
         <div className="mb-2">
           <div className="d-flex align-items-center">
             <small className="me-2" style={{ whiteSpace: "nowrap" }}>
-              Text Decoration:
+              Decoration:
             </small>
             <Select
               className="w-100"

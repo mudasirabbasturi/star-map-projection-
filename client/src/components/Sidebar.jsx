@@ -32,7 +32,11 @@ const Sidebar = ({
           title="Edit Map / Content Inner Body"
           color="geekblue"
         >
-          <button className="btn p-0 sidebarIcon" disabled={loading}>
+          <button
+            className="btn p-0 sidebarIcon"
+            disabled={loading}
+            onClick={() => showDrawer("posterWrapper")}
+          >
             <HiOutlineRectangleGroup />
           </button>
         </Tooltip>
@@ -41,7 +45,11 @@ const Sidebar = ({
           title="Edit Map / Mask Shape"
           color="geekblue"
         >
-          <button className="btn p-0 sidebarIcon" disabled={loading}>
+          <button
+            className="btn p-0 sidebarIcon"
+            disabled={loading}
+            onClick={() => showDrawer("map")}
+          >
             <GiOrbital />
           </button>
         </Tooltip>
@@ -50,7 +58,7 @@ const Sidebar = ({
           placement="right"
           title="Edit Content / Text"
           color="geekblue"
-          onClick={() => showDrawer("showImportFiles")}
+          onClick={() => showDrawer("content")}
         >
           <button className="btn p-0 sidebarIcon" disabled={loading}>
             <MdOutlineTextRotateVertical />
@@ -67,26 +75,15 @@ const Sidebar = ({
             <CiFolderOff />
           </button>
         </Tooltip>
-        <Tooltip placement="right" title="Import Style" color="geekblue">
+        <Tooltip
+          placement="right"
+          title="Import Style"
+          color="geekblue"
+          onClick={() => showDrawer("showImportFiles")}
+        >
           <button className="btn p-0 sidebarIcon" disabled={loading}>
-            <label htmlFor="importFile">
-              <CiImport />
-            </label>
+            <CiImport />
           </button>
-          <input
-            type="file"
-            accept="application/json"
-            style={{
-              visibility: "hidden",
-              position: "absolute",
-              width: 0,
-              height: 0,
-              margin: 0,
-              padding: 0,
-            }}
-            id="importFile"
-            onChange={handleImport}
-          />
         </Tooltip>
         <Tooltip placement="right" title="Export Style" color="geekblue">
           <button

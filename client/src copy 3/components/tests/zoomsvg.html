@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>A4 SVG Zoom Example</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+
+            background: #f0f0f0;
+            font-family: sans-serif;
+        }
+
+        #controls {
+            margin-bottom: 10px;
+        }
+
+        button {
+            padding: 6px 12px;
+            margin: 0 5px;
+            font-size: 16px;
+            border: none;
+            border-radius: 6px;
+            background: #333;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #555;
+        }
+
+        svg {
+            border: 1px solid #ccc;
+            background: white;
+            flex-shrink: 0;
+            width: 80%;
+            height: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="controls">
+        <button onclick="zoomIn()">➕ Zoom In</button>
+        <button onclick="zoomOut()">➖ Zoom Out</button>
+        <button onclick="resetZoom()">🔄 Reset</button>
+    </div>
+
+    <svg id="a4svg" viewBox="0 0 796.8 1123.2">
+        <g id="content" transform="scale(1)">
+            <!-- A4 border -->
+            <rect x="0" y="0" width="796.8" height="1123.2" fill="white" stroke="black" />
+
+            <!-- Center mark -->
+            <circle cx="398.4" cy="561.6" r="10" fill="red" />
+
+            <!-- Example text -->
+            <text x="398.4" y="200" font-size="32" text-anchor="middle">Hello A4 SVG</text>
+        </g>
+    </svg>
+
+    <script>
+        let scale = 1;
+        const content = document.getElementById("content");
+
+        function applyTransform() {
+            content.setAttribute("transform", `scale(${scale})`);
+        }
+
+        function zoomIn() {
+            scale *= 1.2;
+            applyTransform();
+        }
+
+        function zoomOut() {
+            scale /= 1.2;
+            applyTransform();
+        }
+
+        function resetZoom() {
+            scale = 1;
+            applyTransform();
+        }
+    </script>
+</body>
+
+</html>

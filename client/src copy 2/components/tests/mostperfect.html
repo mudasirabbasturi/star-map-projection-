@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>A4 SVG Zoom + Pan + Download</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+
+            background: #f0f0f0;
+            font-family: sans-serif;
+        }
+
+        #controls {
+            margin-bottom: 10px;
+        }
+
+        button {
+            padding: 6px 12px;
+            margin: 0 5px;
+            font-size: 16px;
+            border: none;
+            border-radius: 6px;
+            background: #333;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #555;
+        }
+
+        svg {
+            border: 1px solid #ccc;
+            background: white;
+            flex-shrink: 0;
+            width: 80%;
+            height: auto;
+            cursor: grab;
+        }
+
+        svg:active {
+            cursor: grabbing;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="controls">
+        <button onclick="zoomIn()">➕ Zoom In</button>
+        <button onclick="zoomOut()">➖ Zoom Out</button>
+        <button onclick="resetView()">🔄 Reset</button>
+        <button onclick="downloadSVG()">⬇️ Download SVG</button>
+        <button onclick="downloadPNG()">⬇️ Download PNG</button>
+    </div>
+
+    <svg id="a4svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 796.8 1123.2">
+        <g id="viewport" transform="translate(0,0)">
+            <g id="content" transform="scale(1)">
+                <!-- A4 border -->
+                <rect x="0" y="0" width="796.8" height="1123.2" fill="white" stroke="black" />
+
+                <!-- Center mark -->
+                <circle cx="398.4" cy="561.6" r="10" fill="red" />
+
+                <!-- Example text -->
+                <text x="398.4" y="200" font-size="32" text-anchor="middle">Hello A4 SVG</text>
+            </g>
+        </g>
+    </svg>
+
+    <script>
+        let scale = 1;
+        let panX = 0, panY = 0;
+        const content = document.getElementById("content");
+        const viewport = document.getElementById("viewport");
+        const svgEl = document.getElementById("a4svg");
+
+        function applyTransform() {
+            viewport.setAttribute("transform", `translate(${panX},${panY})`);
+            content.setAttribute("transform", `scale(${scale})`);
+        }
+
+        function zoomIn() {
+            scale *= 1.2;
+            applyTransform();
+        }
+
+        function zoomOut() {
+            scale /= 1.2;
+            applyTransform();
+        }
+
+        function resetView() {
+            scale = 1;
+            panX = 0;
+            panY = 0;
+            applyTransform();
+        }
+
+        // --- Dragging ---
+        let isDragging = false;
+        let lastX, lastY;
+
+        svgEl.addEventListener("mousedown", (e) => {
+            isDragging = true;
+            lastX = e.clientX;
+            lastY = e.clientY;
+        });
+
+        window.addEventListener("mousemove", (e) => {
+            if (!isDragging) return;
+            const dx = e.clientX - lastX;
+            const dy = e.clientY - lastY;
+            panX += dx;
+            panY += dy;
+            lastX = e.clientX;
+            lastY = e.clientY;
+            applyTransform();
+        });
+
+        window.addEventListener("mouseup", () => {
+            isDragging = false;
+        });
+
+        // Touch support
+        svgEl.addEventListener("touchstart", (e) => {
+            if (e.touches.length === 1) {
+                isDragging = true;
+                lastX = e.touches[0].clientX;
+                lastY = e.touches[0].clientY;
+            }
+        });
+
+        svgEl.addEventListener("touchmove", (e) => {
+            if (!isDragging || e.touches.length !== 1) return;
+            const dx = e.touches[0].clientX - lastX;
+            const dy = e.touches[0].clientY - lastY;
+            panX += dx;
+            panY += dy;
+            lastX = e.touches[0].clientX;
+            lastY = e.touches[0].clientY;
+            applyTransform();
+        });
+
+        svgEl.addEventListener("touchend", () => {
+            isDragging = false;
+        });
+
+        // --- Downloads ---
+        function downloadSVG() {
+            const clone = svgEl.cloneNode(true);
+            clone.querySelector("#viewport").setAttribute("transform", "translate(0,0)");
+            clone.querySelector("#content").setAttribute("transform", "scale(1)");
+
+            const serializer = new XMLSerializer();
+            const source = serializer.serializeToString(clone);
+
+            const blob = new Blob([source], { type: "image/svg+xml;charset=utf-8" });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = "a4_canvas.svg";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        function downloadPNG() {
+            const clone = svgEl.cloneNode(true);
+            clone.querySelector("#viewport").setAttribute("transform", "translate(0,0)");
+            clone.querySelector("#content").setAttribute("transform", "scale(1)");
+
+            const serializer = new XMLSerializer();
+            const source = serializer.serializeToString(clone);
+            const svg64 = btoa(unescape(encodeURIComponent(source)));
+            const image64 = "data:image/svg+xml;base64," + svg64;
+
+            const img = new Image();
+            img.onload = function () {
+                const canvas = document.createElement("canvas");
+                canvas.width = 796.8;
+                canvas.height = 1123.2;
+                const ctx = canvas.getContext("2d");
+                ctx.drawImage(img, 0, 0);
+                const png = canvas.toDataURL("image/png");
+
+                const link = document.createElement("a");
+                link.href = png;
+                link.download = "a4_canvas.png";
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            };
+            img.src = image64;
+        }
+    </script>
+</body>
+
+</html>
