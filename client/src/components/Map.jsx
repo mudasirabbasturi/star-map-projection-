@@ -28,19 +28,42 @@ const centerRAFromLon = (lon) => {
   while (v > 180) v -= 360;
   return v;
 };
+
 // -------------------- Aitoff Projection -----------------------
+
 const makeProjection = (
   width = 1200,
   height = 1200,
   centerRA = 0,
-  centerDec = 0
+  centerDec = 0,
+  type = "orthographic"
 ) => {
-  return d3Projection
-    .geoAitoff()
-    .translate([width / 2, height / 2])
-    .scale(width / Math.PI)
-    .rotate([-centerRA, -centerDec, 0]);
+  switch (type) {
+    case "stereographic":
+      return d3
+        .geoStereographic()
+        .translate([width / 2, height / 2])
+        .scale(width / 2.2)
+        .rotate([-centerRA, -centerDec, 0]);
+
+    case "aitoff":
+      return d3Projection
+        .geoAitoff()
+        .translate([width / 2, height / 2])
+        .scale(width / Math.PI)
+        .rotate([-centerRA, -centerDec, 0]);
+
+    case "orthographic":
+    default:
+      return d3
+        .geoOrthographic()
+        .translate([width / 2, height / 2])
+        .scale(width / 2)
+        .clipAngle(90)
+        .rotate([-centerRA, -centerDec, 0]);
+  }
 };
+
 const Map = ({
   mapStyle = {},
   mapData = {
@@ -62,12 +85,13 @@ const Map = ({
     showMilkyway = true,
     showConstellations = true,
     showPlanets = true,
+    showPlanetNames = true,
     showMoon = true,
     sizeMult = 1,
     strokeColor = "#eee",
     strokeWidth = 1,
     strokeStyle = "solid",
-    fill = "transparent", // This will now be used for projection background
+    fill = "transparent",
     lat = 51.5,
     lon = -0.1,
     milkywayOpacity = 0.2,
@@ -92,21 +116,20 @@ const Map = ({
   }, [maskShape]);
   const derivedCenterRA = centerRAFromLon(lon);
   const derivedCenterDec = clamp(lat, -90, 90);
-  // Projection (static per render)
+
   const projection = makeProjection(
     1200,
     1200,
-    derivedCenterRA,
-    derivedCenterDec
+    mapStyle.lon,
+    mapStyle.lat,
+    mapStyle.projection
   );
+
   const safeProject = (ra, dec) => {
     if (ra == null || dec == null) return { x: NaN, y: NaN };
     try {
-      // Convert RA to longitude (-180 to 180)
       let longitude = ((ra - derivedCenterRA + 180) % 360) - 180;
       if (longitude < -180) longitude += 360;
-
-      // d3 expects [longitude, latitude]
       const [x, y] = projection([longitude, dec]) || [NaN, NaN];
       return { x, y };
     } catch {
@@ -114,19 +137,6 @@ const Map = ({
     }
   };
 
-  const createProjectionBackground = () => {
-    if (fill === "transparent" || fill === "none") return null;
-    return (
-      <rect
-        x="0"
-        y="0"
-        width="1200"
-        height="1200"
-        fill={fill}
-        className="projection-background"
-      />
-    );
-  };
   // ---------------------- Stars ------------------------------------------ //
   useEffect(() => {
     const svg = svgRef.current;
@@ -165,6 +175,7 @@ const Map = ({
     showStars,
     magLimit,
   ]);
+
   // ---------------------- Milky Way (via d3.geoPath) ----------------------
   useEffect(() => {
     const svg = svgRef.current;
@@ -193,6 +204,7 @@ const Map = ({
     showMilkyway,
     milkywayOpacity,
   ]);
+
   // ---------------------- Constellations (lines + labels) ----------------
   useEffect(() => {
     const svg = svgRef.current;
@@ -273,7 +285,121 @@ const Map = ({
     linesLayer.appendChild(fragLines);
     labelsLayer.appendChild(fragLabels);
   }, [constData, derivedCenterRA, derivedCenterDec, showConstellations]);
+
   // ---------------------- Planets & Moon ---------------------------------
+  // useEffect(() => {
+  //   const svg = svgRef.current;
+  //   if (!svg) return;
+  //   const layer = svg.querySelector("#planetsLayer");
+  //   if (!layer) return;
+  //   layer.innerHTML = "";
+  //   if (!showPlanets && !showMoon) return;
+  //   const observer = new Astronomy.Observer(
+  //     clamp(lat, -90, 90),
+  //     clamp(lon, -180, 180),
+  //     0
+  //   );
+  //   const now = new Date();
+  //   if (showPlanets) {
+  //     const bodies = [
+  //       { name: "Mercury", body: Astronomy.Body.Mercury },
+  //       { name: "Venus", body: Astronomy.Body.Venus },
+  //       { name: "Mars", body: Astronomy.Body.Mars },
+  //       { name: "Jupiter", body: Astronomy.Body.Jupiter },
+  //       { name: "Saturn", body: Astronomy.Body.Saturn },
+  //       { name: "Uranus", body: Astronomy.Body.Uranus },
+  //       { name: "Neptune", body: Astronomy.Body.Neptune },
+  //     ];
+  //     for (const p of bodies) {
+  //       try {
+  //         const eq = Astronomy.Equator(p.body, now, observer, true, false);
+  //         const raDeg = (eq.ra || 0) * 15;
+  //         const decDeg = eq.dec || 0;
+  //         const { x, y } = safeProject(raDeg, decDeg);
+  //         if (isNaN(x) || isNaN(y)) continue;
+  //         const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  //         const circ = document.createElementNS(
+  //           "http://www.w3.org/2000/svg",
+  //           "circle"
+  //         );
+  //         circ.setAttribute("cx", x.toFixed(2));
+  //         circ.setAttribute("cy", y.toFixed(2));
+  //         circ.setAttribute("r", Math.max(3, starRadius(0, sizeMult)));
+  //         circ.setAttribute("class", "planet");
+  //         circ.setAttribute("fill", "#ffda6b");
+  //         circ.setAttribute("stroke", "rgba(0,0,0,0.4)");
+  //         circ.setAttribute("stroke-width", "0.6");
+  //         g.appendChild(circ);
+  //         if (showPlanetNames) {
+  //           const label = document.createElementNS(
+  //             "http://www.w3.org/2000/svg",
+  //             "text"
+  //           );
+  //           label.setAttribute("x", x + 8);
+  //           label.setAttribute("y", y + 4);
+  //           label.setAttribute("fill", "#ffdca0");
+  //           label.setAttribute("font-size", "12");
+  //           label.textContent = p.name;
+  //           g.appendChild(label);
+  //         }
+  //         layer.appendChild(g);
+  //       } catch (e) {
+  //         console.error(`Error rendering ${p.name}:`, e);
+  //       }
+  //     }
+  //   }
+
+  //   if (showMoon) {
+  //     try {
+  //       const eq = Astronomy.Equator(
+  //         Astronomy.Body.Moon,
+  //         now,
+  //         observer,
+  //         true,
+  //         false
+  //       );
+  //       const raDeg = (eq.ra || 0) * 15;
+  //       const decDeg = eq.dec || 0;
+  //       const { x, y } = safeProject(raDeg, decDeg);
+  //       if (!isNaN(x) && !isNaN(y)) {
+  //         const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  //         const circ = document.createElementNS(
+  //           "http://www.w3.org/2000/svg",
+  //           "circle"
+  //         );
+  //         circ.setAttribute("cx", x.toFixed(2));
+  //         circ.setAttribute("cy", y.toFixed(2));
+  //         circ.setAttribute("r", Math.max(18, starRadius(-1, sizeMult)));
+  //         circ.setAttribute("class", "moon");
+  //         circ.setAttribute("fill", "#dfe9f5");
+  //         const label = document.createElementNS(
+  //           "http://www.w3.org/2000/svg",
+  //           "text"
+  //         );
+  //         label.setAttribute("x", x + 10);
+  //         label.setAttribute("y", y + 5);
+  //         label.setAttribute("fill", "#cdd9ea");
+  //         label.setAttribute("font-size", "12");
+  //         label.textContent = "Moon";
+  //         g.appendChild(circ);
+  //         g.appendChild(label);
+  //         layer.appendChild(g);
+  //       }
+  //     } catch (e) {
+  //       console.error("Error rendering Moon:", e);
+  //     }
+  //   }
+  // }, [
+  //   showPlanets,
+  //   showPlanetNames,
+  //   showMoon,
+  //   derivedCenterRA,
+  //   derivedCenterDec,
+  //   sizeMult,
+  //   lat,
+  //   lon,
+  // ]);
+
   useEffect(() => {
     const svg = svgRef.current;
     if (!svg) return;
@@ -286,7 +412,8 @@ const Map = ({
       clamp(lon, -180, 180),
       0
     );
-    const now = new Date();
+    const now = mapStyle.date ? new Date(mapStyle.date) : new Date();
+
     if (showPlanets) {
       const bodies = [
         { name: "Mercury", body: Astronomy.Body.Mercury },
@@ -300,10 +427,11 @@ const Map = ({
       for (const p of bodies) {
         try {
           const eq = Astronomy.Equator(p.body, now, observer, true, false);
-          const raDeg = (eq.ra || 0) * 15; // Convert hours to degrees
+          const raDeg = (eq.ra || 0) * 15;
           const decDeg = eq.dec || 0;
           const { x, y } = safeProject(raDeg, decDeg);
           if (isNaN(x) || isNaN(y)) continue;
+
           const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
           const circ = document.createElementNS(
             "http://www.w3.org/2000/svg",
@@ -316,23 +444,28 @@ const Map = ({
           circ.setAttribute("fill", "#ffda6b");
           circ.setAttribute("stroke", "rgba(0,0,0,0.4)");
           circ.setAttribute("stroke-width", "0.6");
-          const label = document.createElementNS(
-            "http://www.w3.org/2000/svg",
-            "text"
-          );
-          label.setAttribute("x", x + 8);
-          label.setAttribute("y", y + 4);
-          label.setAttribute("fill", "#ffdca0");
-          label.setAttribute("font-size", "12");
-          label.textContent = p.name;
           g.appendChild(circ);
-          g.appendChild(label);
+
+          if (showPlanetNames) {
+            const label = document.createElementNS(
+              "http://www.w3.org/2000/svg",
+              "text"
+            );
+            label.setAttribute("x", x + 8);
+            label.setAttribute("y", y + 4);
+            label.setAttribute("fill", "#ffdca0");
+            label.setAttribute("font-size", "12");
+            label.textContent = p.name;
+            g.appendChild(label);
+          }
+
           layer.appendChild(g);
         } catch (e) {
           console.error(`Error rendering ${p.name}:`, e);
         }
       }
     }
+
     if (showMoon) {
       try {
         const eq = Astronomy.Equator(
@@ -342,7 +475,7 @@ const Map = ({
           true,
           false
         );
-        const raDeg = (eq.ra || 0) * 15; // Convert hours to degrees
+        const raDeg = (eq.ra || 0) * 15;
         const decDeg = eq.dec || 0;
         const { x, y } = safeProject(raDeg, decDeg);
         if (!isNaN(x) && !isNaN(y)) {
@@ -353,7 +486,7 @@ const Map = ({
           );
           circ.setAttribute("cx", x.toFixed(2));
           circ.setAttribute("cy", y.toFixed(2));
-          circ.setAttribute("r", Math.max(4, starRadius(-1, sizeMult)));
+          circ.setAttribute("r", Math.max(18, starRadius(-1, sizeMult)));
           circ.setAttribute("class", "moon");
           circ.setAttribute("fill", "#dfe9f5");
           const label = document.createElementNS(
@@ -375,13 +508,37 @@ const Map = ({
     }
   }, [
     showPlanets,
+    showPlanetNames,
     showMoon,
     derivedCenterRA,
     derivedCenterDec,
     sizeMult,
     lat,
     lon,
+    mapStyle.date,
   ]);
+
+  // ---------------------- Graticule ----------------------
+  useEffect(() => {
+    const svg = svgRef.current;
+    if (!svg) return;
+    const layer = svg.querySelector("#graticuleLayer");
+    if (!layer) return;
+    layer.innerHTML = "";
+    if (!mapStyle.showGraticule) return;
+
+    const graticule = d3.geoGraticule10(); // RA/Dec grid
+    const pathGen = d3.geoPath(projection);
+
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute("d", pathGen(graticule));
+    path.setAttribute("fill", "none");
+    path.setAttribute("stroke", "rgba(200,200,200,0.3)");
+    path.setAttribute("stroke-width", "0.5");
+
+    layer.appendChild(path);
+  }, [projection, mapStyle.showGraticule]);
+
   const calculateShapeTransform = (shapeElement, maskShape) => {
     if (maskShape === "circle") {
       return "translate(0,0) scale(1)";
@@ -459,6 +616,7 @@ const Map = ({
     const translateY = 600 - centerY * scale;
     return `translate(${translateX}, ${translateY}) scale(${scale})`;
   };
+
   const getShapeTransform = (shape) => {
     if (shape === "circle") {
       // return "";
@@ -484,6 +642,7 @@ const Map = ({
     }
     return calculateShapeTransform(shapeElement, shape);
   };
+
   return (
     <div
       className={`map hasIcon ${drawerMode === "map" ? "active" : ""}`}
@@ -514,48 +673,44 @@ const Map = ({
             )}
           </clipPath>
         </defs>
-        {/* <g clipPath="url(#maskShape)">
-          {createProjectionBackground()}
-          <g id="mwLayer" />
-          <g id="starsLayer" />
-          <g id="constLinesLayer" />
-          <g id="constLabelsLayer" />
-          <g id="planetsLayer" />
-        </g> */}
         <g clipPath="url(#maskShape)">
-          {/* 🔹 Background fill always */}
-          <rect
-            x="0"
-            y="0"
-            width="1200"
-            height="1200"
-            fill={fill && fill !== "transparent" ? fill : "black"} // fallback
-          />
-
-          {/* 🔹 Optional background image overlay */}
-          {mapStyle.bgImage && (
-            <image
-              href={mapStyle.bgImage}
-              width="100%"
-              height="100%"
-              preserveAspectRatio={
-                mapStyle.bgImageMode === "cover"
-                  ? "xMidYMid slice"
-                  : mapStyle.bgImageMode === "contain"
-                  ? "xMidYMid meet"
-                  : "none"
+          {(mapStyle.bgType === "color" || mapStyle.bgType === "both") && (
+            <rect
+              x="0"
+              y="0"
+              width="1200"
+              height="1200"
+              fill={
+                mapStyle.fill && mapStyle.fill !== "transparent"
+                  ? mapStyle.fill
+                  : "black"
               }
-              opacity={mapStyle.bgImageOpacity ?? 1}
             />
           )}
-
-          {/* 🔹 Stars and layers always above bg */}
+          {(mapStyle.bgType === "image" || mapStyle.bgType === "both") &&
+            mapStyle.bgImage && (
+              <image
+                href={mapStyle.bgImage}
+                width="100%"
+                height="100%"
+                preserveAspectRatio={
+                  mapStyle.bgImageMode === "cover"
+                    ? "xMidYMid slice"
+                    : mapStyle.bgImageMode === "contain"
+                    ? "xMidYMid meet"
+                    : "none"
+                }
+                opacity={mapStyle.bgImageOpacity ?? 1}
+              />
+            )}
           <g id="mwLayer" />
           <g id="starsLayer" />
           <g id="constLinesLayer" />
           <g id="constLabelsLayer" />
           <g id="planetsLayer" />
+          <g id="graticuleLayer" />
         </g>
+
         <g id="shapeOutline" transform={getShapeTransform(maskShape)}>
           {maskShape === "circle" ? (
             <circle

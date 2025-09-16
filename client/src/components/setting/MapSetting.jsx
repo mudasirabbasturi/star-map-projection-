@@ -30,7 +30,11 @@ import {
   Select,
   Slider,
   Checkbox,
+  DatePicker,
 } from "antd";
+
+import dayjs from "dayjs";
+
 import BackgroundImagePicker from "./BackgroundImagePicker";
 
 function genPresets(presets = presetPalettes) {
@@ -153,6 +157,15 @@ const MapSetting = ({ styles, updateStyles }) => {
           </Checkbox>
           <Checkbox
             className="text-muted fst-italic"
+            checked={styles.map.showGraticule}
+            onChange={(e) =>
+              updateStyles("map.showGraticule", e.target.checked)
+            }
+          >
+            Show Graticule
+          </Checkbox>
+          <Checkbox
+            className="text-muted fst-italic"
             checked={styles.map.showConstellations}
             onChange={(e) =>
               updateStyles("map.showConstellations", e.target.checked)
@@ -169,12 +182,36 @@ const MapSetting = ({ styles, updateStyles }) => {
           </Checkbox>
           <Checkbox
             className="text-muted fst-italic"
+            checked={styles.map.showPlanetNames}
+            onChange={(e) =>
+              updateStyles("map.showPlanetNames", e.target.checked)
+            }
+          >
+            Show Planet Names
+          </Checkbox>
+          <Checkbox
+            className="text-muted fst-italic"
             checked={styles.map.showMoon}
             onChange={(e) => updateStyles("map.showMoon", e.target.checked)}
           >
             Show Moon
           </Checkbox>
         </div>
+      </div>
+      {/* Projection */}
+      <div className="mb-2">
+        <Divider style={{ fontStyle: "italic" }}>Projection</Divider>
+        <Select
+          className="w-100"
+          value={styles.map.projection}
+          onChange={(val) => updateStyles("map.projection", val)}
+          size="small"
+          options={[
+            { label: "Orthographic", value: "orthographic" },
+            { label: "Stereographic", value: "stereographic" },
+            { label: "Aitoff", value: "aitoff" },
+          ]}
+        />
       </div>
       {/* Background Settings */}
       <div className="mb-2">
@@ -286,7 +323,6 @@ const MapSetting = ({ styles, updateStyles }) => {
           />
         </div>
       </div>
-
       {/* BackGround Color */}
       {/* <div className="mb-2">
         <Divider style={{ fontStyle: "italic" }}>BackGround</Divider>
@@ -309,7 +345,6 @@ const MapSetting = ({ styles, updateStyles }) => {
           />
         </div>
       </div> */}
-
       {/* Stroke Style */}
       <div className="mb-2">
         <Divider style={{ fontStyle: "italic" }}>Border</Divider>
@@ -376,7 +411,6 @@ const MapSetting = ({ styles, updateStyles }) => {
           />
         </div>
       </div>
-
       {/* Milky Way | Star Size Multiplier | Magnitude Limit */}
       <div className="mb-2">
         <Divider style={{ fontStyle: "italic" }}>
@@ -458,7 +492,6 @@ const MapSetting = ({ styles, updateStyles }) => {
           />
         </div>
       </div>
-
       {/* Width / Height */}
       <div className="mb-2">
         <Divider style={{ fontStyle: "italic" }}>Map Width & Height</Divider>
@@ -510,6 +543,17 @@ const MapSetting = ({ styles, updateStyles }) => {
         </div>
       </div>
 
+      <div className="mb-2">
+        <Divider style={{ fontStyle: "italic" }}>Date & Time</Divider>
+        <DatePicker
+          showTime
+          value={dayjs(styles.map.date)}
+          onChange={(val) =>
+            updateStyles("map.date", val ? val.toISOString() : null)
+          }
+          style={{ width: "100%" }}
+        />
+      </div>
       {/* Latitude / Longitude */}
       <div className="mb-2">
         <Divider style={{ fontStyle: "italic" }}>Coordinates</Divider>
