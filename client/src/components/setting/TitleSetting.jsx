@@ -84,7 +84,7 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
   return (
     <>
       {/* Input Value */}
-      <div className="">
+      <div className="pb-2">
         <Divider style={{ fontStyle: "italic" }}>Title Text</Divider>
         <div className="mb-2">
           <div className="d-flex align-items-center">
@@ -96,14 +96,16 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
           </div>
         </div>
       </div>
-
-      {/* Content Width And Heigth */}
-      <div className="">
-        <Divider style={{ fontStyle: "italic" }}>Title Width</Divider>
-        {/* Content Width */}
+      {/* Title Width And Heigth */}
+      <div className="pb-2">
+        <Divider style={{ fontStyle: "italic" }}>Title Width & Height</Divider>
+        {/* Title Width */}
         <div className="">
           <div className="d-flex align-items-center">
-            <small className="me-2" style={{ whiteSpace: "nowrap" }}>
+            <small
+              className="text-muted fst-italic me-2"
+              style={{ whiteSpace: "nowrap" }}
+            >
               Width:
             </small>
             <Slider
@@ -124,10 +126,13 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
             />
           </div>
         </div>
-        {/* Content Height */}
+        {/* Title Height */}
         <div className="">
           <div className="d-flex align-items-center">
-            <small className="me-2" style={{ whiteSpace: "nowrap" }}>
+            <small
+              className="text-muted fst-italic me-2"
+              style={{ whiteSpace: "nowrap" }}
+            >
               Height:
             </small>
             <Slider
@@ -149,8 +154,62 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
           </div>
         </div>
       </div>
+      {/* Title Padding */}
+      <div className="pb-2">
+        <Divider style={{ fontStyle: "italic" }}>Title Padding</Divider>
+        <div className="">
+          <div className="d-flex align-items-center">
+            <InputNumber
+              className="me-1"
+              value={styles.content.title.paddingTop}
+              size="small"
+              min={0}
+              max={50}
+              onChange={(value) =>
+                updateStyles("content.title.paddingTop", value)
+              }
+            />
+            <InputNumber
+              className="me-1"
+              value={styles.content.title.paddingBottom}
+              size="small"
+              min={0}
+              max={50}
+              onChange={(value) =>
+                updateStyles("content.title.paddingBottom", value)
+              }
+            />
+            <InputNumber
+              className="me-1"
+              value={styles.content.title.paddingLeft}
+              size="small"
+              min={0}
+              max={50}
+              onChange={(value) =>
+                updateStyles("content.title.paddingLeft", value)
+              }
+            />
+            <InputNumber
+              className="me-1"
+              value={styles.content.title.paddingRight}
+              size="small"
+              min={0}
+              max={50}
+              onChange={(value) =>
+                updateStyles("content.title.paddingRight", value)
+              }
+            />
+          </div>
+          <div className="d-flex align-items-center">
+            <small className="w-100 text-muted fst-italic"> Top</small>
+            <small className="w-100 text-muted fst-italic"> Bottom</small>
+            <small className="w-100 text-muted fst-italic"> Left</small>
+            <small className="w-100 text-muted fst-italic"> Right</small>
+          </div>
+        </div>
+      </div>
       {/* Content Background Color */}
-      <div className="">
+      <div className="pb-2">
         <Divider style={{ fontStyle: "italic" }}>Content Background</Divider>
         <div className="d-flex align-items-center">
           <ColorPicker
@@ -172,18 +231,23 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
         </div>
       </div>
       {/* Content Border */}
-      <div className="">
+      <div className="pb-2">
         <Divider style={{ fontStyle: "italic" }}>Title Border</Divider>
         {/* Border Style */}
         <div className="mb-2">
           <div className="d-flex align-items-center">
-            <small className="me-2" style={{ whiteSpace: "nowrap" }}>
+            <small
+              className="text-muted fst-italic me-2"
+              style={{ whiteSpace: "nowrap" }}
+            >
               Style:
             </small>
             <Select
               className="w-100"
               value={styles.content.title.borderStyle}
-              onChange={(value) => updateStyles("content.borderStyle", value)}
+              onChange={(value) =>
+                updateStyles("content.title.borderStyle", value)
+              }
               size="small"
               options={[
                 { label: "Solid", value: "solid" },
@@ -198,7 +262,10 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
         {/* Border Width */}
         <div className="mb-2">
           <div className="d-flex align-items-center">
-            <small className="me-2" style={{ whiteSpace: "nowrap" }}>
+            <small
+              className="text-muted fst-italic me-2"
+              style={{ whiteSpace: "nowrap" }}
+            >
               Width:
             </small>
             <Slider
@@ -210,6 +277,7 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               onChange={(value) =>
                 updateStyles("content.title.borderWidth", value || 0)
               }
+              disabled={styles.content.title.borderStyle === "none"}
             />
             <InputNumber
               value={styles.content.title.borderWidth}
@@ -220,13 +288,17 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               onChange={(value) =>
                 updateStyles("content.title.borderWidth", value || 0)
               }
+              disabled={styles.content.title.borderStyle === "none"}
             />
           </div>
         </div>
         {/* Border Radius */}
         <div className="mb-2">
           <div className="d-flex align-items-center">
-            <small className="me-2" style={{ whiteSpace: "nowrap" }}>
+            <small
+              className="text-muted fst-italic me-2"
+              style={{ whiteSpace: "nowrap" }}
+            >
               Radius:
             </small>
             <Slider
@@ -238,6 +310,7 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               onChange={(value) =>
                 updateStyles("content.title.borderRadius", value || 0)
               }
+              disabled={styles.content.title.borderStyle === "none"}
             />
             <InputNumber
               value={styles.content.title.borderRadius}
@@ -248,13 +321,17 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               onChange={(value) =>
                 updateStyles("content.title.borderRadius", value || 0)
               }
+              disabled={styles.content.title.borderStyle === "none"}
             />
           </div>
         </div>
         {/* Border Color */}
         <div className="mb-2">
           <div className="d-flex align-items-center">
-            <small className="me-2" style={{ whiteSpace: "nowrap" }}>
+            <small
+              className="text-muted fst-italic me-2"
+              style={{ whiteSpace: "nowrap" }}
+            >
               Color:
             </small>
             <ColorPicker
@@ -274,17 +351,21 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
                 points: ["tl", "bl"],
                 overflow: { adjustY: true },
               }}
+              disabled={styles.content.title.borderStyle === "none"}
             />
           </div>
         </div>
       </div>
       {/* Text Styling */}
-      <div className="">
+      <div className="pb-2">
         <Divider style={{ fontStyle: "italic" }}>Font</Divider>
         {/* Font Family */}
         <div className="mb-2">
           <div className="d-flex align-items-center">
-            <small className="me-2" style={{ whiteSpace: "nowrap" }}>
+            <small
+              className="text-muted fst-italic me-2"
+              style={{ whiteSpace: "nowrap" }}
+            >
               Family:
             </small>
             <Select
@@ -321,7 +402,10 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
         {/* Font Style */}
         <div className="mb-2">
           <div className="d-flex align-items-center">
-            <small className="me-2" style={{ whiteSpace: "nowrap" }}>
+            <small
+              className="text-muted fst-italic me-2"
+              style={{ whiteSpace: "nowrap" }}
+            >
               Style:
             </small>
             <Select
@@ -342,7 +426,10 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
         {/* Font Width */}
         <div className="mb-2">
           <div className="d-flex align-items-center">
-            <small className="me-2" style={{ whiteSpace: "nowrap" }}>
+            <small
+              className="text-muted fst-italic me-2"
+              style={{ whiteSpace: "nowrap" }}
+            >
               Width:
             </small>
             <Select
@@ -373,13 +460,16 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
         {/* Font Size */}
         <div className="mb-2">
           <div className="d-flex align-items-center">
-            <small className="me-2" style={{ whiteSpace: "nowrap" }}>
+            <small
+              className="text-muted fst-italic me-2"
+              style={{ whiteSpace: "nowrap" }}
+            >
               Size:
             </small>
             <Slider
               className="w-100 me-2 mt-0 mb-0"
-              min={0}
-              max={50}
+              max={10}
+              step={0.1}
               value={styles.content.title.fontSize}
               onChange={(value) =>
                 updateStyles("content.title.fontSize", value || 0)
@@ -389,8 +479,8 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               value={styles.content.title.fontSize}
               className="w-20"
               size="small"
-              min={0}
-              max={50}
+              max={10}
+              step={0.1}
               onChange={(value) =>
                 updateStyles("content.title.fontSize", value || 0)
               }
@@ -401,200 +491,12 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
         <div className="mb-2">
           <Divider style={{ fontStyle: "italic" }}>Text</Divider>
           <div className="d-flex align-items-center">
-            <small className="me-2" style={{ whiteSpace: "nowrap" }}>
+            <small
+              className="text-muted fst-italic me-2"
+              style={{ whiteSpace: "nowrap" }}
+            >
               Color:
             </small>
-            <ColorPicker
-              style={{ width: "100%" }}
-              allowClear
-              value={styles.content.textColor}
-              onChangeComplete={(color) =>
-                updateStyles("content.textColor", color.toCssString())
-              }
-              styles={{ popupOverlayInner: { width: 480 } }}
-              presets={presets}
-              panelRender={customPanelRender}
-              size="small"
-              dropdownAlign={{
-                points: ["tl", "bl"],
-                overflow: { adjustY: true },
-              }}
-            />
-          </div>
-        </div>
-        {/* Text Transform */}
-        <div className="mb-2">
-          <div className="d-flex align-items-center">
-            <small className="me-2" style={{ whiteSpace: "nowrap" }}>
-              Transform:
-            </small>
-            <Select
-              className="w-100"
-              value={styles.content.title.textTransform}
-              onChange={(value) =>
-                updateStyles("content.title.textTransform", value)
-              }
-              size="small"
-              options={[
-                { label: "None", value: "none" }, // default, no transform
-                { label: "Capitalize", value: "capitalize" }, // "hello world" → "Hello World"
-                { label: "Uppercase", value: "uppercase" }, // "hello" → "HELLO"
-                { label: "Lowercase", value: "lowercase" }, // "HELLO" → "hello"
-                { label: "Full Width", value: "full-width" }, // normal → ｎｏｒｍａｌ (rarely used)
-              ]}
-            />
-          </div>
-        </div>
-        {/* Text Decoration */}
-        <div className="mb-2">
-          <div className="d-flex align-items-center">
-            <small className="me-2" style={{ whiteSpace: "nowrap" }}>
-              Decoration:
-            </small>
-            <Select
-              className="w-100"
-              value={styles.content.title.textDecoration}
-              onChange={(value) =>
-                updateStyles("content.title.textDecoration", value)
-              }
-              size="small"
-              options={[
-                { label: "None", value: "none" }, // no decoration
-                { label: "Underline", value: "underline" }, // adds underline
-                { label: "Overline", value: "overline" }, // line above text
-                { label: "Line Through", value: "line-through" }, // strike-through
-                {
-                  label: "Underline + Overline",
-                  value: "underline overline",
-                },
-              ]}
-            />
-          </div>
-        </div>
-      </div>
-      <div>
-        <Divider style={{ fontStyle: "italic" }}>Font</Divider>
-        {/* Font Family */}
-        <div className="mb-2">
-          <div className="d-flex align-items-center">
-            <small className="me-2" style={{ whiteSpace: "nowrap" }}>
-              Family:
-            </small>
-            <Select
-              className="w-100"
-              value={styles.content.title.fontFamily}
-              onChange={(value) =>
-                updateStyles("content.title.fontFamily", value)
-              }
-              size="small"
-              options={[
-                { label: "Arial", value: "Arial, sans-serif" },
-                { label: "Helvetica", value: "Helvetica, sans-serif" },
-                { label: "Verdana", value: "Verdana, sans-serif" },
-                { label: "Tahoma", value: "Tahoma, sans-serif" },
-                {
-                  label: "Trebuchet MS",
-                  value: "'Trebuchet MS', sans-serif",
-                },
-                {
-                  label: "Times New Roman",
-                  value: "'Times New Roman', serif",
-                },
-                { label: "Georgia", value: "Georgia, serif" },
-                { label: "Garamond", value: "Garamond, serif" },
-                { label: "Courier New", value: "'Courier New', monospace" },
-                {
-                  label: "Brush Script MT",
-                  value: "'Brush Script MT', cursive",
-                },
-              ]}
-            />
-          </div>
-        </div>
-        {/* Font Style */}
-        <div className="mb-2">
-          <div className="d-flex align-items-center">
-            <small className="me-2" style={{ whiteSpace: "nowrap" }}>
-              Style:
-            </small>
-            <Select
-              className="w-100"
-              value={styles.content.title.fontStyle}
-              onChange={(value) =>
-                updateStyles("content.title.fontStyle", value)
-              }
-              size="small"
-              options={[
-                { label: "Normal", value: "normal" }, // default
-                { label: "Italic", value: "italic" }, // italicized text
-                { label: "Oblique", value: "oblique" }, // slanted (like italic, but not true italics)
-              ]}
-            />
-          </div>
-        </div>
-        {/* Font Width */}
-        <div className="mb-2">
-          <div className="d-flex align-items-center">
-            <small className="me-2" style={{ whiteSpace: "nowrap" }}>
-              Width:
-            </small>
-            <Select
-              className="w-100"
-              value={styles.content.title.fontWeight}
-              onChange={(value) =>
-                updateStyles("content.title.fontWeight", value)
-              }
-              size="small"
-              options={[
-                { label: "Normal", value: "normal" }, // default = 400
-                { label: "Bold", value: "bold" }, // same as 700
-                { label: "Bolder", value: "bolder" }, // relative heavier
-                { label: "Lighter", value: "lighter" }, // relative lighter
-                { label: "100 (Thin)", value: "100" },
-                { label: "200 (Extra Light)", value: "200" },
-                { label: "300 (Light)", value: "300" },
-                { label: "400 (Normal)", value: "400" },
-                { label: "500 (Medium)", value: "500" },
-                { label: "600 (Semi Bold)", value: "600" },
-                { label: "700 (Bold)", value: "700" },
-                { label: "800 (Extra Bold)", value: "800" },
-                { label: "900 (Black)", value: "900" },
-              ]}
-            />
-          </div>
-        </div>
-        {/* Font Size */}
-        <div className="mb-2">
-          <div className="d-flex align-items-center">
-            <small className="me-2" style={{ whiteSpace: "nowrap" }}>
-              Size:
-            </small>
-            <Slider
-              className="w-100 me-2 mt-0 mb-0"
-              min={0}
-              max={50}
-              value={styles.content.title.fontSize}
-              onChange={(value) =>
-                updateStyles("content.title.fontSize", value || 0)
-              }
-            />
-            <InputNumber
-              value={styles.content.title.fontSize}
-              className="w-20"
-              size="small"
-              min={0}
-              max={50}
-              onChange={(value) =>
-                updateStyles("content.title.fontSize", value || 0)
-              }
-            />
-          </div>
-        </div>
-        {/* Text Color */}
-        <div className="mb-2">
-          <Divider style={{ fontStyle: "italic" }}> Text </Divider>
-          <div className="d-flex align-items-center">
-            <small className="me-1">Color:</small>
             <ColorPicker
               style={{ width: "100%" }}
               allowClear
@@ -616,7 +518,10 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
         {/* Text Transform */}
         <div className="mb-2">
           <div className="d-flex align-items-center">
-            <small className="me-2" style={{ whiteSpace: "nowrap" }}>
+            <small
+              className="text-muted fst-italic me-2"
+              style={{ whiteSpace: "nowrap" }}
+            >
               Transform:
             </small>
             <Select
@@ -639,7 +544,10 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
         {/* Text Decoration */}
         <div className="mb-2">
           <div className="d-flex align-items-center">
-            <small className="me-2" style={{ whiteSpace: "nowrap" }}>
+            <small
+              className="text-muted fst-italic me-2"
+              style={{ whiteSpace: "nowrap" }}
+            >
               Decoration:
             </small>
             <Select

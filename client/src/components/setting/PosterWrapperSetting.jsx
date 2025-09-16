@@ -81,7 +81,7 @@ const PosterWrapperSetting = ({ styles, updateStyles }) => {
       {/* Width */}
       <div className="mb-1">
         <div className="d-flex align-items-center mb-1">
-          <small className="me-1">Width</small>
+          <small className="me-1 text-muted fst-italic">Width</small>
           <Slider
             className="w-100 me-2"
             min={30}
@@ -101,7 +101,7 @@ const PosterWrapperSetting = ({ styles, updateStyles }) => {
       {/* Height */}
       <div className="mb-1">
         <div className="d-flex align-items-center mb-1">
-          <small className="me-1">Height</small>
+          <small className="me-1 text-muted fst-italic">Height</small>
           <Slider
             className="w-100 me-2"
             min={0}
@@ -140,7 +140,7 @@ const PosterWrapperSetting = ({ styles, updateStyles }) => {
       <div className="mb-2">
         <Divider>Border</Divider>
         <div className="d-flex align-items-center mb-1">
-          <small className="me-1">Style</small>
+          <small className="me-1 text-muted fst-italic">Style</small>
           <Select
             className="w-100"
             size="small"
@@ -158,7 +158,7 @@ const PosterWrapperSetting = ({ styles, updateStyles }) => {
           />
         </div>
         <div className="d-flex align-items-center mb-1">
-          <small className="me-1">Width</small>
+          <small className="me-1 text-muted fst-italic">Width</small>
           <InputNumber
             className="w-100"
             size="small"
@@ -168,10 +168,11 @@ const PosterWrapperSetting = ({ styles, updateStyles }) => {
             onChange={(value) =>
               updateStyles("posterWrapper.borderWidth", value || 0)
             }
+            disabled={styles.posterWrapper.borderStyle === "none"}
           />
         </div>
         <div className="d-flex align-items-center mb-1">
-          <small className="me-1">Radius</small>
+          <small className="me-1 text-muted fst-italic">Radius</small>
           <InputNumber
             className="w-100"
             size="small"
@@ -181,10 +182,11 @@ const PosterWrapperSetting = ({ styles, updateStyles }) => {
             onChange={(value) =>
               updateStyles("posterWrapper.borderRadius", value || 0)
             }
+            disabled={styles.posterWrapper.borderStyle === "none"}
           />
         </div>
         <div className="d-flex align-items-center mb-1">
-          <small className="me-1">Color</small>
+          <small className="me-1 text-muted fst-italic">Color</small>
           <ColorPicker
             style={{ width: "100%" }}
             allowClear
@@ -196,6 +198,7 @@ const PosterWrapperSetting = ({ styles, updateStyles }) => {
             presets={presets}
             panelRender={customPanelRender}
             size="small"
+            disabled={styles.posterWrapper.borderStyle === "none"}
           />
         </div>
       </div>

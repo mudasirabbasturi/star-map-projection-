@@ -31,6 +31,7 @@ import {
   Slider,
   Checkbox,
 } from "antd";
+import BackgroundImagePicker from "./BackgroundImagePicker";
 
 function genPresets(presets = presetPalettes) {
   return Object.entries(presets).map(([label, colors]) => ({
@@ -132,95 +133,169 @@ const MapSetting = ({ styles, updateStyles }) => {
 
   return (
     <>
-      {/* Mask Shape */}
+      {/* Show/hide checkboxes */}
       <div className="mb-2">
-        <h5 style={{ fontStyle: "italic" }}>
-          Mask Shape
-          <hr className="mb-0 mt-1" />
-        </h5>
-        <Select
-          className="w-100"
-          value={styles.map.maskShape}
-          onChange={(value) => updateStyles("map.maskShape", value)}
-          size="small"
-          options={[
-            { value: "circle", label: "Circle" },
-            { value: "heart", label: "Heart" },
-            { value: "triangle", label: "Triangle" },
-            { value: "rect", label: "Rectangle" },
-            { value: "apple", label: "Apple Inc" },
-          ]}
-        />
+        <Divider style={{ fontStyle: "italic" }}>Show / Hide Elements</Divider>
+        <div>
+          <Checkbox
+            className="text-muted fst-italic"
+            checked={styles.map.showStars}
+            onChange={(e) => updateStyles("map.showStars", e.target.checked)}
+          >
+            Show Stars
+          </Checkbox>
+          <Checkbox
+            className="text-muted fst-italic"
+            checked={styles.map.showMilkyway}
+            onChange={(e) => updateStyles("map.showMilkyway", e.target.checked)}
+          >
+            Show Milky Way
+          </Checkbox>
+          <Checkbox
+            className="text-muted fst-italic"
+            checked={styles.map.showConstellations}
+            onChange={(e) =>
+              updateStyles("map.showConstellations", e.target.checked)
+            }
+          >
+            Show Constellations
+          </Checkbox>
+          <Checkbox
+            className="text-muted fst-italic"
+            checked={styles.map.showPlanets}
+            onChange={(e) => updateStyles("map.showPlanets", e.target.checked)}
+          >
+            Show Planets
+          </Checkbox>
+          <Checkbox
+            className="text-muted fst-italic"
+            checked={styles.map.showMoon}
+            onChange={(e) => updateStyles("map.showMoon", e.target.checked)}
+          >
+            Show Moon
+          </Checkbox>
+        </div>
       </div>
-
-      {/* Stroke Style */}
+      {/* Background Settings */}
       <div className="mb-2">
-        <h5 style={{ fontStyle: "italic" }}>
-          Stroke Style
-          <hr className="mb-0 mt-1" />
-        </h5>
-        <Select
-          className="w-100"
-          value={styles.map.strokeStyle}
-          onChange={(value) => updateStyles("map.strokeStyle", value)}
-          size="small"
-          options={[
-            { label: "Solid", value: "solid" },
-            { label: "Dashed", value: "dashed" },
-            { label: "Dotted", value: "dotted" },
-            { label: "Double", value: "double" },
-            { label: "None", value: "none" },
-          ]}
-        />
-      </div>
+        <Divider style={{ fontStyle: "italic" }}>Background</Divider>
 
-      {/* Stroke Width */}
-      <div className="mb-2">
-        <h5 style={{ fontStyle: "italic" }}>
-          Stroke Width
-          <hr className="mb-0 mt-1" />
-        </h5>
-        <div className="d-flex align-items-center">
-          <Slider
-            min={0}
-            max={20}
-            value={styles.map.strokeWidth}
-            onChange={(v) => updateStyles("map.strokeWidth", v || 0)}
-            className="w-100 me-2 mt-0 mb-0"
+        <div className="d-flex align-items-center mb-2">
+          <small className="me-2 text-muted fst-italic">Type:</small>
+          <Select
+            className="w-100"
+            value={styles.map.bgType}
+            style={{ width: 160 }}
+            onChange={(val) => updateStyles("map.bgType", val)}
+            options={[
+              { label: "None", value: "none" },
+              { label: "Color", value: "color" },
+              { label: "Image", value: "image" },
+              { label: "Both", value: "both" },
+            ]}
             size="small"
           />
-          <InputNumber
-            min={0}
-            max={20}
-            value={styles.map.strokeWidth}
-            onChange={(v) => updateStyles("map.strokeWidth", v || 0)}
+        </div>
+
+        {/* 🔹 Show only when bgType = color or both */}
+        {(styles.map.bgType === "color" || styles.map.bgType === "both") && (
+          <div className="mb-2 d-flex align-items-center">
+            <small className="me-2 text-muted fst-italic">Color:</small>
+            <ColorPicker
+              className="w-100"
+              value={styles.map.fill}
+              onChangeComplete={(color) =>
+                updateStyles("map.fill", color.toCssString())
+              }
+              presets={presets}
+              panelRender={customPanelRender}
+              size="small"
+              style={{ flex: 1 }}
+            />
+          </div>
+        )}
+
+        {/* 🔹 Show only when bgType = image or both */}
+        {(styles.map.bgType === "image" || styles.map.bgType === "both") && (
+          <div>
+            <BackgroundImagePicker
+              styles={{
+                bgImage: styles.map.bgImage,
+                bgImageOpacity: styles.map.bgImageOpacity,
+                bgImageMode: styles.map.bgImageMode,
+              }}
+              updateStyles={(key, value) => updateStyles(`map.${key}`, value)}
+            />
+            <Select
+              value={styles.map.bgImageMode}
+              onChange={(val) => updateStyles("map.bgImageMode", val)}
+              style={{ width: "100%", marginTop: 8 }}
+              size="small"
+              options={[
+                { label: "Cover", value: "cover" },
+                { label: "Contain", value: "contain" },
+                { label: "Stretch", value: "100% 100%" },
+              ]}
+            />
+            <div className="d-flex align-items-center mt-2">
+              <small className="me-1 text-muted fst-italic">Opacity:</small>
+              <Slider
+                className="w-75"
+                min={0}
+                max={1}
+                step={0.05}
+                value={styles.map.bgImageOpacity}
+                onChange={(val) => updateStyles("map.bgImageOpacity", val)}
+                size="small"
+              />
+              <InputNumber
+                className="w-25"
+                size="small"
+                min={0}
+                max={1}
+                step={0.05}
+                value={styles.map.bgImageOpacity}
+                onChange={(val) => updateStyles("map.bgImageOpacity", val)}
+              />
+            </div>
+          </div>
+        )}
+      </div>
+      {/* Mask Shape */}
+      <div className="mb-2">
+        <Divider style={{ fontStyle: "italic" }}>Mask Shape</Divider>
+        <div className="d-flex align-items-center">
+          <small
+            className="me-2 text-muted fst-italic"
+            style={{ whiteSpace: "nowrap", textTransform: "capitalize" }}
+          >
+            {styles.map.maskShape}
+          </small>
+          <Select
+            className="w-100"
+            value={styles.map.maskShape}
+            onChange={(value) => updateStyles("map.maskShape", value)}
             size="small"
+            options={[
+              { value: "circle", label: "Circle" },
+              { value: "heart", label: "Heart" },
+              { value: "triangle", label: "Triangle" },
+              { value: "rect", label: "Rectangle" },
+              { value: "apple", label: "Apple Inc" },
+            ]}
           />
         </div>
       </div>
 
-      {/* Stroke Color & Fill Color */}
-      <div className="mb-2">
-        <h5 style={{ fontStyle: "italic" }}>
-          Stroke & Fill Color
-          <hr className="mb-0 mt-1" />
-        </h5>
+      {/* BackGround Color */}
+      {/* <div className="mb-2">
+        <Divider style={{ fontStyle: "italic" }}>BackGround</Divider>
         <div className="d-flex align-items-center">
-          <small className="me-2" style={{ whiteSpace: "nowrap" }}>
-            Stroke:
-          </small>
-          <ColorPicker
-            value={styles.map.strokeColor}
-            onChangeComplete={(color) =>
-              updateStyles("map.strokeColor", color.toCssString())
-            }
-            presets={presets}
-            panelRender={customPanelRender}
-            size="small"
-            style={{ flex: 1 }}
-          />
-          <small className="ms-2 me-2" style={{ whiteSpace: "nowrap" }}>
-            Fill:
+          <small
+            className="me-2 text-muted fst-italic"
+            style={{ whiteSpace: "nowrap" }}
+          >
+            Color:
           </small>
           <ColorPicker
             value={styles.map.fill}
@@ -233,57 +308,87 @@ const MapSetting = ({ styles, updateStyles }) => {
             style={{ flex: 1 }}
           />
         </div>
-      </div>
+      </div> */}
 
-      {/* Show/hide checkboxes */}
+      {/* Stroke Style */}
       <div className="mb-2">
-        <h5 style={{ fontStyle: "italic" }}>
-          Show / Hide Elements
-          <hr className="mb-0 mt-1" />
-        </h5>
-        <div>
-          <Checkbox
-            checked={styles.map.showStars}
-            onChange={(e) => updateStyles("map.showStars", e.target.checked)}
+        <Divider style={{ fontStyle: "italic" }}>Border</Divider>
+        <div className="d-flex align-items-center mb-2">
+          <small
+            className="me-2 text-muted fst-italic"
+            style={{ whiteSpace: "nowrap" }}
           >
-            Show Stars
-          </Checkbox>
-          <Checkbox
-            checked={styles.map.showMilkyway}
-            onChange={(e) => updateStyles("map.showMilkyway", e.target.checked)}
+            Style:
+          </small>
+          <Select
+            className="w-100"
+            value={styles.map.strokeStyle}
+            onChange={(value) => updateStyles("map.strokeStyle", value)}
+            size="small"
+            options={[
+              { label: "Solid", value: "solid" },
+              { label: "Dashed", value: "dashed" },
+              { label: "Dotted", value: "dotted" },
+              { label: "Double", value: "double" },
+              { label: "None", value: "none" },
+            ]}
+          />
+        </div>
+        <div className="d-flex align-items-center mb-2">
+          <small
+            className="me-2 text-muted fst-italic"
+            style={{ whiteSpace: "nowrap" }}
           >
-            Show Milky Way
-          </Checkbox>
-          <Checkbox
-            checked={styles.map.showConstellations}
-            onChange={(e) =>
-              updateStyles("map.showConstellations", e.target.checked)
+            Width:
+          </small>
+          <Slider
+            min={0}
+            max={20}
+            value={styles.map.strokeWidth}
+            onChange={(v) => updateStyles("map.strokeWidth", v || 0)}
+            className="w-100 me-2 mt-0 mb-0"
+            size="small"
+          />
+          <InputNumber
+            min={0}
+            max={20}
+            value={styles.map.strokeWidth}
+            onChange={(v) => updateStyles("map.strokeWidth", v || 0)}
+            size="small"
+          />
+        </div>
+        <div className="d-flex align-items-center mb-2">
+          <small
+            className="me-2 text-muted fst-italic"
+            style={{ whiteSpace: "nowrap" }}
+          >
+            Color:
+          </small>
+          <ColorPicker
+            value={styles.map.strokeColor}
+            onChangeComplete={(color) =>
+              updateStyles("map.strokeColor", color.toCssString())
             }
-          >
-            Show Constellations
-          </Checkbox>
-          <Checkbox
-            checked={styles.map.showPlanets}
-            onChange={(e) => updateStyles("map.showPlanets", e.target.checked)}
-          >
-            Show Planets
-          </Checkbox>
-          <Checkbox
-            checked={styles.map.showMoon}
-            onChange={(e) => updateStyles("map.showMoon", e.target.checked)}
-          >
-            Show Moon
-          </Checkbox>
+            presets={presets}
+            panelRender={customPanelRender}
+            size="small"
+            style={{ flex: 1 }}
+          />
         </div>
       </div>
 
-      {/* MW Opacity */}
+      {/* Milky Way | Star Size Multiplier | Magnitude Limit */}
       <div className="mb-2">
-        <h5 style={{ fontStyle: "italic" }}>
-          Milky Way Opacity
-          <hr className="mb-0 mt-1" />
-        </h5>
-        <div className="d-flex align-items-center">
+        <Divider style={{ fontStyle: "italic" }}>
+          Milky Way / Star / Magnitude
+        </Divider>
+        <div className="d-flex align-items-center mb-1">
+          <small
+            className="me-2 text-muted fst-italic"
+            style={{ whiteSpace: "nowrap" }}
+          >
+            Opacity:
+          </small>
           <Slider
             min={0}
             max={1}
@@ -302,15 +407,13 @@ const MapSetting = ({ styles, updateStyles }) => {
             size="small"
           />
         </div>
-      </div>
-
-      {/* Star Size Mult */}
-      <div className="mb-2">
-        <h5 style={{ fontStyle: "italic" }}>
-          Star Size Multiplier
-          <hr className="mb-0 mt-1" />
-        </h5>
-        <div className="d-flex align-items-center">
+        <div className="d-flex align-items-center mb-1">
+          <small
+            className="me-2 text-muted fst-italic"
+            style={{ whiteSpace: "nowrap" }}
+          >
+            Size Multiplier:
+          </small>
           <Slider
             min={0.3}
             max={3}
@@ -329,15 +432,13 @@ const MapSetting = ({ styles, updateStyles }) => {
             size="small"
           />
         </div>
-      </div>
-
-      {/* Magnitude Limit */}
-      <div className="mb-2">
-        <h5 style={{ fontStyle: "italic" }}>
-          Magnitude Limit
-          <hr className="mb-0 mt-1" />
-        </h5>
         <div className="d-flex align-items-center">
+          <small
+            className="me-2 text-muted fst-italic"
+            style={{ whiteSpace: "nowrap" }}
+          >
+            Limit:
+          </small>
           <Slider
             min={1}
             max={10}
@@ -360,12 +461,12 @@ const MapSetting = ({ styles, updateStyles }) => {
 
       {/* Width / Height */}
       <div className="mb-2">
-        <h5 style={{ fontStyle: "italic" }}>
-          Map Width & Height
-          <hr className="mb-0 mt-1" />
-        </h5>
+        <Divider style={{ fontStyle: "italic" }}>Map Width & Height</Divider>
         <div className="d-flex align-items-center mb-2">
-          <small className="me-2" style={{ whiteSpace: "nowrap" }}>
+          <small
+            className="me-2 text-muted fst-italic"
+            style={{ whiteSpace: "nowrap" }}
+          >
             Width:
           </small>
           <Slider
@@ -385,7 +486,10 @@ const MapSetting = ({ styles, updateStyles }) => {
           />
         </div>
         <div className="d-flex align-items-center">
-          <small className="me-2" style={{ whiteSpace: "nowrap" }}>
+          <small
+            className="me-2 text-muted fst-italic"
+            style={{ whiteSpace: "nowrap" }}
+          >
             Height:
           </small>
           <Slider
@@ -408,21 +512,28 @@ const MapSetting = ({ styles, updateStyles }) => {
 
       {/* Latitude / Longitude */}
       <div className="mb-2">
-        <h5 style={{ fontStyle: "italic" }}>
-          Coordinates
-          <hr className="mb-0 mt-1" />
-        </h5>
-        {/* 🌍 Address Search */}
-        <AutoComplete
-          style={{ width: "100%", marginBottom: "10px" }}
-          options={options}
-          onSearch={handleSearch}
-          onSelect={handleSelect}
-        >
-          <Input placeholder="Search location..." />
-        </AutoComplete>
+        <Divider style={{ fontStyle: "italic" }}>Coordinates</Divider>
         <div className="d-flex align-items-center mb-2">
-          <small className="me-2" style={{ whiteSpace: "nowrap" }}>
+          <small
+            className="me-2 text-muted fst-italic"
+            style={{ whiteSpace: "nowrap" }}
+          >
+            Location:
+          </small>
+          <AutoComplete
+            style={{ width: "100%" }}
+            options={options}
+            onSearch={handleSearch}
+            onSelect={handleSelect}
+          >
+            <Input placeholder="Search location..." />
+          </AutoComplete>
+        </div>
+        <div className="d-flex align-items-center mb-2">
+          <small
+            className="me-2 text-muted fst-italic"
+            style={{ whiteSpace: "nowrap" }}
+          >
             Latitude:
           </small>
           <Slider
@@ -442,7 +553,10 @@ const MapSetting = ({ styles, updateStyles }) => {
           />
         </div>
         <div className="d-flex align-items-center">
-          <small className="me-2" style={{ whiteSpace: "nowrap" }}>
+          <small
+            className="me-2 text-muted fst-italic"
+            style={{ whiteSpace: "nowrap" }}
+          >
             Longitude:
           </small>
           <Slider

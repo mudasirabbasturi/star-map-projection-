@@ -125,7 +125,7 @@ const PosterSetting = ({ styles, updateStyles, content, onChangeContent }) => {
       <div className="mb-2">
         <Divider>Background</Divider>
         <div className="d-flex align-items-center mb-2">
-          <small className="me-2">Type:</small>
+          <small className="me-2 text-muted fst-italic">Type:</small>
           <Select
             value={styles.bgType}
             style={{ width: 140 }}
@@ -155,7 +155,7 @@ const PosterSetting = ({ styles, updateStyles, content, onChangeContent }) => {
         {styles.bgType === "gradient" && (
           <div>
             <div className="d-flex align-items-center mb-2">
-              <small className="me-2">Type:</small>
+              <small className="me-2 text-muted fst-italic">In Gradient:</small>
               <Select
                 value={styles.bgGradientType}
                 style={{ width: 140 }}
@@ -171,7 +171,7 @@ const PosterSetting = ({ styles, updateStyles, content, onChangeContent }) => {
             {(styles.bgGradientType === "linear" ||
               styles.bgGradientType === "conic") && (
               <div className="d-flex align-items-center mb-2">
-                <small className="me-2">Angle:</small>
+                <small className="me-2 text-muted fst-italic">Angle:</small>
                 <InputNumber
                   min={0}
                   max={360}
@@ -271,7 +271,7 @@ const PosterSetting = ({ styles, updateStyles, content, onChangeContent }) => {
           ]}
         />
         <div className="d-flex align-items-center">
-          <small className="me-1">Opacity</small>
+          <small className="me-1 text-muted fst-italic">Opacity</small>
           <Slider
             className="w-75"
             min={0}
@@ -291,11 +291,12 @@ const PosterSetting = ({ styles, updateStyles, content, onChangeContent }) => {
           />
         </div>
       </div>
+
       {/* Border */}
       <div className="mb-2">
         <Divider>Border</Divider>
-        <div className="mb-2">
-          <small className="me-2">Style:</small>
+        <div className="d-flex align-items-center mb-2">
+          <small className="me-2 text-muted fst-italic">Style:</small>
           <Select
             className="w-100"
             size="small"
@@ -310,8 +311,8 @@ const PosterSetting = ({ styles, updateStyles, content, onChangeContent }) => {
             ]}
           />
         </div>
-        <div className="mb-2">
-          <small className="me-2">Width:</small>
+        <div className="d-flex align-items-center mb-2">
+          <small className="me-2 text-muted fst-italic">Width:</small>
           <InputNumber
             className="w-100"
             size="small"
@@ -319,10 +320,11 @@ const PosterSetting = ({ styles, updateStyles, content, onChangeContent }) => {
             max={20}
             value={styles.borderWidth}
             onChange={(val) => updateStyles("borderWidth", val || 0)}
+            disabled={styles.borderStyle === "none"}
           />
         </div>
-        <div className="mb-2">
-          <small className="me-2">Radius:</small>
+        <div className="d-flex align-items-center mb-2">
+          <small className="me-2 text-muted fst-italic">Radius:</small>
           <InputNumber
             className="w-100"
             size="small"
@@ -330,10 +332,11 @@ const PosterSetting = ({ styles, updateStyles, content, onChangeContent }) => {
             max={50}
             value={styles.borderRadius}
             onChange={(val) => updateStyles("borderRadius", val || 0)}
+            disabled={styles.borderStyle === "none"}
           />
         </div>
-        <div className="mb-2">
-          <small className="me-2">Color:</small>
+        <div className="d-flex align-items-center mb-2">
+          <small className="me-2 text-muted fst-italic">Color:</small>
           <ColorPicker
             style={{ width: "100%" }}
             allowClear
@@ -345,6 +348,7 @@ const PosterSetting = ({ styles, updateStyles, content, onChangeContent }) => {
             presets={presets}
             panelRender={customPanelRender}
             size="small"
+            disabled={styles.borderStyle === "none"}
           />
         </div>
       </div>

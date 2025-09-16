@@ -12,11 +12,14 @@ const ContentSetting = lazy(() =>
 );
 import TitleSetting from "./components/setting/TitleSetting";
 const MapSetting = lazy(() => import("./components/setting/MapSetting"));
+const CustomImgSetting = lazy(() =>
+  import("./components/setting/CustomImgSetting")
+);
 
 const Sidebar = lazy(() => import("./components/Sidebar"));
 const Title = lazy(() => import("./components/Title"));
 const Map = lazy(() => import("./components/Map"));
-const ChordImg = lazy(() => import("./components/ChordImg"));
+const CustomImg = lazy(() => import("./components/CustomImg"));
 const Content = lazy(() => import("./components/Content"));
 
 const App = () => {
@@ -25,7 +28,7 @@ const App = () => {
   const [api, contextHolder] = notification.useNotification();
   const [positions, setPositions] = useState({
     map: { y: 12 },
-    couple_img: { y: 12 },
+    CustomImg: { y: 12 },
     title: { y: 4 },
     content: { y: 80 },
   });
@@ -75,7 +78,7 @@ const App = () => {
     posterWrapper: {
       width: 90,
       height: 90,
-      bgColor: "transparent",
+      bgColor: null,
       borderStyle: "solid",
       borderWidth: 1,
       borderRadius: 0,
@@ -85,7 +88,9 @@ const App = () => {
       width: 90,
       height: null,
       maskShape: "circle",
-      fill: "transparent",
+      fill: null,
+      bgImage: "https://picsum.photos/800/600",
+      bgImageOpacity: 0.1,
       strokeColor: "#eee",
       strokeStyle: "solid",
       strokeWidth: 1,
@@ -100,17 +105,30 @@ const App = () => {
       lat: 51.5,
       lon: -0.1,
     },
-    couple_img: {
-      width: 30,
+    CustomImg: {
+      width: 90,
+      imgDimention: 25,
+      bgColor: null,
+      fontFamily: "Verdana",
+      fontStyle: "normal",
+      fontWeight: "normal",
+      fontSize: 1.5,
+      textColor: "#ffff",
+      textTransform: "capitalize",
+      textDecoration: "none",
     },
     content: {
       width: 90,
       height: 15,
-      bgColor: "transparent",
+      bgColor: null,
+      paddingTop: 5,
+      paddingBottom: 5,
+      paddingLeft: 5,
+      paddingRight: 5,
       fontFamily: "Verdana",
       fontStyle: "normal",
       fontWeight: "normal",
-      fontSize: 14,
+      fontSize: 2,
       textColor: "#ffff",
       textTransform: "capitalize",
       textDecoration: "none",
@@ -121,11 +139,15 @@ const App = () => {
       title: {
         width: 90,
         height: 5,
-        bgColor: "transparent",
+        bgColor: null,
+        paddingTop: 5,
+        paddingBottom: 5,
+        paddingLeft: 5,
+        paddingRight: 5,
         fontFamily: "Verdana",
         fontStyle: "normal",
         fontWeight: "normal",
-        fontSize: 14,
+        fontSize: 2.5,
         textColor: "#ffff",
         textTransform: "capitalize",
         textDecoration: "none",
@@ -142,6 +164,8 @@ const App = () => {
       date: true,
       time: true,
       coordinate: true,
+      imgTxt_1: false,
+      imgTxt_2: false,
     },
   });
 
@@ -231,6 +255,8 @@ const App = () => {
       })
       .toUpperCase(),
     coordinate: "51.5°N, 0.1°W",
+    text1: "Under These Stars",
+    text2: "Our Story Began With Gentle Smiles",
   });
   const onChangeContent = (key, value) =>
     setContent((prev) => ({ ...prev, [key]: value }));
@@ -262,8 +288,9 @@ const App = () => {
     poster: "Poster Settings",
     posterWrapper: "Inner Poster Settings",
     map: "Map Settings",
-    Image: "Custom Image Settings",
+    CustomImg: "Custom Image Settings",
     content: "Content Setting",
+    title: "Title Setting",
     showDownloadFiles: "Downloaded files",
     showImportFiles: "All Save Styles",
   };
@@ -298,18 +325,6 @@ const App = () => {
     });
   };
 
-  // scaling factors by paper size (relative to A4)
-  const PAPER_SCALE = {
-    A0: 4.0,
-    A1: 2.8,
-    A2: 2.0,
-    A3: 1.4,
-    A4: 1.0, // base
-    A5: 0.7,
-    A6: 0.5,
-    Letter: 1.0,
-    Legal: 1.2,
-  };
   // screen shot
   const handleScreenShot = async () => {
     if (!canvasRef.current) return;
@@ -328,26 +343,10 @@ const App = () => {
         })
         .join("\n");
 
-      // pick scale factor based on paperSize
-      const scale = PAPER_SCALE[styles.paperSize] || 1.0;
-
-      // override CSS for print
-      const overrideCss = `
-      .title {
-        font-size: ${Math.round(
-          styles.content.title.fontSize * scale
-        )}px !important;
-      }
-      .content {
-        font-size: ${Math.round(styles.content.fontSize * scale)}px !important;
-      }
-    `;
-
       const fullHTML = `<html>
       <head>
         <meta charset="UTF-8">
         <style>${cssText}</style>
-        <style>${overrideCss}</style>
       </head>
       <body>${htmlContent}</body>
     </html>`;
@@ -542,12 +541,13 @@ const App = () => {
                     drawerMode={drawerMode}
                   />
 
-                  <ChordImg
+                  <CustomImg
                     styles={styles}
                     positions={positions}
                     handleMouseDown={handleMouseDown}
                     showDrawer={showDrawer}
                     drawerMode={drawerMode}
+                    content={content}
                   />
                   {/* title */}
                   <Title
@@ -614,6 +614,13 @@ const App = () => {
               />
             ) : drawerMode === "map" ? (
               <MapSetting
+                styles={styles}
+                updateStyles={updateStyles}
+                content={content}
+                onChangeContent={onChangeContent}
+              />
+            ) : drawerMode === "CustomImg" ? (
+              <CustomImgSetting
                 styles={styles}
                 updateStyles={updateStyles}
                 content={content}

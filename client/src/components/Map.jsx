@@ -113,11 +113,9 @@ const Map = ({
       return { x: NaN, y: NaN };
     }
   };
-  // Create projection background (the sphere/globe fill)
+
   const createProjectionBackground = () => {
     if (fill === "transparent" || fill === "none") return null;
-    // For all shapes, create a background that fills the entire clip area
-    // This will be clipped by the maskShape
     return (
       <rect
         x="0"
@@ -508,7 +506,6 @@ const Map = ({
         preserveAspectRatio={maskShape === "rect" ? "none" : undefined}
       >
         <defs>
-          {/* Always define clipPath, even for circle */}
           <clipPath id="maskShape" transform={getShapeTransform(maskShape)}>
             {maskShape === "circle" ? (
               <circle cx="600" cy="600" r="600" />
@@ -517,17 +514,48 @@ const Map = ({
             )}
           </clipPath>
         </defs>
-        {/* Always apply clipPath to contain all elements */}
-        <g clipPath="url(#maskShape)">
-          {/* Projection background - appears behind everything but inside the clip */}
+        {/* <g clipPath="url(#maskShape)">
           {createProjectionBackground()}
           <g id="mwLayer" />
           <g id="starsLayer" />
           <g id="constLinesLayer" />
           <g id="constLabelsLayer" />
           <g id="planetsLayer" />
+        </g> */}
+        <g clipPath="url(#maskShape)">
+          {/* 🔹 Background fill always */}
+          <rect
+            x="0"
+            y="0"
+            width="1200"
+            height="1200"
+            fill={fill && fill !== "transparent" ? fill : "black"} // fallback
+          />
+
+          {/* 🔹 Optional background image overlay */}
+          {mapStyle.bgImage && (
+            <image
+              href={mapStyle.bgImage}
+              width="100%"
+              height="100%"
+              preserveAspectRatio={
+                mapStyle.bgImageMode === "cover"
+                  ? "xMidYMid slice"
+                  : mapStyle.bgImageMode === "contain"
+                  ? "xMidYMid meet"
+                  : "none"
+              }
+              opacity={mapStyle.bgImageOpacity ?? 1}
+            />
+          )}
+
+          {/* 🔹 Stars and layers always above bg */}
+          <g id="mwLayer" />
+          <g id="starsLayer" />
+          <g id="constLinesLayer" />
+          <g id="constLabelsLayer" />
+          <g id="planetsLayer" />
         </g>
-        {/* Always render outline for all shapes including circle */}
         <g id="shapeOutline" transform={getShapeTransform(maskShape)}>
           {maskShape === "circle" ? (
             <circle

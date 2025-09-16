@@ -15,6 +15,7 @@ body {
   overflow: hidden;
   background: #1F1F1F;
   font-family: "Segoe UI", sans-serif;
+  font-size: 100%;
 }
 
 .app-container {
@@ -113,7 +114,7 @@ body {
    Star Map , content body, title
 ------------------------------ */
 .map,
-.couple_img,
+.CustomImg,
 .content,
 .title {
   position: absolute;
@@ -135,12 +136,16 @@ body {
   position: absolute;
 }
 
-.couple_img:hover,
+.CustomImg:hover,
 .map:hover,
 .title:hover,
 .content:hover {
   cursor: grab;
   background-color: #7d5cff0c;
+}
+
+.CustomImg {
+  flex-direction: column;
 }
 
 /* ------------------------------
