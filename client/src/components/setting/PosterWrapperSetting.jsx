@@ -106,6 +106,7 @@ const PosterWrapperSetting = ({ styles, updateStyles }) => {
             className="w-100 me-2"
             min={0}
             max={100}
+            step={0.1}
             value={styles.posterWrapper.height}
             onChange={(value) => updateStyles("posterWrapper.height", value)}
           />
@@ -114,6 +115,7 @@ const PosterWrapperSetting = ({ styles, updateStyles }) => {
             size="small"
             min={0}
             max={100}
+            step={0.1}
             onChange={(value) => updateStyles("posterWrapper.height", value)}
           />
         </div>

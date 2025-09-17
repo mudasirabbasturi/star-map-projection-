@@ -323,28 +323,6 @@ const MapSetting = ({ styles, updateStyles }) => {
           />
         </div>
       </div>
-      {/* BackGround Color */}
-      {/* <div className="mb-2">
-        <Divider style={{ fontStyle: "italic" }}>BackGround</Divider>
-        <div className="d-flex align-items-center">
-          <small
-            className="me-2 text-muted fst-italic"
-            style={{ whiteSpace: "nowrap" }}
-          >
-            Color:
-          </small>
-          <ColorPicker
-            value={styles.map.fill}
-            onChangeComplete={(color) =>
-              updateStyles("map.fill", color.toCssString())
-            }
-            presets={presets}
-            panelRender={customPanelRender}
-            size="small"
-            style={{ flex: 1 }}
-          />
-        </div>
-      </div> */}
       {/* Stroke Style */}
       <div className="mb-2">
         <Divider style={{ fontStyle: "italic" }}>Border</Divider>

@@ -89,8 +89,16 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
         <div>
           <Checkbox
             className="text-muted fst-italic"
+            checked={styles.show.content}
+            onChange={(e) => updateStyles("show.content", e.target.checked)}
+          >
+            Content
+          </Checkbox>
+          <Checkbox
+            className="text-muted fst-italic"
             checked={styles.show.address}
             onChange={(e) => updateStyles("show.address", e.target.checked)}
+            disabled={styles.show.content === false}
           >
             Address
           </Checkbox>
@@ -99,6 +107,7 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
             className="text-muted fst-italic"
             checked={styles.show.message}
             onChange={(e) => updateStyles("show.message", e.target.checked)}
+            disabled={styles.show.content === false}
           >
             Message
           </Checkbox>
@@ -107,6 +116,7 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
             className="text-muted fst-italic"
             checked={styles.show.date}
             onChange={(e) => updateStyles("show.date", e.target.checked)}
+            disabled={styles.show.content === false}
           >
             Date
           </Checkbox>
@@ -114,7 +124,9 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
             className="text-muted fst-italic"
             checked={styles.show.time}
             onChange={(e) => updateStyles("show.time", e.target.checked)}
-            disabled={styles.show.date === false}
+            disabled={
+              styles.show.content === false || styles.show.date === false
+            }
           >
             Time
           </Checkbox>
@@ -122,6 +134,7 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
             className="text-muted fst-italic"
             checked={styles.show.coordinate}
             onChange={(e) => updateStyles("show.coordinate", e.target.checked)}
+            disabled={styles.show.content === false}
           >
             Coordinate
           </Checkbox>
@@ -143,7 +156,9 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               value={content.address}
               onChange={(e) => onChangeContent("address", e.target.value)}
               size="small"
-              disabled={styles.show.address === false}
+              disabled={
+                styles.show.content === false || styles.show.address === false
+              }
             />
           </div>
         </div>
@@ -162,7 +177,9 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
                 onChangeContent("date", dateString || "")
               }
               style={{ width: "100%" }}
-              disabled={styles.show.date === false}
+              disabled={
+                styles.show.content === false || styles.show.date === false
+              }
             />
             <TimePicker
               className="ms-1 w-100"
@@ -173,7 +190,9 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
                 onChangeContent("time", timeString || "")
               }
               disabled={
-                styles.show.time === false || styles.show.date === false
+                styles.show.content === false ||
+                styles.show.time === false ||
+                styles.show.date === false
               }
             />
           </div>
@@ -191,7 +210,9 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               value={content.message}
               onChange={(e) => onChangeContent("message", e.target.value)}
               size="small"
-              disabled={styles.show.message === false}
+              disabled={
+                styles.show.content === false || styles.show.message === false
+              }
             />
           </div>
         </div>
@@ -208,7 +229,10 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               value={content.coordinate}
               onChange={(e) => onChangeContent("coordinate", e.target.value)}
               size="small"
-              disabled={styles.show.coordinate === false}
+              disabled={
+                styles.show.content === false ||
+                styles.show.coordinate === false
+              }
             />
           </div>
         </div>
@@ -234,6 +258,7 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               min={30}
               max={100}
               onChange={(value) => updateStyles("content.width", value)}
+              disabled={styles.show.content === false}
             />
             <InputNumber
               value={styles.content.width}
@@ -242,6 +267,7 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               min={30}
               max={100}
               onChange={(value) => updateStyles("content.width", value)}
+              disabled={styles.show.content === false}
             />
           </div>
         </div>
@@ -261,6 +287,7 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               min={10}
               max={100}
               onChange={(value) => updateStyles("content.height", value)}
+              disabled={styles.show.content === false}
             />
             <InputNumber
               value={styles.content.height}
@@ -269,6 +296,7 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               min={10}
               max={100}
               onChange={(value) => updateStyles("content.height", value)}
+              disabled={styles.show.content === false}
             />
           </div>
         </div>
@@ -285,6 +313,7 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               min={0}
               max={50}
               onChange={(value) => updateStyles("content.paddingTop", value)}
+              disabled={styles.show.content === false}
             />
             <InputNumber
               className="me-1"
@@ -293,6 +322,7 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               min={0}
               max={50}
               onChange={(value) => updateStyles("content.paddingBottom", value)}
+              disabled={styles.show.content === false}
             />
             <InputNumber
               className="me-1"
@@ -301,6 +331,7 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               min={0}
               max={50}
               onChange={(value) => updateStyles("content.paddingLeft", value)}
+              disabled={styles.show.content === false}
             />
             <InputNumber
               className="me-1"
@@ -309,6 +340,7 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               min={0}
               max={50}
               onChange={(value) => updateStyles("content.paddingRight", value)}
+              disabled={styles.show.content === false}
             />
           </div>
           <div className="d-flex align-items-center">
@@ -338,6 +370,7 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               points: ["tl", "bl"],
               overflow: { adjustY: true },
             }}
+            disabled={styles.show.content === false}
           />
         </div>
       </div>
@@ -365,6 +398,7 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
                 { label: "Double", value: "double" },
                 { label: "None", value: "none" },
               ]}
+              disabled={styles.show.content === false}
             />
           </div>
         </div>
@@ -386,7 +420,10 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               onChange={(value) =>
                 updateStyles("content.borderWidth", value || 0)
               }
-              disabled={styles.content.borderStyle === "none"}
+              disabled={
+                styles.show.content === false ||
+                styles.content.borderStyle === "none"
+              }
             />
             <InputNumber
               value={styles.content.borderWidth}
@@ -397,7 +434,10 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               onChange={(value) =>
                 updateStyles("content.borderWidth", value || 0)
               }
-              disabled={styles.content.borderStyle === "none"}
+              disabled={
+                styles.show.content === false ||
+                styles.content.borderStyle === "none"
+              }
             />
           </div>
         </div>
@@ -419,7 +459,10 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               onChange={(value) =>
                 updateStyles("content.borderRadius", value || 0)
               }
-              disabled={styles.content.borderStyle === "none"}
+              disabled={
+                styles.show.content === false ||
+                styles.content.borderStyle === "none"
+              }
             />
             <InputNumber
               value={styles.content.borderRadius}
@@ -430,7 +473,10 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               onChange={(value) =>
                 updateStyles("content.borderRadius", value || 0)
               }
-              disabled={styles.content.borderStyle === "none"}
+              disabled={
+                styles.show.content === false ||
+                styles.content.borderStyle === "none"
+              }
             />
           </div>
         </div>
@@ -460,7 +506,10 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
                 points: ["tl", "bl"],
                 overflow: { adjustY: true },
               }}
-              disabled={styles.content.borderStyle === "none"}
+              disabled={
+                styles.show.content === false ||
+                styles.content.borderStyle === "none"
+              }
             />
           </div>
         </div>
@@ -500,6 +549,7 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
                   value: "'Brush Script MT', cursive",
                 },
               ]}
+              disabled={styles.show.content === false}
             />
           </div>
         </div>
@@ -519,6 +569,7 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
                 { label: "Italic", value: "italic" }, // italicized text
                 { label: "Oblique", value: "oblique" }, // slanted (like italic, but not true italics)
               ]}
+              disabled={styles.show.content === false}
             />
           </div>
         </div>
@@ -548,6 +599,7 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
                 { label: "800 (Extra Bold)", value: "800" },
                 { label: "900 (Black)", value: "900" },
               ]}
+              disabled={styles.show.content === false}
             />
           </div>
         </div>
@@ -587,6 +639,7 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               step={0.1} // smooth increments
               value={styles.content.fontSize}
               onChange={(value) => updateStyles("content.fontSize", value || 0)}
+              disabled={styles.show.content === false}
             />
             <InputNumber
               value={styles.content.fontSize}
@@ -596,6 +649,7 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               max={10}
               step={0.1}
               onChange={(value) => updateStyles("content.fontSize", value || 0)}
+              disabled={styles.show.content === false}
             />
           </div>
         </div>
@@ -622,6 +676,7 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
                 points: ["tl", "bl"],
                 overflow: { adjustY: true },
               }}
+              disabled={styles.show.content === false}
             />
           </div>
         </div>
@@ -637,12 +692,13 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               onChange={(value) => updateStyles("content.textTransform", value)}
               size="small"
               options={[
-                { label: "None", value: "none" }, // default, no transform
+                { label: "None", value: "none" },
                 { label: "Capitalize", value: "capitalize" }, // "hello world" → "Hello World"
                 { label: "Uppercase", value: "uppercase" }, // "hello" → "HELLO"
                 { label: "Lowercase", value: "lowercase" }, // "HELLO" → "hello"
                 { label: "Full Width", value: "full-width" }, // normal → ｎｏｒｍａｌ (rarely used)
               ]}
+              disabled={styles.show.content === false}
             />
           </div>
         </div>
@@ -669,6 +725,7 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
                   value: "underline overline",
                 },
               ]}
+              disabled={styles.show.content === false}
             />
           </div>
         </div>

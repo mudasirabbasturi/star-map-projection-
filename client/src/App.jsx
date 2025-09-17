@@ -3,6 +3,9 @@ import { Drawer, notification, Spin, List } from "antd";
 import { MdOutlineEditNote } from "react-icons/md";
 import { AiFillFilePdf } from "react-icons/ai";
 
+const ShowHideElement = lazy(() =>
+  import("./components/setting/ShowHideElement")
+);
 const PosterSetting = lazy(() => import("./components/setting/PosterSetting"));
 const PosterWrapperSetting = lazy(() =>
   import("./components/setting/PosterWrapperSetting")
@@ -28,7 +31,7 @@ const App = () => {
   const [api, contextHolder] = notification.useNotification();
   const [positions, setPositions] = useState({
     map: { y: 12 },
-    CustomImg: { y: 12 },
+    CustomImg: { y: 50 },
     title: { y: 4 },
     content: { y: 80 },
   });
@@ -77,7 +80,7 @@ const App = () => {
 
     posterWrapper: {
       width: 90,
-      height: 90,
+      height: 92.6,
       bgColor: null,
       borderStyle: "solid",
       borderWidth: 1,
@@ -165,13 +168,17 @@ const App = () => {
     },
     show: {
       title: true,
+      content: true,
       address: true,
       message: true,
       date: true,
       time: true,
       coordinate: true,
+      CustomImg: false,
       imgTxt_1: false,
       imgTxt_2: false,
+      starMap: true,
+      moonMap: false,
     },
   });
 
@@ -208,6 +215,7 @@ const App = () => {
     }
     return "#fff";
   };
+
   const getImageOverlayStyle = () => {
     if (!styles.bgImage) return {};
     let backgroundSize = "cover";
@@ -299,6 +307,7 @@ const App = () => {
     title: "Title Setting",
     showDownloadFiles: "Downloaded files",
     showImportFiles: "All Save Styles",
+    show_hide: "Show And Hide Elements.",
   };
   const [drawerMode, setDrawerMode] = useState(null);
   const [open, setOpen] = useState(null);
@@ -541,6 +550,7 @@ const App = () => {
                   <Map
                     mapData={{ starsData, mwData, constData, centerRA }}
                     mapStyle={styles.map}
+                    showMap={styles.show}
                     showDrawer={showDrawer}
                     positions={positions}
                     handleMouseDown={handleMouseDown}
@@ -706,6 +716,8 @@ const App = () => {
                   )}
                 </div>
               </>
+            ) : drawerMode === "show_hide" ? (
+              <ShowHideElement styles={styles} updateStyles={updateStyles} />
             ) : (
               ""
             )}

@@ -83,6 +83,19 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
 
   return (
     <>
+      {/* Checkbox show/hide title */}
+      <div className="pb-2">
+        <Divider style={{ fontStyle: "italic" }}>Show / Hide Title</Divider>
+        <div className="d-flex align-items-center justify-content-center">
+          <Checkbox
+            className="text-muted fst-italic"
+            checked={styles.show.title}
+            onChange={(e) => updateStyles("show.title", e.target.checked)}
+          >
+            Show / Hide Title
+          </Checkbox>
+        </div>
+      </div>
       {/* Input Value */}
       <div className="pb-2">
         <Divider style={{ fontStyle: "italic" }}>Title Text</Divider>
@@ -91,7 +104,7 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
             <Input
               value={content.title}
               onChange={(e) => onChangeContent("title", e.target.value)}
-              size="small"
+              disabled={styles.show.title === false}
             />
           </div>
         </div>
@@ -115,6 +128,7 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               min={30}
               max={100}
               onChange={(value) => updateStyles("content.title.width", value)}
+              disabled={styles.show.title === false}
             />
             <InputNumber
               value={styles.content.title.width}
@@ -123,6 +137,7 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               min={30}
               max={100}
               onChange={(value) => updateStyles("content.title.width", value)}
+              disabled={styles.show.title === false}
             />
           </div>
         </div>
@@ -142,6 +157,7 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               min={3}
               max={100}
               onChange={(value) => updateStyles("content.title.height", value)}
+              disabled={styles.show.title === false}
             />
             <InputNumber
               value={styles.content.title.height}
@@ -150,6 +166,7 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               min={3}
               max={100}
               onChange={(value) => updateStyles("content.title.height", value)}
+              disabled={styles.show.title === false}
             />
           </div>
         </div>
@@ -168,6 +185,7 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               onChange={(value) =>
                 updateStyles("content.title.paddingTop", value)
               }
+              disabled={styles.show.title === false}
             />
             <InputNumber
               className="me-1"
@@ -178,6 +196,7 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               onChange={(value) =>
                 updateStyles("content.title.paddingBottom", value)
               }
+              disabled={styles.show.title === false}
             />
             <InputNumber
               className="me-1"
@@ -188,6 +207,7 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               onChange={(value) =>
                 updateStyles("content.title.paddingLeft", value)
               }
+              disabled={styles.show.title === false}
             />
             <InputNumber
               className="me-1"
@@ -198,6 +218,7 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               onChange={(value) =>
                 updateStyles("content.title.paddingRight", value)
               }
+              disabled={styles.show.title === false}
             />
           </div>
           <div className="d-flex align-items-center">
@@ -227,6 +248,7 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               points: ["tl", "bl"],
               overflow: { adjustY: true },
             }}
+            disabled={styles.show.title === false}
           />
         </div>
       </div>
@@ -256,6 +278,7 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
                 { label: "Double", value: "double" },
                 { label: "None", value: "none" },
               ]}
+              disabled={styles.show.title === false}
             />
           </div>
         </div>
@@ -277,7 +300,10 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               onChange={(value) =>
                 updateStyles("content.title.borderWidth", value || 0)
               }
-              disabled={styles.content.title.borderStyle === "none"}
+              disabled={
+                styles.show.title === false ||
+                styles.content.title.borderStyle === "none"
+              }
             />
             <InputNumber
               value={styles.content.title.borderWidth}
@@ -288,7 +314,10 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               onChange={(value) =>
                 updateStyles("content.title.borderWidth", value || 0)
               }
-              disabled={styles.content.title.borderStyle === "none"}
+              disabled={
+                styles.show.title === false ||
+                styles.content.title.borderStyle === "none"
+              }
             />
           </div>
         </div>
@@ -310,7 +339,10 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               onChange={(value) =>
                 updateStyles("content.title.borderRadius", value || 0)
               }
-              disabled={styles.content.title.borderStyle === "none"}
+              disabled={
+                styles.show.title === false ||
+                styles.content.title.borderStyle === "none"
+              }
             />
             <InputNumber
               value={styles.content.title.borderRadius}
@@ -321,7 +353,10 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               onChange={(value) =>
                 updateStyles("content.title.borderRadius", value || 0)
               }
-              disabled={styles.content.title.borderStyle === "none"}
+              disabled={
+                styles.show.title === false ||
+                styles.content.title.borderStyle === "none"
+              }
             />
           </div>
         </div>
@@ -351,7 +386,10 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
                 points: ["tl", "bl"],
                 overflow: { adjustY: true },
               }}
-              disabled={styles.content.title.borderStyle === "none"}
+              disabled={
+                styles.show.title === false ||
+                styles.content.title.borderStyle === "none"
+              }
             />
           </div>
         </div>
@@ -396,6 +434,7 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
                   value: "'Brush Script MT', cursive",
                 },
               ]}
+              disabled={styles.show.title === false}
             />
           </div>
         </div>
@@ -420,6 +459,7 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
                 { label: "Italic", value: "italic" }, // italicized text
                 { label: "Oblique", value: "oblique" }, // slanted (like italic, but not true italics)
               ]}
+              disabled={styles.show.title === false}
             />
           </div>
         </div>
@@ -454,6 +494,7 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
                 { label: "800 (Extra Bold)", value: "800" },
                 { label: "900 (Black)", value: "900" },
               ]}
+              disabled={styles.show.title === false}
             />
           </div>
         </div>
@@ -474,6 +515,7 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               onChange={(value) =>
                 updateStyles("content.title.fontSize", value || 0)
               }
+              disabled={styles.show.title === false}
             />
             <InputNumber
               value={styles.content.title.fontSize}
@@ -484,6 +526,7 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               onChange={(value) =>
                 updateStyles("content.title.fontSize", value || 0)
               }
+              disabled={styles.show.title === false}
             />
           </div>
         </div>
@@ -512,6 +555,7 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
                 points: ["tl", "bl"],
                 overflow: { adjustY: true },
               }}
+              disabled={styles.show.title === false}
             />
           </div>
         </div>
@@ -538,6 +582,7 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
                 { label: "Lowercase", value: "lowercase" }, // "HELLO" → "hello"
                 { label: "Full Width", value: "full-width" }, // normal → ｎｏｒｍａｌ (rarely used)
               ]}
+              disabled={styles.show.title === false}
             />
           </div>
         </div>
@@ -567,6 +612,7 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
                   value: "underline overline",
                 },
               ]}
+              disabled={styles.show.title === false}
             />
           </div>
         </div>

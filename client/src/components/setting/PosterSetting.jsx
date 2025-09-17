@@ -79,6 +79,19 @@ const PosterSetting = ({ styles, updateStyles, content, onChangeContent }) => {
 
   return (
     <>
+      {/* Dimention Mode */}
+      <div className="mb-2">
+        <Divider>Dimention Mode</Divider>
+        <Select
+          className="w-100"
+          value="portrait"
+          options={[
+            { label: "Portrait", value: "portrait" },
+            { label: "LandScape", value: "landscape" },
+          ]}
+          disabled
+        />
+      </div>
       {/* Paper Size */}
       <div className="mb-2">
         <Divider>Paper Size</Divider>
@@ -273,7 +286,7 @@ const PosterSetting = ({ styles, updateStyles, content, onChangeContent }) => {
         <div className="d-flex align-items-center">
           <small className="me-1 text-muted fst-italic">Opacity</small>
           <Slider
-            className="w-75"
+            className="w-75 me-3"
             min={0}
             max={1}
             step={0.1}

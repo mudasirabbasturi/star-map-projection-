@@ -81,6 +81,9 @@ body {
   align-items: center;
   width: min(100vw, calc(100vh * 0.707));
   height: min(calc(100vw * 1.4142), 100vh);
+
+  /* height: min(100vw, calc(100vh * 0.707));
+  width: min(calc(100vw * 1.4142), 100vh); */
 }
 
 .poster.download-mode {
@@ -174,6 +177,7 @@ body {
   background-color: #7c5cffcc;
   border: 1px solid #7c5cffcc;
   z-index: 9999;
+  font-size: 14px !important;
 }
 
 .editIcon {

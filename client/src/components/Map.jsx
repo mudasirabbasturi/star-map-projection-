@@ -76,6 +76,7 @@ const Map = ({
   positions,
   handleMouseDown,
   drawerMode,
+  showMap,
 }) => {
   const svgRef = useRef(null);
   const [maskElement, setMaskElement] = useState(makeHeart());
@@ -644,95 +645,96 @@ const Map = ({
   };
 
   return (
-    <div
-      className={`map hasIcon ${drawerMode === "map" ? "active" : ""}`}
-      style={{
-        width: `${mapStyle.width}%`,
-        height: `${mapStyle.height}%`,
-        top: `${positions.map.y}%`,
-      }}
-      onMouseDown={(e) => handleMouseDown(e, "map")}
-    >
-      <div className="iconWrapper" onClick={() => showDrawer("map")}>
-        <MdOutlineEditNote className="editIcon" />
-      </div>
-
-      <svg
-        width="100%"
-        height="100%"
-        ref={svgRef}
-        viewBox="0 0 1200 1200"
-        preserveAspectRatio={maskShape === "rect" ? "none" : undefined}
+    <>
+      <div
+        className={`map hasIcon ${drawerMode === "map" ? "active" : ""}`}
+        style={{
+          width: `${mapStyle.width}%`,
+          height: `${mapStyle.height}%`,
+          top: `${positions.map.y}%`,
+        }}
+        onMouseDown={(e) => handleMouseDown(e, "map")}
       >
-        <defs>
-          <clipPath id="maskShape" transform={getShapeTransform(maskShape)}>
-            {maskShape === "circle" ? (
-              <circle cx="600" cy="600" r="600" />
-            ) : (
-              maskElement
-            )}
-          </clipPath>
-        </defs>
-        <g clipPath="url(#maskShape)">
-          {(mapStyle.bgType === "color" || mapStyle.bgType === "both") && (
-            <rect
-              x="0"
-              y="0"
-              width="1200"
-              height="1200"
-              fill={
-                mapStyle.fill && mapStyle.fill !== "transparent"
-                  ? mapStyle.fill
-                  : "black"
-              }
-            />
-          )}
-          {(mapStyle.bgType === "image" || mapStyle.bgType === "both") &&
-            mapStyle.bgImage && (
-              <image
-                href={mapStyle.bgImage}
-                width="100%"
-                height="100%"
-                preserveAspectRatio={
-                  mapStyle.bgImageMode === "cover"
-                    ? "xMidYMid slice"
-                    : mapStyle.bgImageMode === "contain"
-                    ? "xMidYMid meet"
-                    : "none"
+        <div className="iconWrapper" onClick={() => showDrawer("map")}>
+          <MdOutlineEditNote className="editIcon" />
+        </div>
+        <svg
+          width="100%"
+          height="100%"
+          ref={svgRef}
+          viewBox="0 0 1200 1200"
+          preserveAspectRatio={maskShape === "rect" ? "none" : undefined}
+        >
+          <defs>
+            <clipPath id="maskShape" transform={getShapeTransform(maskShape)}>
+              {maskShape === "circle" ? (
+                <circle cx="600" cy="600" r="600" />
+              ) : (
+                maskElement
+              )}
+            </clipPath>
+          </defs>
+          <g clipPath="url(#maskShape)">
+            {(mapStyle.bgType === "color" || mapStyle.bgType === "both") && (
+              <rect
+                x="0"
+                y="0"
+                width="1200"
+                height="1200"
+                fill={
+                  mapStyle.fill && mapStyle.fill !== "transparent"
+                    ? mapStyle.fill
+                    : "black"
                 }
-                opacity={mapStyle.bgImageOpacity ?? 1}
               />
             )}
-          <g id="mwLayer" />
-          <g id="starsLayer" />
-          <g id="constLinesLayer" />
-          <g id="constLabelsLayer" />
-          <g id="planetsLayer" />
-          <g id="graticuleLayer" />
-        </g>
+            {(mapStyle.bgType === "image" || mapStyle.bgType === "both") &&
+              mapStyle.bgImage && (
+                <image
+                  href={mapStyle.bgImage}
+                  width="100%"
+                  height="100%"
+                  preserveAspectRatio={
+                    mapStyle.bgImageMode === "cover"
+                      ? "xMidYMid slice"
+                      : mapStyle.bgImageMode === "contain"
+                      ? "xMidYMid meet"
+                      : "none"
+                  }
+                  opacity={mapStyle.bgImageOpacity ?? 1}
+                />
+              )}
+            <g id="mwLayer" />
+            <g id="starsLayer" />
+            <g id="constLinesLayer" />
+            <g id="constLabelsLayer" />
+            <g id="planetsLayer" />
+            <g id="graticuleLayer" />
+          </g>
 
-        <g id="shapeOutline" transform={getShapeTransform(maskShape)}>
-          {maskShape === "circle" ? (
-            <circle
-              cx="600"
-              cy="600"
-              r="600"
-              fill="transparent"
-              stroke={strokeColor}
-              strokeWidth={strokeWidth}
-              strokeDasharray={getStrokeDashArray(strokeStyle)}
-            />
-          ) : (
-            React.cloneElement(maskElement, {
-              fill: "transparent",
-              stroke: strokeColor,
-              strokeWidth,
-              strokeDasharray: getStrokeDashArray(strokeStyle),
-            })
-          )}
-        </g>
-      </svg>
-    </div>
+          <g id="shapeOutline" transform={getShapeTransform(maskShape)}>
+            {maskShape === "circle" ? (
+              <circle
+                cx="600"
+                cy="600"
+                r="600"
+                fill="transparent"
+                stroke={strokeColor}
+                strokeWidth={strokeWidth}
+                strokeDasharray={getStrokeDashArray(strokeStyle)}
+              />
+            ) : (
+              React.cloneElement(maskElement, {
+                fill: "transparent",
+                stroke: strokeColor,
+                strokeWidth,
+                strokeDasharray: getStrokeDashArray(strokeStyle),
+              })
+            )}
+          </g>
+        </svg>
+      </div>
+    </>
   );
 };
 export default Map;

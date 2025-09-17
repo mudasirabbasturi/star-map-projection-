@@ -90,8 +90,16 @@ const CustomImgSetting = ({
         <div>
           <Checkbox
             className="text-muted fst-italic"
+            checked={styles.show.CustomImg}
+            onChange={(e) => updateStyles("show.CustomImg", e.target.checked)}
+          >
+            Custom Image
+          </Checkbox>
+          <Checkbox
+            className="text-muted fst-italic"
             checked={styles.show.imgTxt_1}
             onChange={(e) => updateStyles("show.imgTxt_1", e.target.checked)}
+            disabled={styles.show.CustomImg === false}
           >
             Text 1
           </Checkbox>
@@ -100,6 +108,7 @@ const CustomImgSetting = ({
             className="text-muted fst-italic"
             checked={styles.show.imgTxt_2}
             onChange={(e) => updateStyles("show.imgTxt_2", e.target.checked)}
+            disabled={styles.show.CustomImg === false}
           >
             Text 2
           </Checkbox>
@@ -121,7 +130,10 @@ const CustomImgSetting = ({
               value={content.text1}
               onChange={(e) => onChangeContent("text1", e.target.value)}
               size="small"
-              disabled={styles.show.imgTxt_1 === false}
+              disabled={
+                styles.show.CustomImg === false ||
+                styles.show.imgTxt_1 === false
+              }
             />
           </div>
         </div>
@@ -138,7 +150,10 @@ const CustomImgSetting = ({
               value={content.text2}
               onChange={(e) => onChangeContent("text2", e.target.value)}
               size="small"
-              disabled={styles.show.imgTxt_2 === false}
+              disabled={
+                styles.show.CustomImg === false ||
+                styles.show.imgTxt_2 === false
+              }
             />
           </div>
         </div>
@@ -159,6 +174,7 @@ const CustomImgSetting = ({
             max={100}
             value={styles.CustomImg.width}
             onChange={(value) => updateStyles("CustomImg.width", value)}
+            disabled={styles.show.CustomImg === false}
           />
           <InputNumber
             value={styles.CustomImg.width}
@@ -166,6 +182,7 @@ const CustomImgSetting = ({
             min={30}
             max={100}
             onChange={(value) => updateStyles("CustomImg.width", value)}
+            disabled={styles.show.CustomImg === false}
           />
         </div>
       </div>
@@ -184,6 +201,7 @@ const CustomImgSetting = ({
             max={100}
             value={styles.CustomImg.imgDimention}
             onChange={(value) => updateStyles("CustomImg.imgDimention", value)}
+            disabled={styles.show.CustomImg === false}
           />
           <InputNumber
             value={styles.CustomImg.imgDimention}
@@ -191,6 +209,7 @@ const CustomImgSetting = ({
             min={0}
             max={100}
             onChange={(value) => updateStyles("CustomImg.imgDimention", value)}
+            disabled={styles.show.CustomImg === false}
           />
         </div>
       </div>
@@ -209,6 +228,7 @@ const CustomImgSetting = ({
           presets={presets}
           panelRender={customPanelRender}
           size="small"
+          disabled={styles.show.CustomImg === false}
         />
       </div>
 
@@ -231,6 +251,7 @@ const CustomImgSetting = ({
               { label: "Double", value: "double" },
               { label: "None", value: "none" },
             ]}
+            disabled={styles.show.CustomImg === false}
           />
         </div>
         <div className="d-flex align-items-center mb-1">
@@ -244,7 +265,10 @@ const CustomImgSetting = ({
             onChange={(value) =>
               updateStyles("posterWrapper.borderWidth", value || 0)
             }
-            disabled={styles.posterWrapper.borderStyle === "none"}
+            disabled={
+              styles.show.CustomImg === false ||
+              styles.posterWrapper.borderStyle === "none"
+            }
           />
         </div>
         <div className="d-flex align-items-center mb-1">
@@ -258,7 +282,10 @@ const CustomImgSetting = ({
             onChange={(value) =>
               updateStyles("posterWrapper.borderRadius", value || 0)
             }
-            disabled={styles.posterWrapper.borderStyle === "none"}
+            disabled={
+              styles.show.CustomImg === false ||
+              styles.posterWrapper.borderStyle === "none"
+            }
           />
         </div>
         <div className="d-flex align-items-center mb-1">
@@ -274,7 +301,10 @@ const CustomImgSetting = ({
             presets={presets}
             panelRender={customPanelRender}
             size="small"
-            disabled={styles.posterWrapper.borderStyle === "none"}
+            disabled={
+              styles.show.CustomImg === false ||
+              styles.posterWrapper.borderStyle === "none"
+            }
           />
         </div>
       </div>
@@ -313,6 +343,7 @@ const CustomImgSetting = ({
                   value: "'Brush Script MT', cursive",
                 },
               ]}
+              disabled={styles.show.CustomImg === false}
             />
           </div>
         </div>
@@ -332,6 +363,7 @@ const CustomImgSetting = ({
                 { label: "Italic", value: "italic" }, // italicized text
                 { label: "Oblique", value: "oblique" }, // slanted (like italic, but not true italics)
               ]}
+              disabled={styles.show.CustomImg === false}
             />
           </div>
         </div>
@@ -361,6 +393,7 @@ const CustomImgSetting = ({
                 { label: "800 (Extra Bold)", value: "800" },
                 { label: "900 (Black)", value: "900" },
               ]}
+              disabled={styles.show.CustomImg === false}
             />
           </div>
         </div>
@@ -378,6 +411,7 @@ const CustomImgSetting = ({
               onChange={(value) =>
                 updateStyles("CustomImg.fontSize", value || 0)
               }
+              disabled={styles.show.CustomImg === false}
             />
             <InputNumber
               value={styles.CustomImg.fontSize}
@@ -388,6 +422,7 @@ const CustomImgSetting = ({
               onChange={(value) =>
                 updateStyles("CustomImg.fontSize", value || 0)
               }
+              disabled={styles.show.CustomImg === false}
             />
           </div>
         </div>
@@ -413,6 +448,7 @@ const CustomImgSetting = ({
                 points: ["tl", "bl"],
                 overflow: { adjustY: true },
               }}
+              disabled={styles.show.CustomImg === false}
             />
           </div>
         </div>
@@ -436,6 +472,7 @@ const CustomImgSetting = ({
                 { label: "Lowercase", value: "lowercase" }, // "HELLO" → "hello"
                 { label: "Full Width", value: "full-width" }, // normal → ｎｏｒｍａｌ (rarely used)
               ]}
+              disabled={styles.show.CustomImg === false}
             />
           </div>
         </div>
@@ -462,6 +499,7 @@ const CustomImgSetting = ({
                   value: "underline overline",
                 },
               ]}
+              disabled={styles.show.CustomImg === false}
             />
           </div>
         </div>
