@@ -3,7 +3,7 @@ const cors = require("cors");
 const puppeteer = require("puppeteer");
 const fs = require("fs");
 const path = require("path");
-
+const multer = require("multer");
 const app = express();
 const port = 3001;
 
@@ -168,6 +168,39 @@ app.delete("/api/files/:type/:fileName", (req, res) => {
     console.error("Error deleting file:", err);
     res.status(500).json({ success: false, message: "Failed to delete file" });
   }
+});
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const folderPath = path.join(
+      __dirname,
+      "../client/public/files/customImgs"
+    );
+    fs.mkdirSync(folderPath, { recursive: true });
+    cb(null, folderPath);
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    const safeName = sanitizeFileName(
+      file.originalname.replace(/\.[^/.]+$/, "")
+    );
+    const { fileName } = getUniqueFilePath(
+      path.join(__dirname, "../client/public/files/customImgs"),
+      safeName,
+      ext.replace(".", "")
+    );
+    cb(null, fileName);
+  },
+});
+
+const upload = multer({ storage });
+
+app.post("/api/upload/custom-img", upload.single("file"), (req, res) => {
+  res.json({
+    success: true,
+    fileName: req.file.filename,
+    url: `/files/customImgs/${req.file.filename}`,
+  });
 });
 
 app.listen(port, () => {

@@ -3,6 +3,10 @@ import { HiOutlineRectangleGroup } from "react-icons/hi2";
 import { GiOrbital } from "react-icons/gi";
 import { MdOutlineTextRotateVertical } from "react-icons/md";
 import { LiaFileDownloadSolid } from "react-icons/lia";
+import { GoDesktopDownload } from "react-icons/go";
+import { AiFillFilePdf } from "react-icons/ai";
+import { FaRegImage } from "react-icons/fa6";
+
 import {
   CiImport,
   CiImageOff,
@@ -102,9 +106,9 @@ const Sidebar = ({
             <CiText />
           </button>
         </Tooltip>
-        <Tooltip
+        {/* <Tooltip
           placement="right"
-          title="View Download Files"
+          title="View Downloaded jpeg,jgp,png Files"
           color="geekblue"
           onClick={() => showDrawer("showDownloadFiles")}
         >
@@ -112,6 +116,38 @@ const Sidebar = ({
             <CiFolderOff />
           </button>
         </Tooltip>
+        <Tooltip
+          placement="right"
+          title="View Downloaded Pdf Files"
+          color="geekblue"
+          onClick={() => showDrawer("showDownloadFiles")}
+        >
+          <button className="btn p-0 sidebarIcon" disabled={loading}>
+            <AiFillFilePdf />
+          </button>
+        </Tooltip> */}
+        <Tooltip
+          placement="right"
+          title="View Downloaded jpeg,jpg,png Files"
+          color="geekblue"
+          onClick={() => showDrawer("showDownloadImageFiles")}
+        >
+          <button className="btn p-0 sidebarIcon" disabled={loading}>
+            <FaRegImage />
+          </button>
+        </Tooltip>
+
+        <Tooltip
+          placement="right"
+          title="View Downloaded Pdf Files"
+          color="geekblue"
+          onClick={() => showDrawer("showDownloadPdfFiles")}
+        >
+          <button className="btn p-0 sidebarIcon" disabled={loading}>
+            <AiFillFilePdf />
+          </button>
+        </Tooltip>
+
         <Tooltip
           placement="right"
           title="Import Style"
@@ -137,7 +173,7 @@ const Sidebar = ({
             disabled={loading}
             onClick={handleScreenShot}
           >
-            <LiaFileDownloadSolid />
+            <GoDesktopDownload />
           </button>
         </Tooltip>
       </aside>

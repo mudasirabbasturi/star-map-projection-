@@ -27,6 +27,8 @@ import {
   Select,
   Slider,
   Checkbox,
+  Upload,
+  Button,
 } from "antd";
 
 function genPresets(presets = presetPalettes) {
@@ -36,12 +38,13 @@ function genPresets(presets = presetPalettes) {
     key: label,
   }));
 }
-import CustomImgSelector from "./CustomImgSelector";
+
 const CustomImgSetting = ({
   styles,
   updateStyles,
   content,
   onChangeContent,
+  showDrawer,
 }) => {
   const { token } = theme.useToken();
   const presets = genPresets({
@@ -160,7 +163,14 @@ const CustomImgSetting = ({
       </div>
       <div className="mb-2">
         <Divider>Image</Divider>
-        <CustomImgSelector styles={styles} updateStyles={updateStyles} />
+        <div className="d-flex flex-column">
+          <Button
+            type="primary"
+            onClick={() => showDrawer("uploadSelectCustomeImg")}
+          >
+            Select File From Media
+          </Button>
+        </div>
       </div>
       <Divider>Dimension</Divider>
       {/* Width */}

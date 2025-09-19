@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef, Suspense, lazy } from "react";
-import { Drawer, notification, Spin, List } from "antd";
+import { Drawer, notification, Spin, Upload, Button, Row, Col } from "antd";
+
 import { MdOutlineEditNote } from "react-icons/md";
 import { AiFillFilePdf } from "react-icons/ai";
+import { CiTrash, CiImport } from "react-icons/ci";
 
 const ShowHideElement = lazy(() =>
   import("./components/setting/ShowHideElement")
@@ -292,7 +294,23 @@ const App = () => {
     CustomImg: "Custom Image Settings",
     content: "Content Setting",
     title: "Title Setting",
-    showDownloadFiles: "Downloaded files",
+    showDownloadImageFiles: "Downloaded Images, png,jpeg",
+    showDownloadPdfFiles: "Downloaded PDF files",
+    uploadSelectCustomeImg: (
+      <>
+        <div className="d-flex">
+          <div className="me-2">
+            <button
+              className="btn btn-sm btn-outline-primary"
+              onClick={() => showDrawer("CustomImg")}
+            >
+              back
+            </button>
+          </div>
+          <div>Custom Images</div>
+        </div>
+      </>
+    ),
     showImportFiles: "All Save Styles",
     show_hide: "Show And Hide Elements.",
   };
@@ -456,19 +474,45 @@ const App = () => {
     setLoading(false);
   };
 
+  // useEffect(() => {
+  //   if (open && drawerMode === "showDownloadFiles") {
+  //     fetchFiles();
+  //   }
+  //   if (open && drawerMode === "showImportFiles") {
+  //     fetchStyleFiles();
+  //   }
+  // }, [open, drawerMode]);
+
   useEffect(() => {
-    if (open && drawerMode === "showDownloadFiles") {
-      fetchFiles();
-    }
-    if (open && drawerMode === "showImportFiles") {
-      fetchStyleFiles();
+    if (!open) return;
+
+    if (
+      drawerMode === "showDownloadImageFiles" ||
+      drawerMode === "showDownloadPdfFiles"
+    ) {
+      fetchFiles("posters");
+    } else if (drawerMode === "showImportFiles") {
+      fetchFiles("styles");
+    } else if (drawerMode === "uploadSelectCustomeImg") {
+      fetchFiles("customImgs");
     }
   }, [open, drawerMode]);
 
+  // const [files, setFiles] = useState([]);
+  // const fetchFiles = async () => {
+  //   try {
+  //     const res = await fetch("http://localhost:3001/api/files/posters");
+  //     const data = await res.json();
+  //     if (data.success) setFiles(data.files);
+  //   } catch (err) {
+  //     console.error("Error fetching files:", err);
+  //   }
+  // };
+
   const [files, setFiles] = useState([]);
-  const fetchFiles = async () => {
+  const fetchFiles = async (type) => {
     try {
-      const res = await fetch("http://localhost:3001/api/files/posters");
+      const res = await fetch(`http://localhost:3001/api/files/${type}`);
       const data = await res.json();
       if (data.success) setFiles(data.files);
     } catch (err) {
@@ -506,6 +550,7 @@ const App = () => {
         // Refresh the drawer list
         if (type === "posters") fetchFiles();
         if (type === "styles") fetchStyleFiles();
+        if (type === "customImgs") fetchFiles("customImgs");
       } else {
         api.error({
           message: "Delete failed",
@@ -627,7 +672,12 @@ const App = () => {
         onClose={closeDrawer}
         mask={false}
         placement="left"
-        width={drawerMode === "showDownloadFiles" ? "100%" : null}
+        width={
+          drawerMode === "showDownloadImageFiles" ||
+          drawerMode === "showDownloadPdfFiles"
+            ? "100%"
+            : null
+        }
       >
         {open && (
           <Suspense fallback={<div>Loading Sections...</div>}>
@@ -672,58 +722,102 @@ const App = () => {
                 updateStyles={updateStyles}
                 content={content}
                 onChangeContent={onChangeContent}
+                showDrawer={showDrawer}
               />
-            ) : drawerMode === "showDownloadFiles" ? (
+            ) : drawerMode === "showDownloadImageFiles" ? (
               <>
                 <div className="d-flex flex-wrap">
-                  {files.map((file, index) => {
-                    const isPdf = file.toLowerCase().endsWith(".pdf");
-                    const url = `http://localhost:5173/files/posters/${file}`;
-
-                    return (
-                      <div
-                        key={index}
-                        className="img_pdf border mb-3 me-3 p-2 d-flex flex-column align-items-center justify-content-center"
-                        style={{ width: "23%", position: "relative" }}
-                      >
-                        <a
-                          href={url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="w-100 d-flex justify-content-center"
-                          style={{ textDecoration: "none" }}
+                  {files
+                    .filter((file) =>
+                      file.toLowerCase().match(/\.(jpg|jpeg|png)$/)
+                    )
+                    .map((file, index) => {
+                      const url = `http://localhost:5173/files/posters/${file}`;
+                      return (
+                        <div
+                          key={index}
+                          className="img_pdf border mb-3 me-3 p-2 d-flex flex-column align-items-center justify-content-center"
+                          style={{ width: "20%", position: "relative" }}
                         >
-                          {isPdf ? (
-                            <AiFillFilePdf size={64} color="red" />
-                          ) : (
+                          <a
+                            href={url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-100 d-flex justify-content-center"
+                            style={{ textDecoration: "none" }}
+                          >
                             <img
                               src={url}
                               alt={`Poster ${index + 1}`}
                               className="img-fluid w-100"
                             />
-                          )}
-                        </a>
-                        <div
-                          className="mt-2 text-truncate w-100 text-center"
-                          style={{ fontSize: "0.9rem" }}
-                          title={file}
-                        >
-                          {file}
+                          </a>
+                          <div
+                            className="mt-2 text-truncate w-100 text-center"
+                            style={{ fontSize: "0.9rem" }}
+                            title={file}
+                          >
+                            {file}
+                          </div>
+                          <button
+                            className="btn btn-sm btn-danger"
+                            style={{
+                              position: "absolute",
+                              top: 1,
+                              right: 1,
+                            }}
+                            onClick={() => handleDeleteFile("posters", file)}
+                          >
+                            <CiTrash />
+                          </button>
                         </div>
-                        <button
-                          className="btn btn-sm btn-danger"
-                          style={{
-                            position: "absolute",
-                            top: 0,
-                            left: 0,
-                          }}
-                          onClick={() => handleDeleteFile("posters", file)}
+                      );
+                    })}
+                </div>
+              </>
+            ) : drawerMode === "showDownloadPdfFiles" ? (
+              <>
+                <div className="d-flex flex-wrap">
+                  {files
+                    .filter((file) => file.toLowerCase().endsWith(".pdf"))
+                    .map((file, index) => {
+                      const url = `http://localhost:5173/files/posters/${file}`;
+                      return (
+                        <div
+                          key={index}
+                          className="img_pdf border mb-3 me-3 p-2 d-flex flex-column align-items-center justify-content-center"
+                          style={{ width: "23%", position: "relative" }}
                         >
-                          Delete
-                        </button>
-                      </div>
-                    );
-                  })}
+                          <a
+                            href={url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-100 d-flex justify-content-center"
+                            style={{ textDecoration: "none" }}
+                          >
+                            <AiFillFilePdf size={64} color="red" />
+                          </a>
+                          <div
+                            className="mt-2 text-truncate w-100 text-center"
+                            style={{ fontSize: "0.9rem" }}
+                            title={file}
+                          >
+                            {file}
+                          </div>
+                          <button
+                            className="btn btn-sm btn-outline-danger"
+                            style={{
+                              position: "absolute",
+                              top: 1,
+                              right: 1,
+                            }}
+                            onClick={() => handleDeleteFile("posters", file)}
+                          >
+                            <CiTrash />
+                          </button>
+                        </div>
+                      );
+                    })}
                 </div>
               </>
             ) : drawerMode === "showImportFiles" ? (
@@ -737,7 +831,7 @@ const App = () => {
                       return (
                         <div
                           key={idx}
-                          className="border rounded ps-2 d-flex justify-content-between align-items-center"
+                          className="border rounded mb-1 ps-1 d-flex justify-content-between align-items-center"
                         >
                           <span
                             className="text-truncate"
@@ -750,19 +844,70 @@ const App = () => {
                               className="btn btn-sm btn-primary me-1"
                               onClick={() => handleImport(url)}
                             >
-                              Import
+                              <CiImport />
                             </button>
                             <button
                               className="btn btn-sm btn-danger"
                               onClick={() => handleDeleteFile("styles", file)}
                             >
-                              Del
+                              <CiTrash />
                             </button>
                           </div>
                         </div>
                       );
                     })
                   )}
+                </div>
+              </>
+            ) : drawerMode === "uploadSelectCustomeImg" ? (
+              <>
+                <div>
+                  <Row gutter={[8, 8]}>
+                    {files.map((file, idx) => (
+                      <Col key={idx}>
+                        <div
+                          style={{
+                            width: 80,
+                            height: 80,
+                            border: "1px solid #ddd",
+                            cursor: "pointer",
+                            backgroundSize: "cover",
+                            backgroundImage: `url(/files/customImgs/${file})`,
+                            borderRadius: "50%",
+                          }}
+                          onClick={() => {
+                            updateStyles(
+                              "CustomImg.imgSrc",
+                              `http://localhost:5173/files/customImgs/${file}`
+                            );
+                          }}
+                        />
+                        <Button
+                          type="link"
+                          danger
+                          size="small"
+                          onClick={() => handleDeleteFile("customImgs", file)}
+                        >
+                          Delete
+                        </Button>
+                      </Col>
+                    ))}
+                  </Row>
+
+                  <Upload
+                    name="file"
+                    action="http://localhost:3001/api/upload/custom-img"
+                    showUploadList={false}
+                    onChange={(info) => {
+                      if (info.file.status === "done") {
+                        fetchFiles("customImgs"); // refresh list after upload
+                      }
+                    }}
+                  >
+                    <Button type="dashed" className="mt-3">
+                      Upload New Image
+                    </Button>
+                  </Upload>
                 </div>
               </>
             ) : drawerMode === "show_hide" ? (
