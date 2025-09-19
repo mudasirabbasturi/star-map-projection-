@@ -50,13 +50,11 @@ app.post("/api/screenshot", async (req, res) => {
   try {
     const { html, paperSize, fileName, downloadType } = req.body;
     const safeName = sanitizeFileName(fileName || "poster");
-
     const browser = await puppeteer.launch({
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
     });
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: "networkidle0" });
-
     let buffer;
     if (downloadType === "pdf") {
       buffer = await page.pdf({
@@ -79,10 +77,8 @@ app.post("/api/screenshot", async (req, res) => {
       throw new Error("Unsupported download type");
     }
     await browser.close();
-
     const folderPath = path.join(__dirname, "../client/public/files/posters");
     fs.mkdirSync(folderPath, { recursive: true });
-
     const { filePath, fileName: finalFileName } = getUniqueFilePath(
       folderPath,
       safeName,
@@ -150,6 +146,27 @@ app.get("/api/files/:type", (req, res) => {
   } catch (err) {
     console.error("Error reading files:", err);
     res.status(500).json({ success: false, message: "Failed to list files" });
+  }
+});
+
+// 🗑 Delete a file
+app.delete("/api/files/:type/:fileName", (req, res) => {
+  try {
+    const { type, fileName } = req.params;
+    const folderPath = path.join(__dirname, "../client/public/files", type); // ✅ fixed
+    const filePath = path.join(folderPath, fileName);
+
+    if (!fs.existsSync(filePath)) {
+      return res
+        .status(404)
+        .json({ success: false, message: "File not found" });
+    }
+
+    fs.unlinkSync(filePath);
+    res.json({ success: true, message: `${fileName} deleted successfully` });
+  } catch (err) {
+    console.error("Error deleting file:", err);
+    res.status(500).json({ success: false, message: "Failed to delete file" });
   }
 });
 

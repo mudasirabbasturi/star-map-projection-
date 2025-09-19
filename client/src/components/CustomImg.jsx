@@ -38,11 +38,12 @@ const CustomImg = ({
             </defs>
 
             <image
-              href="https://picsum.photos/800/600?random=1"
+              href={styles.CustomImg.imgSrc}
               width="100%"
               height="100%"
               clipPath="url(#circleClip)"
               preserveAspectRatio="xMidYMid slice"
+              style={{ objectFit: "cover" }}
             />
           </svg>
           <div

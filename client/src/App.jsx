@@ -74,7 +74,7 @@ const App = () => {
     borderColor: "#ffff",
 
     bgGradientColors: ["#a80077ff", "#66ff00"],
-    bgImage: "https://picsum.photos/800/600",
+    bgImage: null,
     bgImageMode: "cover",
     bgImageOpacity: 0,
 
@@ -94,7 +94,7 @@ const App = () => {
       maskShape: "circle",
       fill: null,
       bgType: "none",
-      bgImage: "https://picsum.photos/800/600",
+      bgImage: null,
       bgImageOpacity: 0.1,
       strokeColor: "#eee",
       strokeStyle: "solid",
@@ -115,6 +115,7 @@ const App = () => {
       lon: -0.1,
     },
     CustomImg: {
+      imgSrc: "https://picsum.photos/800/600", // <-- this will store the selected image
       width: 90,
       imgDimention: 25,
       bgColor: null,
@@ -181,20 +182,6 @@ const App = () => {
       moonMap: false,
     },
   });
-
-  const getBackground = () => {
-    if (styles.bgType === "solid") return styles.bgColor;
-    const colors = styles.bgGradientColor.join(", ");
-    if (styles.bgGradientType === "linear") {
-      return `linear-gradient(${styles.bgGradientAngle}deg, ${colors})`;
-    }
-    if (styles.bgGradientType === "radial") {
-      return `radial-gradient(circle, ${colors})`;
-    }
-    if (styles.bgGradientType === "conic") {
-      return `conic-gradient(from ${styles.bgGradientAngle}deg, ${colors})`;
-    }
-  };
 
   const getBaseBackground = () => {
     if (styles.bgType === "solid") return styles.bgColor;
@@ -345,7 +332,21 @@ const App = () => {
     if (!canvasRef.current) return;
     setLoading(true);
     try {
-      const htmlContent = canvasRef.current.outerHTML;
+      const canvas = canvasRef.current;
+      const elements = canvas.querySelectorAll("*");
+      elements.forEach((el) => {
+        const computed = window.getComputedStyle(el);
+        el.setAttribute(
+          "style",
+          computed.cssText + ";" + (el.getAttribute("style") || "")
+        );
+      });
+      const rootComputed = window.getComputedStyle(canvas);
+      canvas.setAttribute(
+        "style",
+        rootComputed.cssText + ";" + (canvas.getAttribute("style") || "")
+      );
+      const htmlContent = canvas.outerHTML;
       const cssText = Array.from(document.styleSheets)
         .map((sheet) => {
           try {
@@ -357,7 +358,6 @@ const App = () => {
           }
         })
         .join("\n");
-
       const fullHTML = `<html>
       <head>
         <meta charset="UTF-8">
@@ -365,7 +365,6 @@ const App = () => {
       </head>
       <body>${htmlContent}</body>
     </html>`;
-
       const response = await fetch("http://localhost:3001/api/screenshot", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -489,6 +488,39 @@ const App = () => {
     }
   };
 
+  const handleDeleteFile = async (type, fileName) => {
+    try {
+      const res = await fetch(
+        `http://localhost:3001/api/files/${type}/${fileName}`,
+        {
+          method: "DELETE",
+        }
+      );
+      const data = await res.json();
+      if (data.success) {
+        api.success({
+          message: "File deleted",
+          description: data.message,
+        });
+
+        // Refresh the drawer list
+        if (type === "posters") fetchFiles();
+        if (type === "styles") fetchStyleFiles();
+      } else {
+        api.error({
+          message: "Delete failed",
+          description: data.message,
+        });
+      }
+    } catch (err) {
+      console.error("Delete error:", err);
+      api.error({
+        message: "Delete error",
+        description: err.message,
+      });
+    }
+  };
+
   return (
     <>
       {contextHolder}
@@ -509,7 +541,6 @@ const App = () => {
                   drawerMode === "poster" ? "active" : ""
                 }`}
                 style={{
-                  // background: getBackground(),
                   background: getBaseBackground(),
                   borderStyle: styles.borderStyle,
                   borderWidth: `${styles.borderWidth}px`,
@@ -653,7 +684,7 @@ const App = () => {
                       <div
                         key={index}
                         className="img_pdf border mb-3 me-3 p-2 d-flex flex-column align-items-center justify-content-center"
-                        style={{ width: "23%" }}
+                        style={{ width: "23%", position: "relative" }}
                       >
                         <a
                           href={url}
@@ -679,6 +710,17 @@ const App = () => {
                         >
                           {file}
                         </div>
+                        <button
+                          className="btn btn-sm btn-danger"
+                          style={{
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                          }}
+                          onClick={() => handleDeleteFile("posters", file)}
+                        >
+                          Delete
+                        </button>
                       </div>
                     );
                   })}
@@ -686,7 +728,7 @@ const App = () => {
               </>
             ) : drawerMode === "showImportFiles" ? (
               <>
-                <div className="p-2">
+                <div className="p-2" style={{ position: "relative" }}>
                   {styleFiles.length === 0 ? (
                     <div>No style files found.</div>
                   ) : (
@@ -695,7 +737,7 @@ const App = () => {
                       return (
                         <div
                           key={idx}
-                          className="border rounded p-2 mb-2 d-flex justify-content-between align-items-center"
+                          className="border rounded ps-2 d-flex justify-content-between align-items-center"
                         >
                           <span
                             className="text-truncate"
@@ -703,13 +745,20 @@ const App = () => {
                           >
                             {file}
                           </span>
-
-                          <button
-                            className="btn btn-sm btn-primary"
-                            onClick={() => handleImport(url)}
-                          >
-                            Import
-                          </button>
+                          <div>
+                            <button
+                              className="btn btn-sm btn-primary me-1"
+                              onClick={() => handleImport(url)}
+                            >
+                              Import
+                            </button>
+                            <button
+                              className="btn btn-sm btn-danger"
+                              onClick={() => handleDeleteFile("styles", file)}
+                            >
+                              Del
+                            </button>
+                          </div>
                         </div>
                       );
                     })

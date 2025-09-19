@@ -36,7 +36,7 @@ function genPresets(presets = presetPalettes) {
     key: label,
   }));
 }
-
+import CustomImgSelector from "./CustomImgSelector";
 const CustomImgSetting = ({
   styles,
   updateStyles,
@@ -157,6 +157,10 @@ const CustomImgSetting = ({
             />
           </div>
         </div>
+      </div>
+      <div className="mb-2">
+        <Divider>Image</Divider>
+        <CustomImgSelector styles={styles} updateStyles={updateStyles} />
       </div>
       <Divider>Dimension</Divider>
       {/* Width */}

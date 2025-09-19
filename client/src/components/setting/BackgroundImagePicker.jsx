@@ -1,36 +1,16 @@
 import { useState } from "react";
 import { Divider, Upload, Button, Image } from "antd";
 import { UploadOutlined, CheckCircleTwoTone } from "@ant-design/icons";
-import img1 from "@imgs/img1.jpg";
-import img2 from "@imgs/img2.jpg";
-import img3 from "@imgs/img3.jpg";
-import img4 from "@imgs/img4.jpg";
-import img5 from "@imgs/img5.jpg";
-import img6 from "@imgs/img6.jpg";
-import img7 from "@imgs/img7.jpg";
-import img8 from "@imgs/img8.webp";
-import img9 from "@imgs/img9.webp";
-import img10 from "@imgs/full/watercolor_starmap8.jpg";
-import img11 from "@imgs/full/milky_realstars_dual.jpg";
 
-// const DEFAULT_IMAGES = [
-//   "https://picsum.photos/800/600?random=1",
-//   "https://picsum.photos/800/600?random=2",
-//   "https://picsum.photos/800/600?random=3",
-// ];
-
+// Default images (served from public/imgs)
 const DEFAULT_IMAGES = [
-  img1,
-  img2,
-  img3,
-  img4,
-  img5,
-  img6,
-  img7,
-  img8,
-  img9,
-  img10,
-  img11,
+  `${window.location.origin}/imgs/starmap/img10.png`,
+  `${window.location.origin}/imgs/starmap/img11.png`,
+  `${window.location.origin}/imgs/starmap/img12.jpeg`,
+  `${window.location.origin}/imgs/starmap/img13.jpg`,
+  `${window.location.origin}/imgs/starmap/img14.jpg`,
+  `${window.location.origin}/imgs/starmap/img15.jpeg`,
+  `${window.location.origin}/imgs/starmap/img16.avif`,
 ];
 
 const BackgroundImagePicker = ({ styles, updateStyles }) => {
@@ -39,7 +19,7 @@ const BackgroundImagePicker = ({ styles, updateStyles }) => {
   const handleUpload = (file) => {
     const url = URL.createObjectURL(file);
     setCustomImages((prev) => [...prev, url]);
-    updateStyles("bgImage", url);
+    updateStyles("CustomImg.imgSrc", url);
     return false;
   };
 
@@ -73,7 +53,7 @@ const BackgroundImagePicker = ({ styles, updateStyles }) => {
                 width: "100%",
                 height: "100%",
                 objectFit: "cover",
-                borderRadius: "50%",
+                objectPosition: "center",
               }}
             />
             {styles.bgImage === img && (
@@ -92,7 +72,6 @@ const BackgroundImagePicker = ({ styles, updateStyles }) => {
           </div>
         ))}
 
-        {/* Upload Button */}
         <Upload beforeUpload={handleUpload} showUploadList={false}>
           <Button
             shape="circle"
