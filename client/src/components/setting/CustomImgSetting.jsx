@@ -166,7 +166,9 @@ const CustomImgSetting = ({
         <div className="d-flex flex-column">
           <Button
             type="primary"
-            onClick={() => showDrawer("uploadSelectCustomeImg")}
+            onClick={() =>
+              showDrawer("uploadSelectCustomeImg", "CustomImg", "imgSrc")
+            }
           >
             Select File From Media
           </Button>

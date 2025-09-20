@@ -1,4 +1,5 @@
 // src/components/setting/PosterSetting.jsx
+import { useState, useEffect } from "react";
 import {
   red,
   volcano,
@@ -26,8 +27,12 @@ import {
   InputNumber,
   Select,
   Slider,
+  Upload,
+  Button,
+  Avatar,
+  Tooltip,
 } from "antd";
-import BackgroundImagePicker from "./BackgroundImagePicker";
+import { AntDesignOutlined, UserOutlined } from "@ant-design/icons";
 
 function genPresets(presets = presetPalettes) {
   return Object.entries(presets).map(([label, colors]) => ({
@@ -37,7 +42,13 @@ function genPresets(presets = presetPalettes) {
   }));
 }
 
-const PosterSetting = ({ styles, updateStyles, content, onChangeContent }) => {
+const PosterSetting = ({
+  styles,
+  updateStyles,
+  content,
+  onChangeContent,
+  showDrawer,
+}) => {
   const { token } = theme.useToken();
   const presets = genPresets({
     primary: generate(token.colorPrimary),
@@ -76,6 +87,13 @@ const PosterSetting = ({ styles, updateStyles, content, onChangeContent }) => {
       </Col>
     </Row>
   );
+
+  const [selectedMedia, setSelectedMedia] = useState(null);
+  const [recentPosterMedia, setRecentPosterMedia] = useState([]);
+  useEffect(() => {
+    const stored = JSON.parse(localStorage.getItem("recentPosterMedia")) || [];
+    setRecentPosterMedia(stored);
+  }, []);
 
   return (
     <>
@@ -272,17 +290,74 @@ const PosterSetting = ({ styles, updateStyles, content, onChangeContent }) => {
 
       {/* Background Image */}
       <div className="mb-2">
-        <BackgroundImagePicker styles={styles} updateStyles={updateStyles} />
-        <Select
-          value={styles.bgImageMode}
-          onChange={(val) => updateStyles("bgImageMode", val)}
-          style={{ width: "100%", marginTop: 8 }}
-          options={[
-            { label: "Cover", value: "cover" },
-            { label: "Contain", value: "contain" },
-            { label: "Stretch", value: "100% 100%" }, // map stretch to CSS
-          ]}
-        />
+        <div className="d-flex flex-column mb-2">
+          <Divider>
+            <small className="me-1 text-muted fst-italic">
+              Background Theme
+            </small>
+          </Divider>
+          <Avatar.Group size="large" max={{ count: 6 }}>
+            {recentPosterMedia.length === 0 ? (
+              <Avatar style={{ backgroundColor: "#f56a00" }}>No Theme</Avatar>
+            ) : (
+              recentPosterMedia.map((url, idx) => (
+                <Avatar
+                  key={idx}
+                  src={url}
+                  style={{
+                    cursor: "pointer",
+                    border:
+                      selectedMedia === url
+                        ? "3px solid #1890ff"
+                        : "2px solid transparent",
+                    borderRadius: "50%",
+                  }}
+                  onClick={() => {
+                    updateStyles("bgImage", url);
+                    setSelectedMedia(url);
+                  }}
+                />
+              ))
+            )}
+          </Avatar.Group>
+          <Button
+            danger
+            size="small"
+            style={{ marginTop: 8 }}
+            onClick={() => {
+              localStorage.removeItem("recentPosterMedia");
+              setRecentPosterMedia([]);
+              setSelectedMedia(null);
+            }}
+          >
+            Clear Poster Media
+          </Button>
+          <Divider>
+            <small className="me-1 text-muted fst-italic">OR</small>
+          </Divider>
+          <Button
+            type="primary"
+            onClick={() =>
+              showDrawer("uploadSelectCustomeImg", null, "bgImage")
+            }
+          >
+            Select File From Media
+          </Button>
+        </div>
+        <div className="d-flex align-items-center">
+          <small className="me-1 text-muted fst-italic">Bacground Size</small>
+          <Select
+            value={styles.bgImageMode}
+            onChange={(val) => updateStyles("bgImageMode", val)}
+            style={{ width: "100%", marginTop: 8 }}
+            options={[
+              { label: "Cover", value: "cover" },
+              { label: "Contain", value: "contain" },
+              { label: "Stretch", value: "100% 100%" }, // map stretch to CSS
+            ]}
+          />
+        </div>
+
         <div className="d-flex align-items-center">
           <small className="me-1 text-muted fst-italic">Opacity</small>
           <Slider

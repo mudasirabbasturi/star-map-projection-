@@ -31,11 +31,11 @@ import {
   Slider,
   Checkbox,
   DatePicker,
+  Button,
+  Avatar,
 } from "antd";
 
 import dayjs from "dayjs";
-
-import BackgroundImagePicker from "./BackgroundImagePicker";
 
 function genPresets(presets = presetPalettes) {
   return Object.entries(presets).map(([label, colors]) => ({
@@ -45,7 +45,7 @@ function genPresets(presets = presetPalettes) {
   }));
 }
 
-const MapSetting = ({ styles, updateStyles }) => {
+const MapSetting = ({ styles, updateStyles, showDrawer }) => {
   const { token } = theme.useToken();
   const presets = genPresets({
     primary: generate(token.colorPrimary),
@@ -79,6 +79,13 @@ const MapSetting = ({ styles, updateStyles }) => {
       </Col>
     </Row>
   );
+
+  const [selectedMedia, setSelectedMedia] = useState(null);
+  const [recentMapMedia, setRecentMapMedia] = useState([]);
+  useEffect(() => {
+    const stored = JSON.parse(localStorage.getItem("recentMapMedia")) || [];
+    setRecentMapMedia(stored);
+  }, []);
 
   const [options, setOptions] = useState([]);
   const autocompleteService = useRef(null);
@@ -255,14 +262,60 @@ const MapSetting = ({ styles, updateStyles }) => {
         {/* 🔹 Show only when bgType = image or both */}
         {(styles.map.bgType === "image" || styles.map.bgType === "both") && (
           <div>
-            <BackgroundImagePicker
-              styles={{
-                bgImage: styles.map.bgImage,
-                bgImageOpacity: styles.map.bgImageOpacity,
-                bgImageMode: styles.map.bgImageMode,
-              }}
-              updateStyles={(key, value) => updateStyles(`map.${key}`, value)}
-            />
+            <div className="d-flex flex-column mb-2">
+              <Divider>
+                <small className="me-1 text-muted fst-italic">
+                  Background Theme
+                </small>
+              </Divider>
+              <Avatar.Group size="large" max={{ count: 6 }}>
+                {recentMapMedia.length === 0 ? (
+                  <Avatar style={{ backgroundColor: "#f56a00" }}>None</Avatar>
+                ) : (
+                  recentMapMedia.map((url, idx) => (
+                    <Avatar
+                      key={idx}
+                      src={url}
+                      style={{
+                        cursor: "pointer",
+                        border:
+                          selectedMedia === url
+                            ? "3px solid #1890ff"
+                            : "2px solid transparent",
+                        borderRadius: "50%",
+                      }}
+                      onClick={() => {
+                        updateStyles("map.bgImage", url);
+                        setSelectedMedia(url);
+                      }}
+                    />
+                  ))
+                )}
+              </Avatar.Group>
+              <Button
+                danger
+                size="small"
+                style={{ marginTop: 8 }}
+                onClick={() => {
+                  localStorage.removeItem("recentMapMedia");
+                  setRecentMapMedia([]);
+                  setSelectedMedia(null);
+                }}
+              >
+                Clear Map Media
+              </Button>
+              <Divider>
+                <small className="me-1 text-muted fst-italic">OR</small>
+              </Divider>
+              <Button
+                type="primary"
+                onClick={() =>
+                  showDrawer("uploadSelectCustomeImg", "map", "bgImage")
+                }
+              >
+                Select File From Media
+              </Button>
+            </div>
             <Select
               value={styles.map.bgImageMode}
               onChange={(val) => updateStyles("map.bgImageMode", val)}

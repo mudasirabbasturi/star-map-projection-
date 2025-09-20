@@ -78,7 +78,7 @@ const App = () => {
     bgGradientColors: ["#a80077ff", "#66ff00"],
     bgImage: null,
     bgImageMode: "cover",
-    bgImageOpacity: 0,
+    bgImageOpacity: 0.7,
 
     posterWrapper: {
       width: 90,
@@ -241,6 +241,7 @@ const App = () => {
       return newState;
     });
   };
+  const [mediaTarget, setMediaTarget] = useState(null);
 
   // content state
   const [content, setContent] = useState({
@@ -302,7 +303,7 @@ const App = () => {
           <div className="me-2">
             <button
               className="btn btn-sm btn-outline-primary"
-              onClick={() => showDrawer("CustomImg")}
+              onClick={() => showDrawer(parentDrawer || "CustomImg")}
             >
               back
             </button>
@@ -315,13 +316,27 @@ const App = () => {
     show_hide: "Show And Hide Elements.",
   };
   const [drawerMode, setDrawerMode] = useState(null);
+  const [parentDrawer, setParentDrawer] = useState(null);
+
   const [open, setOpen] = useState(null);
 
-  const showDrawer = (mode) => {
+  const showDrawer = (mode, parent = null, target = null) => {
+    if (mode === "uploadSelectCustomeImg") {
+      setParentDrawer(drawerMode);
+
+      if (parent && target) {
+        setMediaTarget(`${parent}.${target}`);
+      } else if (target) {
+        setMediaTarget(target); // <-- for bgImage at root
+      } else if (parent) {
+        setMediaTarget(parent);
+      }
+    }
     fetchFiles();
     setDrawerMode(mode);
     setOpen(true);
   };
+
   const closeDrawer = () => {
     setDrawerMode(null);
     setOpen(null);
@@ -474,15 +489,6 @@ const App = () => {
     setLoading(false);
   };
 
-  // useEffect(() => {
-  //   if (open && drawerMode === "showDownloadFiles") {
-  //     fetchFiles();
-  //   }
-  //   if (open && drawerMode === "showImportFiles") {
-  //     fetchStyleFiles();
-  //   }
-  // }, [open, drawerMode]);
-
   useEffect(() => {
     if (!open) return;
 
@@ -497,17 +503,6 @@ const App = () => {
       fetchFiles("customImgs");
     }
   }, [open, drawerMode]);
-
-  // const [files, setFiles] = useState([]);
-  // const fetchFiles = async () => {
-  //   try {
-  //     const res = await fetch("http://localhost:3001/api/files/posters");
-  //     const data = await res.json();
-  //     if (data.success) setFiles(data.files);
-  //   } catch (err) {
-  //     console.error("Error fetching files:", err);
-  //   }
-  // };
 
   const [files, setFiles] = useState([]);
   const fetchFiles = async (type) => {
@@ -687,6 +682,7 @@ const App = () => {
                 updateStyles={updateStyles}
                 content={content}
                 onChangeContent={onChangeContent}
+                showDrawer={showDrawer}
               />
             ) : drawerMode === "posterWrapper" ? (
               <PosterWrapperSetting
@@ -715,6 +711,7 @@ const App = () => {
                 updateStyles={updateStyles}
                 content={content}
                 onChangeContent={onChangeContent}
+                showDrawer={showDrawer}
               />
             ) : drawerMode === "CustomImg" ? (
               <CustomImgSetting
@@ -876,10 +873,23 @@ const App = () => {
                             borderRadius: "50%",
                           }}
                           onClick={() => {
-                            updateStyles(
-                              "CustomImg.imgSrc",
-                              `http://localhost:5173/files/customImgs/${file}`
-                            );
+                            const selectedUrl = `http://localhost:5173/files/customImgs/${file}`;
+                            updateStyles(mediaTarget, selectedUrl);
+                            let storageKey = "recentPosterMedia";
+                            if (mediaTarget.startsWith("map.")) {
+                              storageKey = "recentMapMedia";
+                            }
+
+                            let recent =
+                              JSON.parse(localStorage.getItem(storageKey)) ||
+                              [];
+                            if (!recent.includes(selectedUrl)) {
+                              recent.push(selectedUrl);
+                              localStorage.setItem(
+                                storageKey,
+                                JSON.stringify(recent)
+                              );
+                            }
                           }}
                         />
                         <Button
