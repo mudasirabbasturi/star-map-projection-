@@ -27,6 +27,15 @@ const Map = lazy(() => import("./components/Map"));
 const CustomImg = lazy(() => import("./components/CustomImg"));
 const Content = lazy(() => import("./components/Content"));
 
+// Environment-aware bases:
+// - ASSET_BASE (for static assets & files) reads from VITE_ASSET_BASE or falls back to "."
+// - API_BASE (for backend API) reads from VITE_API_BASE or falls back to http://localhost:3001
+// For Electron builds set VITE_ASSET_BASE="." in .env.production (or leave undefined and fallback will work)
+const ASSET_BASE = import.meta.env.VITE_ASSET_BASE || ".";
+const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3001";
+
+const customImage = `${ASSET_BASE}/imgs/starmap/default/couple.jpg`;
+
 const App = () => {
   const [loading, setLoading] = useState(false);
   const canvasRef = useRef(null);
@@ -38,6 +47,7 @@ const App = () => {
     content: { y: 80 },
   });
   const [dragging, setDragging] = useState(false);
+
   const handleMouseDown = (e, element) => {
     e.preventDefault();
     setDragging(true);
@@ -45,8 +55,8 @@ const App = () => {
     const wrapper = e.currentTarget.parentElement;
     const wrapperHeight = wrapper.offsetHeight;
     const initialPercent = positions[element].y;
-    const handleMouseMove = (e) => {
-      const deltaY = e.clientY - startY;
+    const handleMouseMove = (ev) => {
+      const deltaY = ev.clientY - startY;
       const deltaPercent = (deltaY / wrapperHeight) * 100;
       setPositions((prev) => ({
         ...prev,
@@ -62,14 +72,14 @@ const App = () => {
     window.addEventListener("mouseup", handleMouseUp);
   };
 
-  // unified state for all styles
+  // unified state for styles
   const [styles, setStyles] = useState({
     paperSize: "A4",
     bgType: "solid",
     bgColor: "#020202ff",
     bgGradientColor: ["#a80077ff", "#66ff00"],
     bgGradientType: "linear", // linear | radial | conic
-    bgGradientAngle: 90, // only for linear/conic
+    bgGradientAngle: 90,
     borderStyle: "solid",
     borderWidth: 1,
     borderRadius: 0,
@@ -117,7 +127,7 @@ const App = () => {
       lon: -0.1,
     },
     CustomImg: {
-      imgSrc: "https://picsum.photos/800/600", // <-- this will store the selected image
+      imgSrc: customImage,
       width: 90,
       imgDimention: 25,
       bgColor: null,
@@ -227,7 +237,7 @@ const App = () => {
     };
   };
 
-  // generic updater for any nested path
+  // generic updater
   const updateStyles = (path, value) => {
     setStyles((prev) => {
       const keys = path.split(".");
@@ -241,9 +251,10 @@ const App = () => {
       return newState;
     });
   };
+
   const [mediaTarget, setMediaTarget] = useState(null);
 
-  // content state
+  // content
   const [content, setContent] = useState({
     downloadType: "pdf",
     fileName: "Poster",
@@ -265,18 +276,21 @@ const App = () => {
   const onChangeContent = (key, value) =>
     setContent((prev) => ({ ...prev, [key]: value }));
 
-  // stars,map state
+  // star data
   const [starsData, setStarsData] = useState({ features: [] });
   const [mwData, setMwData] = useState({ features: [] });
   const [constData, setConstData] = useState({ features: [] });
   const [centerRA, setCenterRA] = useState(0);
 
+  // load JSON files — use ASSET_BASE so asset origin works for dev/prod/Electron
   useEffect(() => {
     setLoading(true);
     Promise.all([
-      fetch("/json/stars.6.json").then((r) => r.json()),
-      fetch("/json/mw.json").then((r) => r.json()),
-      fetch("/json/constellations.lines.json").then((r) => r.json()),
+      fetch(`${ASSET_BASE}/json/stars.6.json`).then((r) => r.json()),
+      fetch(`${ASSET_BASE}/json/mw.json`).then((r) => r.json()),
+      fetch(`${ASSET_BASE}/json/constellations.lines.json`).then((r) =>
+        r.json()
+      ),
     ])
       .then(([stars, mw, constellations]) => {
         setStarsData(stars);
@@ -317,21 +331,20 @@ const App = () => {
   };
   const [drawerMode, setDrawerMode] = useState(null);
   const [parentDrawer, setParentDrawer] = useState(null);
-
   const [open, setOpen] = useState(null);
 
   const showDrawer = (mode, parent = null, target = null) => {
     if (mode === "uploadSelectCustomeImg") {
       setParentDrawer(drawerMode);
-
       if (parent && target) {
         setMediaTarget(`${parent}.${target}`);
       } else if (target) {
-        setMediaTarget(target); // <-- for bgImage at root
+        setMediaTarget(target); // for root bgImage
       } else if (parent) {
         setMediaTarget(parent);
       }
     }
+    // default fetch posters when opening drawer without type
     fetchFiles();
     setDrawerMode(mode);
     setOpen(true);
@@ -344,7 +357,6 @@ const App = () => {
     setStyleFiles([]);
   };
 
-  // notification
   const openNotificationWithIcon = (fileName, folder, url) => {
     api.success({
       message: `✅ ${fileName} saved!`,
@@ -360,7 +372,7 @@ const App = () => {
     });
   };
 
-  // screen shot
+  // screenshot — uses API_BASE
   const handleScreenShot = async () => {
     if (!canvasRef.current) return;
     setLoading(true);
@@ -391,6 +403,7 @@ const App = () => {
           }
         })
         .join("\n");
+
       const fullHTML = `<html>
       <head>
         <meta charset="UTF-8">
@@ -398,7 +411,8 @@ const App = () => {
       </head>
       <body>${htmlContent}</body>
     </html>`;
-      const response = await fetch("http://localhost:3001/api/screenshot", {
+
+      const response = await fetch(`${API_BASE}/api/screenshot`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -408,27 +422,24 @@ const App = () => {
           downloadType: content.downloadType,
         }),
       });
+
       if (!response.ok) throw new Error("Failed to capture screenshot");
       const data = await response.json();
       openNotificationWithIcon(data.fileName, data.folder, data.url);
       window.open(data.url, "_blank");
-      console.log("✅ File saved:", data);
     } catch (err) {
       console.error("Error capturing screenshot:", err);
-      api.error({
-        message: "❌ Error saving file",
-        description: err.message,
-      });
+      api.error({ message: "❌ Error saving file", description: err.message });
     } finally {
       setLoading(false);
     }
   };
 
-  // Export
+  // export styles
   const handleExport = async () => {
     try {
       const finalState = { positions, styles, content };
-      const res = await fetch("http://localhost:3001/api/export-style", {
+      const res = await fetch(`${API_BASE}/api/export-style`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(finalState),
@@ -437,7 +448,8 @@ const App = () => {
       const data = await res.json();
       if (data.success) {
         openNotificationWithIcon(data.fileName, data.folder, data.url);
-        console.log("✅ File saved at:", data.url);
+        // If in Electron this will open the saved file via URL returned by backend
+        if (window.electronAPI) window.open(data.url, "_blank");
       } else {
         api.error({
           message: "❌ Export failed",
@@ -453,7 +465,7 @@ const App = () => {
     }
   };
 
-  // import
+  // import JSON (file input or url)
   const handleImport = async (input) => {
     setLoading(true);
     try {
@@ -482,6 +494,7 @@ const App = () => {
       setLoading(false);
     }
   };
+
   const applyImportedState = (importedState) => {
     if (importedState.positions) setPositions(importedState.positions);
     if (importedState.styles) setStyles(importedState.styles);
@@ -491,7 +504,6 @@ const App = () => {
 
   useEffect(() => {
     if (!open) return;
-
     if (
       drawerMode === "showDownloadImageFiles" ||
       drawerMode === "showDownloadPdfFiles"
@@ -505,9 +517,10 @@ const App = () => {
   }, [open, drawerMode]);
 
   const [files, setFiles] = useState([]);
-  const fetchFiles = async (type) => {
+  // default type 'posters' when not provided
+  const fetchFiles = async (type = "posters") => {
     try {
-      const res = await fetch(`http://localhost:3001/api/files/${type}`);
+      const res = await fetch(`${API_BASE}/api/files/${type}`);
       const data = await res.json();
       if (data.success) setFiles(data.files);
     } catch (err) {
@@ -518,7 +531,7 @@ const App = () => {
   const [styleFiles, setStyleFiles] = useState([]);
   const fetchStyleFiles = async () => {
     try {
-      const res = await fetch("http://localhost:3001/api/files/styles");
+      const res = await fetch(`${API_BASE}/api/files/styles`);
       const data = await res.json();
       if (data.success)
         setStyleFiles(data.files.filter((f) => f.endsWith(".json")));
@@ -529,37 +542,25 @@ const App = () => {
 
   const handleDeleteFile = async (type, fileName) => {
     try {
-      const res = await fetch(
-        `http://localhost:3001/api/files/${type}/${fileName}`,
-        {
-          method: "DELETE",
-        }
-      );
+      const res = await fetch(`${API_BASE}/api/files/${type}/${fileName}`, {
+        method: "DELETE",
+      });
       const data = await res.json();
       if (data.success) {
-        api.success({
-          message: "File deleted",
-          description: data.message,
-        });
-
-        // Refresh the drawer list
-        if (type === "posters") fetchFiles();
+        api.success({ message: "File deleted", description: data.message });
+        if (type === "posters") fetchFiles("posters");
         if (type === "styles") fetchStyleFiles();
         if (type === "customImgs") fetchFiles("customImgs");
       } else {
-        api.error({
-          message: "Delete failed",
-          description: data.message,
-        });
+        api.error({ message: "Delete failed", description: data.message });
       }
     } catch (err) {
       console.error("Delete error:", err);
-      api.error({
-        message: "Delete error",
-        description: err.message,
-      });
+      api.error({ message: "Delete error", description: err.message });
     }
   };
+
+  // drawerTitles already defined above
 
   return (
     <>
@@ -616,8 +617,6 @@ const App = () => {
                     <MdOutlineEditNote className="editIcon" />
                   </div>
 
-                  {/* Map */}
-
                   <Map
                     mapData={{ starsData, mwData, constData, centerRA }}
                     mapStyle={styles.map}
@@ -636,7 +635,7 @@ const App = () => {
                     drawerMode={drawerMode}
                     content={content}
                   />
-                  {/* title */}
+
                   <Title
                     styles={styles}
                     positions={positions}
@@ -645,7 +644,7 @@ const App = () => {
                     drawerMode={drawerMode}
                     content={content}
                   />
-                  {/* content */}
+
                   <Content
                     styles={styles}
                     positions={positions}
@@ -722,204 +721,190 @@ const App = () => {
                 showDrawer={showDrawer}
               />
             ) : drawerMode === "showDownloadImageFiles" ? (
-              <>
-                <div className="d-flex flex-wrap">
-                  {files
-                    .filter((file) =>
-                      file.toLowerCase().match(/\.(jpg|jpeg|png)$/)
-                    )
-                    .map((file, index) => {
-                      const url = `http://localhost:5173/files/posters/${file}`;
-                      return (
-                        <div
-                          key={index}
-                          className="img_pdf border mb-3 me-3 p-2 d-flex flex-column align-items-center justify-content-center"
-                          style={{ width: "20%", position: "relative" }}
+              <div className="d-flex flex-wrap">
+                {files
+                  .filter((file) =>
+                    file.toLowerCase().match(/\.(jpg|jpeg|png)$/)
+                  )
+                  .map((file, index) => {
+                    const url = `${ASSET_BASE}/files/posters/${file}`;
+                    return (
+                      <div
+                        key={index}
+                        className="img_pdf border mb-3 me-3 p-2 d-flex flex-column align-items-center justify-content-center"
+                        style={{ width: "20%", position: "relative" }}
+                      >
+                        <a
+                          href={url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-100 d-flex justify-content-center"
+                          style={{ textDecoration: "none" }}
                         >
-                          <a
-                            href={url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="w-100 d-flex justify-content-center"
-                            style={{ textDecoration: "none" }}
+                          <img
+                            src={url}
+                            alt={`Poster ${index + 1}`}
+                            className="img-fluid w-100"
+                          />
+                        </a>
+                        <div
+                          className="mt-2 text-truncate w-100 text-center"
+                          style={{ fontSize: "0.9rem" }}
+                          title={file}
+                        >
+                          {file}
+                        </div>
+                        <button
+                          className="btn btn-sm btn-danger"
+                          style={{ position: "absolute", top: 1, right: 1 }}
+                          onClick={() => handleDeleteFile("posters", file)}
+                        >
+                          <CiTrash />
+                        </button>
+                      </div>
+                    );
+                  })}
+              </div>
+            ) : drawerMode === "showDownloadPdfFiles" ? (
+              <div className="d-flex flex-wrap">
+                {files
+                  .filter((file) => file.toLowerCase().endsWith(".pdf"))
+                  .map((file, index) => {
+                    const url = `${ASSET_BASE}/files/posters/${file}`;
+                    return (
+                      <div
+                        key={index}
+                        className="img_pdf border mb-3 me-3 p-2 d-flex flex-column align-items-center justify-content-center"
+                        style={{ width: "23%", position: "relative" }}
+                      >
+                        <a
+                          href={url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-100 d-flex justify-content-center"
+                          style={{ textDecoration: "none" }}
+                        >
+                          <AiFillFilePdf size={64} color="red" />
+                        </a>
+                        <div
+                          className="mt-2 text-truncate w-100 text-center"
+                          style={{ fontSize: "0.9rem" }}
+                          title={file}
+                        >
+                          {file}
+                        </div>
+                        <button
+                          className="btn btn-sm btn-outline-danger"
+                          style={{ position: "absolute", top: 1, right: 1 }}
+                          onClick={() => handleDeleteFile("posters", file)}
+                        >
+                          <CiTrash />
+                        </button>
+                      </div>
+                    );
+                  })}
+              </div>
+            ) : drawerMode === "showImportFiles" ? (
+              <div className="p-2" style={{ position: "relative" }}>
+                {styleFiles.length === 0 ? (
+                  <div>No style files found.</div>
+                ) : (
+                  styleFiles.map((file, idx) => {
+                    const url = `${ASSET_BASE}/files/styles/${file}`;
+                    return (
+                      <div
+                        key={idx}
+                        className="border rounded mb-1 ps-1 d-flex justify-content-between align-items-center"
+                      >
+                        <span
+                          className="text-truncate"
+                          style={{ maxWidth: "70%" }}
+                        >
+                          {file}
+                        </span>
+                        <div>
+                          <button
+                            className="btn btn-sm btn-primary me-1"
+                            onClick={() => handleImport(url)}
                           >
-                            <img
-                              src={url}
-                              alt={`Poster ${index + 1}`}
-                              className="img-fluid w-100"
-                            />
-                          </a>
-                          <div
-                            className="mt-2 text-truncate w-100 text-center"
-                            style={{ fontSize: "0.9rem" }}
-                            title={file}
-                          >
-                            {file}
-                          </div>
+                            <CiImport />
+                          </button>
                           <button
                             className="btn btn-sm btn-danger"
-                            style={{
-                              position: "absolute",
-                              top: 1,
-                              right: 1,
-                            }}
-                            onClick={() => handleDeleteFile("posters", file)}
+                            onClick={() => handleDeleteFile("styles", file)}
                           >
                             <CiTrash />
                           </button>
                         </div>
-                      );
-                    })}
-                </div>
-              </>
-            ) : drawerMode === "showDownloadPdfFiles" ? (
-              <>
-                <div className="d-flex flex-wrap">
-                  {files
-                    .filter((file) => file.toLowerCase().endsWith(".pdf"))
-                    .map((file, index) => {
-                      const url = `http://localhost:5173/files/posters/${file}`;
-                      return (
-                        <div
-                          key={index}
-                          className="img_pdf border mb-3 me-3 p-2 d-flex flex-column align-items-center justify-content-center"
-                          style={{ width: "23%", position: "relative" }}
-                        >
-                          <a
-                            href={url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="w-100 d-flex justify-content-center"
-                            style={{ textDecoration: "none" }}
-                          >
-                            <AiFillFilePdf size={64} color="red" />
-                          </a>
-                          <div
-                            className="mt-2 text-truncate w-100 text-center"
-                            style={{ fontSize: "0.9rem" }}
-                            title={file}
-                          >
-                            {file}
-                          </div>
-                          <button
-                            className="btn btn-sm btn-outline-danger"
-                            style={{
-                              position: "absolute",
-                              top: 1,
-                              right: 1,
-                            }}
-                            onClick={() => handleDeleteFile("posters", file)}
-                          >
-                            <CiTrash />
-                          </button>
-                        </div>
-                      );
-                    })}
-                </div>
-              </>
-            ) : drawerMode === "showImportFiles" ? (
-              <>
-                <div className="p-2" style={{ position: "relative" }}>
-                  {styleFiles.length === 0 ? (
-                    <div>No style files found.</div>
-                  ) : (
-                    styleFiles.map((file, idx) => {
-                      const url = `http://localhost:5173/files/styles/${file}`;
-                      return (
-                        <div
-                          key={idx}
-                          className="border rounded mb-1 ps-1 d-flex justify-content-between align-items-center"
-                        >
-                          <span
-                            className="text-truncate"
-                            style={{ maxWidth: "70%" }}
-                          >
-                            {file}
-                          </span>
-                          <div>
-                            <button
-                              className="btn btn-sm btn-primary me-1"
-                              onClick={() => handleImport(url)}
-                            >
-                              <CiImport />
-                            </button>
-                            <button
-                              className="btn btn-sm btn-danger"
-                              onClick={() => handleDeleteFile("styles", file)}
-                            >
-                              <CiTrash />
-                            </button>
-                          </div>
-                        </div>
-                      );
-                    })
-                  )}
-                </div>
-              </>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
             ) : drawerMode === "uploadSelectCustomeImg" ? (
-              <>
-                <div>
-                  <Row gutter={[8, 8]}>
-                    {files.map((file, idx) => (
-                      <Col key={idx}>
-                        <div
-                          style={{
-                            width: 80,
-                            height: 80,
-                            border: "1px solid #ddd",
-                            cursor: "pointer",
-                            backgroundSize: "cover",
-                            backgroundImage: `url(/files/customImgs/${file})`,
-                            borderRadius: "50%",
-                          }}
-                          onClick={() => {
-                            const selectedUrl = `http://localhost:5173/files/customImgs/${file}`;
-                            updateStyles(mediaTarget, selectedUrl);
-                            let storageKey = "recentPosterMedia";
-                            if (mediaTarget.startsWith("map.")) {
-                              storageKey = "recentMapMedia";
-                            }
+              <div>
+                <Row gutter={[8, 8]}>
+                  {files.map((file, idx) => (
+                    <Col key={idx}>
+                      <div
+                        style={{
+                          width: 80,
+                          height: 80,
+                          border: "1px solid #ddd",
+                          cursor: "pointer",
+                          backgroundSize: "cover",
+                          backgroundImage: `url(${ASSET_BASE}/files/customImgs/${file})`,
+                          borderRadius: "50%",
+                        }}
+                        onClick={() => {
+                          const selectedUrl = `${ASSET_BASE}/files/customImgs/${file}`;
+                          updateStyles(mediaTarget, selectedUrl);
+                          let storageKey = "recentPosterMedia";
+                          if (
+                            mediaTarget &&
+                            mediaTarget.startsWith &&
+                            mediaTarget.startsWith("map.")
+                          )
+                            storageKey = "recentMapMedia";
 
-                            let recent =
-                              JSON.parse(localStorage.getItem(storageKey)) ||
-                              [];
-                            if (!recent.includes(selectedUrl)) {
-                              recent.push(selectedUrl);
-                              localStorage.setItem(
-                                storageKey,
-                                JSON.stringify(recent)
-                              );
-                            }
-                          }}
-                        />
-                        <Button
-                          type="link"
-                          danger
-                          size="small"
-                          onClick={() => handleDeleteFile("customImgs", file)}
-                        >
-                          Delete
-                        </Button>
-                      </Col>
-                    ))}
-                  </Row>
+                          let recent =
+                            JSON.parse(localStorage.getItem(storageKey)) || [];
+                          if (!recent.includes(selectedUrl)) {
+                            recent.push(selectedUrl);
+                            localStorage.setItem(
+                              storageKey,
+                              JSON.stringify(recent)
+                            );
+                          }
+                        }}
+                      />
+                      <Button
+                        type="link"
+                        danger
+                        size="small"
+                        onClick={() => handleDeleteFile("customImgs", file)}
+                      >
+                        Delete
+                      </Button>
+                    </Col>
+                  ))}
+                </Row>
 
-                  <Upload
-                    name="file"
-                    action="http://localhost:3001/api/upload/custom-img"
-                    showUploadList={false}
-                    onChange={(info) => {
-                      if (info.file.status === "done") {
-                        fetchFiles("customImgs"); // refresh list after upload
-                      }
-                    }}
-                  >
-                    <Button type="dashed" className="mt-3">
-                      Upload New Image
-                    </Button>
-                  </Upload>
-                </div>
-              </>
+                <Upload
+                  name="file"
+                  action={`${API_BASE}/api/upload/custom-img`}
+                  showUploadList={false}
+                  onChange={(info) => {
+                    if (info.file.status === "done") {
+                      fetchFiles("customImgs");
+                    }
+                  }}
+                >
+                  <Button type="dashed" className="mt-3">
+                    Upload New Image
+                  </Button>
+                </Upload>
+              </div>
             ) : drawerMode === "show_hide" ? (
               <ShowHideElement styles={styles} updateStyles={updateStyles} />
             ) : (
