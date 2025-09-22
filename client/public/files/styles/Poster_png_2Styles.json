@@ -1,0 +1,153 @@
+{
+  "positions": {
+    "map": {
+      "y": 12
+    },
+    "CustomImg": {
+      "y": 61.99324324324325
+    },
+    "title": {
+      "y": 3.831081081081081
+    },
+    "content": {
+      "y": 85.06756756756756
+    }
+  },
+  "styles": {
+    "paperSize": "A6",
+    "bgType": "solid",
+    "bgColor": "#020202ff",
+    "bgGradientColor": [
+      "#a80077ff",
+      "#66ff00"
+    ],
+    "bgGradientType": "linear",
+    "bgGradientAngle": 90,
+    "borderStyle": "solid",
+    "borderWidth": 1,
+    "borderRadius": 0,
+    "borderColor": "#ffff",
+    "bgGradientColors": [
+      "#a80077ff",
+      "#66ff00"
+    ],
+    "bgImage": null,
+    "bgImageMode": "cover",
+    "bgImageOpacity": 0.7,
+    "posterWrapper": {
+      "width": 90,
+      "height": 92.6,
+      "bgColor": null,
+      "borderStyle": "solid",
+      "borderWidth": 1,
+      "borderRadius": 0,
+      "borderColor": "#ffff"
+    },
+    "map": {
+      "projection": "orthographic",
+      "width": 90,
+      "height": null,
+      "maskShape": "circle",
+      "fill": null,
+      "bgType": "none",
+      "bgImage": null,
+      "bgImageOpacity": 0.1,
+      "strokeColor": "#eee",
+      "strokeStyle": "solid",
+      "strokeWidth": 1,
+      "showStars": true,
+      "showMilkyway": true,
+      "milkywayOpacity": 0.2,
+      "showConstellations": true,
+      "showPlanets": true,
+      "showPlanetNames": true,
+      "showMoonName": false,
+      "showMoon": true,
+      "showGraticule": true,
+      "sizeMult": 1,
+      "magLimit": 6.5,
+      "date": "2025-09-22T11:42:24.622Z",
+      "lat": 51.5,
+      "lon": -0.1
+    },
+    "CustomImg": {
+      "imgSrc": "http://localhost:5173/imgs/starmap/default/couple.jpg",
+      "width": 90,
+      "imgDimention": 25,
+      "bgColor": null,
+      "fontFamily": "Verdana",
+      "fontStyle": "normal",
+      "fontWeight": "normal",
+      "fontSize": 1.5,
+      "textColor": "#ffff",
+      "textTransform": "capitalize",
+      "textDecoration": "none"
+    },
+    "content": {
+      "width": 90,
+      "height": 15,
+      "bgColor": null,
+      "paddingTop": 5,
+      "paddingBottom": 5,
+      "paddingLeft": 5,
+      "paddingRight": 5,
+      "fontFamily": "Verdana",
+      "fontStyle": "normal",
+      "fontWeight": "normal",
+      "fontSize": 1.4,
+      "textColor": "#ffff",
+      "textTransform": "capitalize",
+      "textDecoration": "none",
+      "borderStyle": "none",
+      "borderWidth": 0,
+      "borderRadius": 0,
+      "borderColor": "#ffff",
+      "title": {
+        "width": 90,
+        "height": 5,
+        "bgColor": null,
+        "paddingTop": 5,
+        "paddingBottom": 5,
+        "paddingLeft": 5,
+        "paddingRight": 5,
+        "fontFamily": "Verdana",
+        "fontStyle": "normal",
+        "fontWeight": "normal",
+        "fontSize": 2.5,
+        "textColor": "#ffff",
+        "textTransform": "capitalize",
+        "textDecoration": "none",
+        "borderStyle": "none",
+        "borderWidth": 0,
+        "borderRadius": 0,
+        "borderColor": "#ffff"
+      }
+    },
+    "show": {
+      "title": true,
+      "content": true,
+      "address": true,
+      "message": true,
+      "date": true,
+      "time": true,
+      "coordinate": true,
+      "CustomImg": true,
+      "imgTxt_1": true,
+      "imgTxt_2": true,
+      "starMap": true,
+      "moonMap": false
+    }
+  },
+  "content": {
+    "downloadType": "png",
+    "fileName": "Poster png 2",
+    "message": "look up at the stars",
+    "title": "my star map dfd",
+    "address": "london, uk",
+    "date": "2025-09-22",
+    "time": "04:42 AM",
+    "coordinate": "51.5°N, 0.1°W",
+    "text1": "Under These Stars",
+    "text2": "Our Story Began With Gentle Smiles"
+  }
+}

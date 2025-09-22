@@ -309,7 +309,7 @@ const App = () => {
     CustomImg: "Custom Image Settings",
     content: "Content Setting",
     title: "Title Setting",
-    showDownloadImageFiles: "Downloaded Images, png,jpeg",
+    showDownloadImageFiles: "Downloaded PNG/JPEG",
     showDownloadPdfFiles: "Downloaded PDF files",
     uploadSelectCustomeImg: (
       <>
@@ -403,7 +403,6 @@ const App = () => {
           }
         })
         .join("\n");
-
       const fullHTML = `<html>
       <head>
         <meta charset="UTF-8">
@@ -411,8 +410,8 @@ const App = () => {
       </head>
       <body>${htmlContent}</body>
     </html>`;
-
-      const response = await fetch(`${API_BASE}/api/screenshot`, {
+      // const response = await fetch(`${API_BASE}/api/screenshot`, {
+      const response = await fetch("http://localhost:3001/api/screenshot", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -422,18 +421,82 @@ const App = () => {
           downloadType: content.downloadType,
         }),
       });
-
       if (!response.ok) throw new Error("Failed to capture screenshot");
       const data = await response.json();
       openNotificationWithIcon(data.fileName, data.folder, data.url);
       window.open(data.url, "_blank");
+      console.log("✅ File saved:", data);
     } catch (err) {
       console.error("Error capturing screenshot:", err);
-      api.error({ message: "❌ Error saving file", description: err.message });
+      api.error({
+        message: "❌ Error saving file",
+        description: err.message,
+      });
     } finally {
       setLoading(false);
     }
   };
+  // const handleScreenShot = async () => {
+  //   if (!canvasRef.current) return;
+  //   setLoading(true);
+  //   try {
+  //     const canvas = canvasRef.current;
+  //     const elements = canvas.querySelectorAll("*");
+  //     elements.forEach((el) => {
+  //       const computed = window.getComputedStyle(el);
+  //       el.setAttribute(
+  //         "style",
+  //         computed.cssText + ";" + (el.getAttribute("style") || "")
+  //       );
+  //     });
+  //     const rootComputed = window.getComputedStyle(canvas);
+  //     canvas.setAttribute(
+  //       "style",
+  //       rootComputed.cssText + ";" + (canvas.getAttribute("style") || "")
+  //     );
+  //     const htmlContent = canvas.outerHTML;
+  //     const cssText = Array.from(document.styleSheets)
+  //       .map((sheet) => {
+  //         try {
+  //           return Array.from(sheet.cssRules)
+  //             .map((rule) => rule.cssText)
+  //             .join("");
+  //         } catch {
+  //           return "";
+  //         }
+  //       })
+  //       .join("\n");
+
+  //     const fullHTML = `<html>
+  //     <head>
+  //       <meta charset="UTF-8">
+  //       <style>${cssText}</style>
+  //     </head>
+  //     <body>${htmlContent}</body>
+  //   </html>`;
+
+  //     const response = await fetch(`${API_BASE}/api/screenshot`, {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({
+  //         html: fullHTML,
+  //         paperSize: styles.paperSize,
+  //         fileName: content.fileName,
+  //         downloadType: content.downloadType,
+  //       }),
+  //     });
+
+  //     if (!response.ok) throw new Error("Failed to capture screenshot");
+  //     const data = await response.json();
+  //     openNotificationWithIcon(data.fileName, data.folder, data.url);
+  //     window.open(data.url, "_blank");
+  //   } catch (err) {
+  //     console.error("Error capturing screenshot:", err);
+  //     api.error({ message: "❌ Error saving file", description: err.message });
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   // export styles
   const handleExport = async () => {
@@ -559,8 +622,6 @@ const App = () => {
       api.error({ message: "Delete error", description: err.message });
     }
   };
-
-  // drawerTitles already defined above
 
   return (
     <>
