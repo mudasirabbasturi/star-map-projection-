@@ -27,14 +27,9 @@ const Map = lazy(() => import("./components/Map"));
 const CustomImg = lazy(() => import("./components/CustomImg"));
 const Content = lazy(() => import("./components/Content"));
 
-// Environment-aware bases:
-// - ASSET_BASE (for static assets & files) reads from VITE_ASSET_BASE or falls back to "."
-// - API_BASE (for backend API) reads from VITE_API_BASE or falls back to http://localhost:3001
-// For Electron builds set VITE_ASSET_BASE="." in .env.production (or leave undefined and fallback will work)
-const ASSET_BASE = import.meta.env.VITE_ASSET_BASE || ".";
-const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3001";
-
-const customImage = `${ASSET_BASE}/imgs/starmap/default/couple.jpg`;
+const customImage = `${
+  import.meta.env.VITE_ASSET_BASE
+}/imgs/starmap/default/couple.jpg`;
 
 const App = () => {
   const [loading, setLoading] = useState(false);
@@ -138,6 +133,7 @@ const App = () => {
       textColor: "#ffff",
       textTransform: "capitalize",
       textDecoration: "none",
+      paddingTop: 4,
     },
     content: {
       width: 90,
@@ -282,15 +278,12 @@ const App = () => {
   const [constData, setConstData] = useState({ features: [] });
   const [centerRA, setCenterRA] = useState(0);
 
-  // load JSON files — use ASSET_BASE so asset origin works for dev/prod/Electron
   useEffect(() => {
     setLoading(true);
     Promise.all([
-      fetch(`${ASSET_BASE}/json/stars.6.json`).then((r) => r.json()),
-      fetch(`${ASSET_BASE}/json/mw.json`).then((r) => r.json()),
-      fetch(`${ASSET_BASE}/json/constellations.lines.json`).then((r) =>
-        r.json()
-      ),
+      fetch(`/json/stars.6.json`).then((r) => r.json()),
+      fetch(`/json/mw.json`).then((r) => r.json()),
+      fetch(`/json/constellations.lines.json`).then((r) => r.json()),
     ])
       .then(([stars, mw, constellations]) => {
         setStarsData(stars);
@@ -344,7 +337,6 @@ const App = () => {
         setMediaTarget(parent);
       }
     }
-    // default fetch posters when opening drawer without type
     fetchFiles();
     setDrawerMode(mode);
     setOpen(true);
@@ -410,7 +402,6 @@ const App = () => {
       </head>
       <body>${htmlContent}</body>
     </html>`;
-      // const response = await fetch(`${API_BASE}/api/screenshot`, {
       const response = await fetch("http://localhost:3001/api/screenshot", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -436,73 +427,12 @@ const App = () => {
       setLoading(false);
     }
   };
-  // const handleScreenShot = async () => {
-  //   if (!canvasRef.current) return;
-  //   setLoading(true);
-  //   try {
-  //     const canvas = canvasRef.current;
-  //     const elements = canvas.querySelectorAll("*");
-  //     elements.forEach((el) => {
-  //       const computed = window.getComputedStyle(el);
-  //       el.setAttribute(
-  //         "style",
-  //         computed.cssText + ";" + (el.getAttribute("style") || "")
-  //       );
-  //     });
-  //     const rootComputed = window.getComputedStyle(canvas);
-  //     canvas.setAttribute(
-  //       "style",
-  //       rootComputed.cssText + ";" + (canvas.getAttribute("style") || "")
-  //     );
-  //     const htmlContent = canvas.outerHTML;
-  //     const cssText = Array.from(document.styleSheets)
-  //       .map((sheet) => {
-  //         try {
-  //           return Array.from(sheet.cssRules)
-  //             .map((rule) => rule.cssText)
-  //             .join("");
-  //         } catch {
-  //           return "";
-  //         }
-  //       })
-  //       .join("\n");
-
-  //     const fullHTML = `<html>
-  //     <head>
-  //       <meta charset="UTF-8">
-  //       <style>${cssText}</style>
-  //     </head>
-  //     <body>${htmlContent}</body>
-  //   </html>`;
-
-  //     const response = await fetch(`${API_BASE}/api/screenshot`, {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify({
-  //         html: fullHTML,
-  //         paperSize: styles.paperSize,
-  //         fileName: content.fileName,
-  //         downloadType: content.downloadType,
-  //       }),
-  //     });
-
-  //     if (!response.ok) throw new Error("Failed to capture screenshot");
-  //     const data = await response.json();
-  //     openNotificationWithIcon(data.fileName, data.folder, data.url);
-  //     window.open(data.url, "_blank");
-  //   } catch (err) {
-  //     console.error("Error capturing screenshot:", err);
-  //     api.error({ message: "❌ Error saving file", description: err.message });
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
 
   // export styles
   const handleExport = async () => {
     try {
       const finalState = { positions, styles, content };
-      const res = await fetch(`${API_BASE}/api/export-style`, {
+      const res = await fetch(`http://localhost:3001/api/export-style`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(finalState),
@@ -511,7 +441,6 @@ const App = () => {
       const data = await res.json();
       if (data.success) {
         openNotificationWithIcon(data.fileName, data.folder, data.url);
-        // If in Electron this will open the saved file via URL returned by backend
         if (window.electronAPI) window.open(data.url, "_blank");
       } else {
         api.error({
@@ -573,17 +502,16 @@ const App = () => {
     ) {
       fetchFiles("posters");
     } else if (drawerMode === "showImportFiles") {
-      fetchFiles("styles");
+      fetchStyleFiles();
     } else if (drawerMode === "uploadSelectCustomeImg") {
       fetchFiles("customImgs");
     }
   }, [open, drawerMode]);
 
   const [files, setFiles] = useState([]);
-  // default type 'posters' when not provided
   const fetchFiles = async (type = "posters") => {
     try {
-      const res = await fetch(`${API_BASE}/api/files/${type}`);
+      const res = await fetch(`http://localhost:3001/api/files/${type}`);
       const data = await res.json();
       if (data.success) setFiles(data.files);
     } catch (err) {
@@ -594,7 +522,7 @@ const App = () => {
   const [styleFiles, setStyleFiles] = useState([]);
   const fetchStyleFiles = async () => {
     try {
-      const res = await fetch(`${API_BASE}/api/files/styles`);
+      const res = await fetch(`http://localhost:3001/api/files/styles`);
       const data = await res.json();
       if (data.success)
         setStyleFiles(data.files.filter((f) => f.endsWith(".json")));
@@ -605,9 +533,12 @@ const App = () => {
 
   const handleDeleteFile = async (type, fileName) => {
     try {
-      const res = await fetch(`${API_BASE}/api/files/${type}/${fileName}`, {
-        method: "DELETE",
-      });
+      const res = await fetch(
+        `http://localhost:3001/api/files/${type}/${fileName}`,
+        {
+          method: "DELETE",
+        }
+      );
       const data = await res.json();
       if (data.success) {
         api.success({ message: "File deleted", description: data.message });
@@ -788,7 +719,7 @@ const App = () => {
                     file.toLowerCase().match(/\.(jpg|jpeg|png)$/)
                   )
                   .map((file, index) => {
-                    const url = `${ASSET_BASE}/files/posters/${file}`;
+                    const url = `http://localhost:3001/files/posters/${file}`;
                     return (
                       <div
                         key={index}
@@ -831,7 +762,7 @@ const App = () => {
                 {files
                   .filter((file) => file.toLowerCase().endsWith(".pdf"))
                   .map((file, index) => {
-                    const url = `${ASSET_BASE}/files/posters/${file}`;
+                    const url = `http://localhost:3001/files/posters/${file}`;
                     return (
                       <div
                         key={index}
@@ -871,7 +802,7 @@ const App = () => {
                   <div>No style files found.</div>
                 ) : (
                   styleFiles.map((file, idx) => {
-                    const url = `${ASSET_BASE}/files/styles/${file}`;
+                    const url = `http://localhost:3001/files/styles/${file}`;
                     return (
                       <div
                         key={idx}
@@ -914,11 +845,11 @@ const App = () => {
                           border: "1px solid #ddd",
                           cursor: "pointer",
                           backgroundSize: "cover",
-                          backgroundImage: `url(${ASSET_BASE}/files/customImgs/${file})`,
+                          backgroundImage: `url(http://localhost:3001/files/customImgs/${file})`,
                           borderRadius: "50%",
                         }}
                         onClick={() => {
-                          const selectedUrl = `${ASSET_BASE}/files/customImgs/${file}`;
+                          const selectedUrl = `http://localhost:3001/files/customImgs/${file}`;
                           updateStyles(mediaTarget, selectedUrl);
                           let storageKey = "recentPosterMedia";
                           if (
@@ -953,7 +884,7 @@ const App = () => {
 
                 <Upload
                   name="file"
-                  action={`${API_BASE}/api/upload/custom-img`}
+                  action={`http://localhost:3001/api/upload/custom-img`}
                   showUploadList={false}
                   onChange={(info) => {
                     if (info.file.status === "done") {

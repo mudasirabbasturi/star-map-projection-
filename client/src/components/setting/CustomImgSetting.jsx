@@ -442,6 +442,35 @@ const CustomImgSetting = ({
             />
           </div>
         </div>
+        {/* Text Space */}
+        <div className="mb-2">
+          <div className="d-flex align-items-center">
+            <small className="me-2" style={{ whiteSpace: "nowrap" }}>
+              Text Space:
+            </small>
+            <Slider
+              className="w-100 me-2 mt-0 mb-0"
+              max={10}
+              step={0.1}
+              value={styles.CustomImg.paddingTop}
+              onChange={(value) =>
+                updateStyles("CustomImg.paddingTop", value || 0)
+              }
+              disabled={styles.show.CustomImg === false}
+            />
+            <InputNumber
+              value={styles.CustomImg.paddingTop}
+              className="w-20"
+              size="small"
+              max={10}
+              step={0.1}
+              onChange={(value) =>
+                updateStyles("CustomImg.paddingTop", value || 0)
+              }
+              disabled={styles.show.CustomImg === false}
+            />
+          </div>
+        </div>
         {/* Text Color */}
         <div className="mb-2">
           <Divider style={{ fontStyle: "italic" }}>Text</Divider>

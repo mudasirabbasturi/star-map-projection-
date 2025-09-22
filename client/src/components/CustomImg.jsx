@@ -47,7 +47,7 @@ const CustomImg = ({
             />
           </svg>
           <div
-            className="custom_img_txt pt-2"
+            className="custom_img_txt"
             style={{
               fontFamily: styles.CustomImg.fontFamily,
               fontStyle: styles.CustomImg.fontStyle,
@@ -56,6 +56,7 @@ const CustomImg = ({
               color: styles.CustomImg.textColor,
               textTransform: styles.CustomImg.textTransform,
               textDecoration: styles.CustomImg.textDecoration,
+              paddingTop: `${styles.CustomImg.paddingTop}%`,
             }}
           >
             {styles.show.imgTxt_1 && (
