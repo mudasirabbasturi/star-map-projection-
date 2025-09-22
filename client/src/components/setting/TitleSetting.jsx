@@ -39,7 +39,14 @@ function genPresets(presets = presetPalettes) {
   }));
 }
 
-const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
+const TitleSetting = ({
+  titleStyles,
+  updateTitleStyles,
+  showStyles,
+  updateShowStyles,
+  content,
+  onChangeContent,
+}) => {
   const { token } = theme.useToken();
   const presets = genPresets({
     primary: generate(token.colorPrimary),
@@ -89,8 +96,8 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
         <div className="d-flex align-items-center justify-content-center">
           <Checkbox
             className="text-muted fst-italic"
-            checked={styles.show.title}
-            onChange={(e) => updateStyles("show.title", e.target.checked)}
+            checked={showStyles.title}
+            onChange={(e) => updateShowStyles("title", e.target.checked)}
           >
             Show / Hide Title
           </Checkbox>
@@ -104,7 +111,7 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
             <Input
               value={content.title}
               onChange={(e) => onChangeContent("title", e.target.value)}
-              disabled={styles.show.title === false}
+              disabled={showStyles.title === false}
             />
           </div>
         </div>
@@ -122,22 +129,22 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               Width:
             </small>
             <Slider
-              value={styles.content.title.width}
+              value={titleStyles.width}
               className="w-100 me-2 mt-0 mb-0"
               size="small"
               min={30}
               max={100}
-              onChange={(value) => updateStyles("content.title.width", value)}
-              disabled={styles.show.title === false}
+              onChange={(value) => updateTitleStyles("width", value)}
+              disabled={showStyles.title === false}
             />
             <InputNumber
-              value={styles.content.title.width}
+              value={titleStyles.width}
               className="ms-1 me-1"
               size="small"
               min={30}
               max={100}
-              onChange={(value) => updateStyles("content.title.width", value)}
-              disabled={styles.show.title === false}
+              onChange={(value) => updateTitleStyles("width", value)}
+              disabled={showStyles.title === false}
             />
           </div>
         </div>
@@ -151,22 +158,22 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               Height:
             </small>
             <Slider
-              value={styles.content.title.height}
+              value={titleStyles.height}
               className="w-100 me-2 mt-0 mb-0"
               size="small"
               min={3}
               max={100}
-              onChange={(value) => updateStyles("content.title.height", value)}
-              disabled={styles.show.title === false}
+              onChange={(value) => updateTitleStyles("height", value)}
+              disabled={showStyles.title === false}
             />
             <InputNumber
-              value={styles.content.title.height}
+              value={titleStyles.height}
               className="ms-1 me-1"
               size="small"
               min={3}
               max={100}
-              onChange={(value) => updateStyles("content.title.height", value)}
-              disabled={styles.show.title === false}
+              onChange={(value) => updateTitleStyles("height", value)}
+              disabled={showStyles.title === false}
             />
           </div>
         </div>
@@ -178,47 +185,39 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
           <div className="d-flex align-items-center">
             <InputNumber
               className="me-1"
-              value={styles.content.title.paddingTop}
+              value={titleStyles.paddingTop}
               size="small"
               min={0}
               max={50}
-              onChange={(value) =>
-                updateStyles("content.title.paddingTop", value)
-              }
-              disabled={styles.show.title === false}
+              onChange={(value) => updateTitleStyles("paddingTop", value)}
+              disabled={showStyles.title === false}
             />
             <InputNumber
               className="me-1"
-              value={styles.content.title.paddingBottom}
+              value={titleStyles.paddingBottom}
               size="small"
               min={0}
               max={50}
-              onChange={(value) =>
-                updateStyles("content.title.paddingBottom", value)
-              }
-              disabled={styles.show.title === false}
+              onChange={(value) => updateTitleStyles("paddingBottom", value)}
+              disabled={showStyles.title === false}
             />
             <InputNumber
               className="me-1"
-              value={styles.content.title.paddingLeft}
+              value={titleStyles.paddingLeft}
               size="small"
               min={0}
               max={50}
-              onChange={(value) =>
-                updateStyles("content.title.paddingLeft", value)
-              }
-              disabled={styles.show.title === false}
+              onChange={(value) => updateTitleStyles("paddingLeft", value)}
+              disabled={showStyles.title === false}
             />
             <InputNumber
               className="me-1"
-              value={styles.content.title.paddingRight}
+              value={titleStyles.paddingRight}
               size="small"
               min={0}
               max={50}
-              onChange={(value) =>
-                updateStyles("content.title.paddingRight", value)
-              }
-              disabled={styles.show.title === false}
+              onChange={(value) => updateTitleStyles("paddingRight", value)}
+              disabled={showStyles.title === false}
             />
           </div>
           <div className="d-flex align-items-center">
@@ -236,9 +235,9 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
           <ColorPicker
             style={{ width: "100%" }}
             allowClear
-            value={styles.content.title.bgColor}
+            value={titleStyles.bgColor}
             onChangeComplete={(color) =>
-              updateStyles("content.title.bgColor", color.toCssString())
+              updateTitleStyles("bgColor", color.toCssString())
             }
             styles={{ popupOverlayInner: { width: 480 } }}
             presets={presets}
@@ -248,7 +247,7 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               points: ["tl", "bl"],
               overflow: { adjustY: true },
             }}
-            disabled={styles.show.title === false}
+            disabled={showStyles.title === false}
           />
         </div>
       </div>
@@ -266,10 +265,8 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
             </small>
             <Select
               className="w-100"
-              value={styles.content.title.borderStyle}
-              onChange={(value) =>
-                updateStyles("content.title.borderStyle", value)
-              }
+              value={titleStyles.borderStyle}
+              onChange={(value) => updateTitleStyles("borderStyle", value)}
               size="small"
               options={[
                 { label: "Solid", value: "solid" },
@@ -278,7 +275,7 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
                 { label: "Double", value: "double" },
                 { label: "None", value: "none" },
               ]}
-              disabled={styles.show.title === false}
+              disabled={showStyles.title === false}
             />
           </div>
         </div>
@@ -292,31 +289,25 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               Width:
             </small>
             <Slider
-              value={styles.content.title.borderWidth}
+              value={titleStyles.borderWidth}
               className="w-100 me-2 mt-0 mb-0"
               size="small"
               min={0}
               max={20}
-              onChange={(value) =>
-                updateStyles("content.title.borderWidth", value || 0)
-              }
+              onChange={(value) => updateTitleStyles("borderWidth", value || 0)}
               disabled={
-                styles.show.title === false ||
-                styles.content.title.borderStyle === "none"
+                showStyles.title === false || titleStyles.borderStyle === "none"
               }
             />
             <InputNumber
-              value={styles.content.title.borderWidth}
+              value={titleStyles.borderWidth}
               className="w-20"
               size="small"
               min={0}
               max={20}
-              onChange={(value) =>
-                updateStyles("content.title.borderWidth", value || 0)
-              }
+              onChange={(value) => updateTitleStyles("borderWidth", value || 0)}
               disabled={
-                styles.show.title === false ||
-                styles.content.title.borderStyle === "none"
+                showStyles.title === false || titleStyles.borderStyle === "none"
               }
             />
           </div>
@@ -331,31 +322,29 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               Radius:
             </small>
             <Slider
-              value={styles.content.title.borderRadius}
+              value={titleStyles.borderRadius}
               className="w-100 me-2 mt-0 mb-0"
               size="small"
               min={0}
               max={50}
               onChange={(value) =>
-                updateStyles("content.title.borderRadius", value || 0)
+                updateTitleStyles("borderRadius", value || 0)
               }
               disabled={
-                styles.show.title === false ||
-                styles.content.title.borderStyle === "none"
+                showStyles.title === false || titleStyles.borderStyle === "none"
               }
             />
             <InputNumber
-              value={styles.content.title.borderRadius}
+              value={titleStyles.borderRadius}
               className="w-20"
               size="small"
               min={0}
               max={50}
               onChange={(value) =>
-                updateStyles("content.title.borderRadius", value || 0)
+                updateTitleStyles("borderRadius", value || 0)
               }
               disabled={
-                styles.show.title === false ||
-                styles.content.title.borderStyle === "none"
+                showStyles.title === false || titleStyles.borderStyle === "none"
               }
             />
           </div>
@@ -374,9 +363,9 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
                 width: "100%",
               }}
               allowClear
-              value={styles.content.title.borderColor}
+              value={titleStyles.borderColor}
               onChangeComplete={(color) =>
-                updateStyles("content.title.borderColor", color.toCssString())
+                updateTitleStyles("borderColor", color.toCssString())
               }
               styles={{ popupOverlayInner: { width: 480 } }}
               presets={presets}
@@ -387,8 +376,7 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
                 overflow: { adjustY: true },
               }}
               disabled={
-                styles.show.title === false ||
-                styles.content.title.borderStyle === "none"
+                showStyles.title === false || titleStyles.borderStyle === "none"
               }
             />
           </div>
@@ -408,10 +396,8 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
             </small>
             <Select
               className="w-100"
-              value={styles.content.title.fontFamily}
-              onChange={(value) =>
-                updateStyles("content.title.fontFamily", value)
-              }
+              value={titleStyles.fontFamily}
+              onChange={(value) => updateTitleStyles("fontFamily", value)}
               size="small"
               options={[
                 { label: "Arial", value: "Arial, sans-serif" },
@@ -434,7 +420,7 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
                   value: "'Brush Script MT', cursive",
                 },
               ]}
-              disabled={styles.show.title === false}
+              disabled={showStyles.title === false}
             />
           </div>
         </div>
@@ -449,17 +435,15 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
             </small>
             <Select
               className="w-100"
-              value={styles.content.title.fontStyle}
-              onChange={(value) =>
-                updateStyles("content.title.fontStyle", value)
-              }
+              value={titleStyles.fontStyle}
+              onChange={(value) => updateTitleStyles("fontStyle", value)}
               size="small"
               options={[
                 { label: "Normal", value: "normal" }, // default
                 { label: "Italic", value: "italic" }, // italicized text
                 { label: "Oblique", value: "oblique" }, // slanted (like italic, but not true italics)
               ]}
-              disabled={styles.show.title === false}
+              disabled={showStyles.title === false}
             />
           </div>
         </div>
@@ -474,10 +458,8 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
             </small>
             <Select
               className="w-100"
-              value={styles.content.title.fontWeight}
-              onChange={(value) =>
-                updateStyles("content.title.fontWeight", value)
-              }
+              value={titleStyles.fontWeight}
+              onChange={(value) => updateTitleStyles("fontWeight", value)}
               size="small"
               options={[
                 { label: "Normal", value: "normal" }, // default = 400
@@ -494,7 +476,7 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
                 { label: "800 (Extra Bold)", value: "800" },
                 { label: "900 (Black)", value: "900" },
               ]}
-              disabled={styles.show.title === false}
+              disabled={showStyles.title === false}
             />
           </div>
         </div>
@@ -511,22 +493,18 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               className="w-100 me-2 mt-0 mb-0"
               max={10}
               step={0.1}
-              value={styles.content.title.fontSize}
-              onChange={(value) =>
-                updateStyles("content.title.fontSize", value || 0)
-              }
-              disabled={styles.show.title === false}
+              value={titleStyles.fontSize}
+              onChange={(value) => updateTitleStyles("fontSize", value || 0)}
+              disabled={showStyles.title === false}
             />
             <InputNumber
-              value={styles.content.title.fontSize}
+              value={titleStyles.fontSize}
               className="w-20"
               size="small"
               max={10}
               step={0.1}
-              onChange={(value) =>
-                updateStyles("content.title.fontSize", value || 0)
-              }
-              disabled={styles.show.title === false}
+              onChange={(value) => updateTitleStyles("fontSize", value || 0)}
+              disabled={showStyles.title === false}
             />
           </div>
         </div>
@@ -543,9 +521,9 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
             <ColorPicker
               style={{ width: "100%" }}
               allowClear
-              value={styles.content.title.textColor}
+              value={titleStyles.textColor}
               onChangeComplete={(color) =>
-                updateStyles("content.title.textColor", color.toCssString())
+                updateTitleStyles("textColor", color.toCssString())
               }
               styles={{ popupOverlayInner: { width: 480 } }}
               presets={presets}
@@ -555,7 +533,7 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
                 points: ["tl", "bl"],
                 overflow: { adjustY: true },
               }}
-              disabled={styles.show.title === false}
+              disabled={showStyles.title === false}
             />
           </div>
         </div>
@@ -570,10 +548,8 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
             </small>
             <Select
               className="w-100"
-              value={styles.content.title.textTransform}
-              onChange={(value) =>
-                updateStyles("content.title.textTransform", value)
-              }
+              value={titleStyles.textTransform}
+              onChange={(value) => updateTitleStyles("textTransform", value)}
               size="small"
               options={[
                 { label: "None", value: "none" }, // default, no transform
@@ -582,7 +558,7 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
                 { label: "Lowercase", value: "lowercase" }, // "HELLO" → "hello"
                 { label: "Full Width", value: "full-width" }, // normal → ｎｏｒｍａｌ (rarely used)
               ]}
-              disabled={styles.show.title === false}
+              disabled={showStyles.title === false}
             />
           </div>
         </div>
@@ -597,10 +573,8 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
             </small>
             <Select
               className="w-100"
-              value={styles.content.title.textDecoration}
-              onChange={(value) =>
-                updateStyles("content.title.textDecoration", value)
-              }
+              value={titleStyles.textDecoration}
+              onChange={(value) => updateTitleStyles("textDecoration", value)}
               size="small"
               options={[
                 { label: "None", value: "none" }, // no decoration
@@ -612,7 +586,7 @@ const TitleSetting = ({ styles, updateStyles, content, onChangeContent }) => {
                   value: "underline overline",
                 },
               ]}
-              disabled={styles.show.title === false}
+              disabled={showStyles.title === false}
             />
           </div>
         </div>

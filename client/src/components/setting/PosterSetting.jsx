@@ -43,8 +43,8 @@ function genPresets(presets = presetPalettes) {
 }
 
 const PosterSetting = ({
-  styles,
-  updateStyles,
+  posterStyles,
+  updatePosterStyles,
   content,
   onChangeContent,
   showDrawer,
@@ -115,8 +115,8 @@ const PosterSetting = ({
         <Divider>Paper Size</Divider>
         <Select
           className="w-100"
-          value={styles.paperSize}
-          onChange={(val) => updateStyles("paperSize", val)}
+          value={posterStyles.paperSize}
+          onChange={(val) => updatePosterStyles("paperSize", val)}
           options={[
             { label: "A0", value: "A0" },
             { label: "A1", value: "A1" },
@@ -158,9 +158,9 @@ const PosterSetting = ({
         <div className="d-flex align-items-center mb-2">
           <small className="me-2 text-muted fst-italic">Type:</small>
           <Select
-            value={styles.bgType}
+            value={posterStyles.bgType}
             style={{ width: 140 }}
-            onChange={(val) => updateStyles("bgType", val)}
+            onChange={(val) => updatePosterStyles("bgType", val)}
             options={[
               { label: "Solid", value: "solid" },
               { label: "Gradient", value: "gradient" },
@@ -169,13 +169,15 @@ const PosterSetting = ({
         </div>
 
         {/* Solid */}
-        {styles.bgType === "solid" && (
+        {posterStyles.bgType === "solid" && (
           <ColorPicker
             style={{ width: "100%" }}
             allowClear
-            value={styles.bgColor}
-            onChangeComplete={(c) => updateStyles("bgColor", c.toCssString())}
-            styles={{ popupOverlayInner: { width: 480 } }}
+            value={posterStyles.bgColor}
+            onChangeComplete={(c) =>
+              updatePosterStyles("bgColor", c.toCssString())
+            }
+            posterStyles={{ popupOverlayInner: { width: 480 } }}
             presets={presets}
             panelRender={customPanelRender}
             size="small"
@@ -183,14 +185,14 @@ const PosterSetting = ({
         )}
 
         {/* Gradient */}
-        {styles.bgType === "gradient" && (
+        {posterStyles.bgType === "gradient" && (
           <div>
             <div className="d-flex align-items-center mb-2">
               <small className="me-2 text-muted fst-italic">In Gradient:</small>
               <Select
-                value={styles.bgGradientType}
+                value={posterStyles.bgGradientType}
                 style={{ width: 140 }}
-                onChange={(val) => updateStyles("bgGradientType", val)}
+                onChange={(val) => updatePosterStyles("bgGradientType", val)}
                 options={[
                   { label: "Linear", value: "linear" },
                   { label: "Radial", value: "radial" },
@@ -199,15 +201,17 @@ const PosterSetting = ({
               />
             </div>
 
-            {(styles.bgGradientType === "linear" ||
-              styles.bgGradientType === "conic") && (
+            {(posterStyles.bgGradientType === "linear" ||
+              posterStyles.bgGradientType === "conic") && (
               <div className="d-flex align-items-center mb-2">
                 <small className="me-2 text-muted fst-italic">Angle:</small>
                 <InputNumber
                   min={0}
                   max={360}
-                  value={styles.bgGradientAngle}
-                  onChange={(val) => updateStyles("bgGradientAngle", val || 0)}
+                  value={posterStyles.bgGradientAngle}
+                  onChange={(val) =>
+                    updatePosterStyles("bgGradientAngle", val || 0)
+                  }
                 />
                 <span className="ms-1">°</span>
               </div>
@@ -219,14 +223,14 @@ const PosterSetting = ({
                 borderRadius: 6,
                 marginBottom: 8,
                 border: "1px solid #ccc",
-                background: `linear-gradient(to right, ${styles.bgGradientColors.join(
+                background: `linear-gradient(to right, ${posterStyles.bgGradientColors.join(
                   ", "
                 )})`,
               }}
             />
 
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              {styles.bgGradientColors.map((color, idx) => (
+              {posterStyles.bgGradientColors.map((color, idx) => (
                 <div
                   key={idx}
                   style={{ display: "flex", alignItems: "center" }}
@@ -234,22 +238,22 @@ const PosterSetting = ({
                   <ColorPicker
                     value={color}
                     onChangeComplete={(c) => {
-                      const newColors = [...styles.bgGradientColors];
+                      const newColors = [...posterStyles.bgGradientColors];
                       newColors[idx] = c.toCssString();
-                      updateStyles("bgGradientColors", newColors);
+                      updatePosterStyles("bgGradientColors", newColors);
                     }}
-                    styles={{ popupOverlayInner: { width: 480 } }}
+                    posterStyles={{ popupOverlayInner: { width: 480 } }}
                     presets={presets}
                     panelRender={customPanelRender}
                     size="small"
                   />
-                  {styles.bgGradientColors.length > 2 && (
+                  {posterStyles.bgGradientColors.length > 2 && (
                     <button
                       onClick={() => {
-                        const newColors = styles.bgGradientColors.filter(
+                        const newColors = posterStyles.bgGradientColors.filter(
                           (_, i) => i !== idx
                         );
-                        updateStyles("bgGradientColors", newColors);
+                        updatePosterStyles("bgGradientColors", newColors);
                       }}
                       style={{
                         marginLeft: 4,
@@ -268,8 +272,8 @@ const PosterSetting = ({
 
             <button
               onClick={() =>
-                updateStyles("bgGradientColors", [
-                  ...styles.bgGradientColors,
+                updatePosterStyles("bgGradientColors", [
+                  ...posterStyles.bgGradientColors,
                   "#ffffff",
                 ])
               }
@@ -313,7 +317,7 @@ const PosterSetting = ({
                     borderRadius: "50%",
                   }}
                   onClick={() => {
-                    updateStyles("bgImage", url);
+                    updatePosterStyles("bgImage", url);
                     setSelectedMedia(url);
                   }}
                 />
@@ -347,8 +351,8 @@ const PosterSetting = ({
         <div className="d-flex align-items-center">
           <small className="me-1 text-muted fst-italic">Bacground Size</small>
           <Select
-            value={styles.bgImageMode}
-            onChange={(val) => updateStyles("bgImageMode", val)}
+            value={posterStyles.bgImageMode}
+            onChange={(val) => updatePosterStyles("bgImageMode", val)}
             style={{ width: "100%", marginTop: 8 }}
             options={[
               { label: "Cover", value: "cover" },
@@ -365,8 +369,8 @@ const PosterSetting = ({
             min={0}
             max={1}
             step={0.1}
-            value={styles.bgImageOpacity}
-            onChange={(val) => updateStyles("bgImageOpacity", val)}
+            value={posterStyles.bgImageOpacity}
+            onChange={(val) => updatePosterStyles("bgImageOpacity", val)}
           />
           <InputNumber
             className="w-25"
@@ -374,8 +378,8 @@ const PosterSetting = ({
             min={0}
             max={1}
             step={0.1}
-            value={styles.bgImageOpacity}
-            onChange={(val) => updateStyles("bgImageOpacity", val)}
+            value={posterStyles.bgImageOpacity}
+            onChange={(val) => updatePosterStyles("bgImageOpacity", val)}
           />
         </div>
       </div>
@@ -388,8 +392,8 @@ const PosterSetting = ({
           <Select
             className="w-100"
             size="small"
-            value={styles.borderStyle}
-            onChange={(val) => updateStyles("borderStyle", val)}
+            value={posterStyles.borderStyle}
+            onChange={(val) => updatePosterStyles("borderStyle", val)}
             options={[
               { label: "Solid", value: "solid" },
               { label: "Dashed", value: "dashed" },
@@ -406,9 +410,9 @@ const PosterSetting = ({
             size="small"
             min={0}
             max={20}
-            value={styles.borderWidth}
-            onChange={(val) => updateStyles("borderWidth", val || 0)}
-            disabled={styles.borderStyle === "none"}
+            value={posterStyles.borderWidth}
+            onChange={(val) => updatePosterStyles("borderWidth", val || 0)}
+            disabled={posterStyles.borderStyle === "none"}
           />
         </div>
         <div className="d-flex align-items-center mb-2">
@@ -418,9 +422,9 @@ const PosterSetting = ({
             size="small"
             min={0}
             max={50}
-            value={styles.borderRadius}
-            onChange={(val) => updateStyles("borderRadius", val || 0)}
-            disabled={styles.borderStyle === "none"}
+            value={posterStyles.borderRadius}
+            onChange={(val) => updatePosterStyles("borderRadius", val || 0)}
+            disabled={posterStyles.borderStyle === "none"}
           />
         </div>
         <div className="d-flex align-items-center mb-2">
@@ -428,15 +432,15 @@ const PosterSetting = ({
           <ColorPicker
             style={{ width: "100%" }}
             allowClear
-            value={styles.borderColor}
+            value={posterStyles.borderColor}
             onChangeComplete={(c) =>
-              updateStyles("borderColor", c.toCssString())
+              updatePosterStyles("borderColor", c.toCssString())
             }
             styles={{ popupOverlayInner: { width: 480 } }}
             presets={presets}
             panelRender={customPanelRender}
             size="small"
-            disabled={styles.borderStyle === "none"}
+            disabled={posterStyles.borderStyle === "none"}
           />
         </div>
       </div>

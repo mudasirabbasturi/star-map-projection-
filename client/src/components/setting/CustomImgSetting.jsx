@@ -40,8 +40,10 @@ function genPresets(presets = presetPalettes) {
 }
 
 const CustomImgSetting = ({
-  styles,
-  updateStyles,
+  imgStyles,
+  updateImgStyles,
+  showStyles,
+  updateShowStyles,
   content,
   onChangeContent,
   showDrawer,
@@ -93,25 +95,25 @@ const CustomImgSetting = ({
         <div>
           <Checkbox
             className="text-muted fst-italic"
-            checked={styles.show.CustomImg}
-            onChange={(e) => updateStyles("show.CustomImg", e.target.checked)}
+            checked={showStyles.CustomImg}
+            onChange={(e) => updateShowStyles("CustomImg", e.target.checked)}
           >
             Custom Image
           </Checkbox>
           <Checkbox
             className="text-muted fst-italic"
-            checked={styles.show.imgTxt_1}
-            onChange={(e) => updateStyles("show.imgTxt_1", e.target.checked)}
-            disabled={styles.show.CustomImg === false}
+            checked={showStyles.imgTxt_1}
+            onChange={(e) => updateShowStyles("imgTxt_1", e.target.checked)}
+            disabled={showStyles.CustomImg === false}
           >
             Text 1
           </Checkbox>
 
           <Checkbox
             className="text-muted fst-italic"
-            checked={styles.show.imgTxt_2}
-            onChange={(e) => updateStyles("show.imgTxt_2", e.target.checked)}
-            disabled={styles.show.CustomImg === false}
+            checked={showStyles.imgTxt_2}
+            onChange={(e) => updateShowStyles("imgTxt_2", e.target.checked)}
+            disabled={showStyles.CustomImg === false}
           >
             Text 2
           </Checkbox>
@@ -134,8 +136,7 @@ const CustomImgSetting = ({
               onChange={(e) => onChangeContent("text1", e.target.value)}
               size="small"
               disabled={
-                styles.show.CustomImg === false ||
-                styles.show.imgTxt_1 === false
+                showStyles.CustomImg === false || showStyles.imgTxt_1 === false
               }
             />
           </div>
@@ -154,8 +155,7 @@ const CustomImgSetting = ({
               onChange={(e) => onChangeContent("text2", e.target.value)}
               size="small"
               disabled={
-                styles.show.CustomImg === false ||
-                styles.show.imgTxt_2 === false
+                showStyles.CustomImg === false || showStyles.imgTxt_2 === false
               }
             />
           </div>
@@ -188,17 +188,17 @@ const CustomImgSetting = ({
             className="w-100 me-2"
             min={30}
             max={100}
-            value={styles.CustomImg.width}
-            onChange={(value) => updateStyles("CustomImg.width", value)}
-            disabled={styles.show.CustomImg === false}
+            value={imgStyles.width}
+            onChange={(value) => updateImgStyles("width", value)}
+            disabled={showStyles.CustomImg === false}
           />
           <InputNumber
-            value={styles.CustomImg.width}
+            value={imgStyles.width}
             size="small"
             min={30}
             max={100}
-            onChange={(value) => updateStyles("CustomImg.width", value)}
-            disabled={styles.show.CustomImg === false}
+            onChange={(value) => updateImgStyles("width", value)}
+            disabled={showStyles.CustomImg === false}
           />
         </div>
       </div>
@@ -215,17 +215,17 @@ const CustomImgSetting = ({
             className="w-100 me-2"
             min={0}
             max={100}
-            value={styles.CustomImg.imgDimention}
-            onChange={(value) => updateStyles("CustomImg.imgDimention", value)}
-            disabled={styles.show.CustomImg === false}
+            value={imgStyles.imgDimention}
+            onChange={(value) => updateImgStyles("imgDimention", value)}
+            disabled={showStyles.CustomImg === false}
           />
           <InputNumber
-            value={styles.CustomImg.imgDimention}
+            value={imgStyles.imgDimention}
             size="small"
             min={0}
             max={100}
-            onChange={(value) => updateStyles("CustomImg.imgDimention", value)}
-            disabled={styles.show.CustomImg === false}
+            onChange={(value) => updateImgStyles("imgDimention", value)}
+            disabled={showStyles.CustomImg === false}
           />
         </div>
       </div>
@@ -236,93 +236,16 @@ const CustomImgSetting = ({
         <ColorPicker
           style={{ width: "100%" }}
           allowClear
-          value={styles.CustomImg.bgColor}
+          value={imgStyles.bgColor}
           onChangeComplete={(color) =>
-            updateStyles("CustomImg.bgColor", color.toCssString())
+            updateImgStyles("bgColor", color.toCssString())
           }
           styles={{ popupOverlayInner: { width: 480 } }}
           presets={presets}
           panelRender={customPanelRender}
           size="small"
-          disabled={styles.show.CustomImg === false}
+          disabled={showStyles.CustomImg === false}
         />
-      </div>
-
-      {/* Border Style */}
-      <div className="mb-2">
-        <Divider>Border</Divider>
-        <div className="d-flex align-items-center mb-1">
-          <small className="me-1 text-muted fst-italic">Style</small>
-          <Select
-            className="w-100"
-            size="small"
-            value={styles.posterWrapper.borderStyle}
-            onChange={(value) =>
-              updateStyles("posterWrapper.borderStyle", value)
-            }
-            options={[
-              { label: "Solid", value: "solid" },
-              { label: "Dashed", value: "dashed" },
-              { label: "Dotted", value: "dotted" },
-              { label: "Double", value: "double" },
-              { label: "None", value: "none" },
-            ]}
-            disabled={styles.show.CustomImg === false}
-          />
-        </div>
-        <div className="d-flex align-items-center mb-1">
-          <small className="me-1 text-muted fst-italic">Width</small>
-          <InputNumber
-            className="w-100"
-            size="small"
-            min={0}
-            max={20}
-            value={styles.posterWrapper.borderWidth}
-            onChange={(value) =>
-              updateStyles("posterWrapper.borderWidth", value || 0)
-            }
-            disabled={
-              styles.show.CustomImg === false ||
-              styles.posterWrapper.borderStyle === "none"
-            }
-          />
-        </div>
-        <div className="d-flex align-items-center mb-1">
-          <small className="me-1 text-muted fst-italic">Radius</small>
-          <InputNumber
-            className="w-100"
-            size="small"
-            min={0}
-            max={50}
-            value={styles.posterWrapper.borderRadius}
-            onChange={(value) =>
-              updateStyles("posterWrapper.borderRadius", value || 0)
-            }
-            disabled={
-              styles.show.CustomImg === false ||
-              styles.posterWrapper.borderStyle === "none"
-            }
-          />
-        </div>
-        <div className="d-flex align-items-center mb-1">
-          <small className="me-1 text-muted fst-italic">Color</small>
-          <ColorPicker
-            style={{ width: "100%" }}
-            allowClear
-            value={styles.posterWrapper.borderColor}
-            onChangeComplete={(color) =>
-              updateStyles("posterWrapper.borderColor", color.toCssString())
-            }
-            styles={{ popupOverlayInner: { width: 480 } }}
-            presets={presets}
-            panelRender={customPanelRender}
-            size="small"
-            disabled={
-              styles.show.CustomImg === false ||
-              styles.posterWrapper.borderStyle === "none"
-            }
-          />
-        </div>
       </div>
       {/* Text Styling */}
       <div className="pb-2">
@@ -335,8 +258,8 @@ const CustomImgSetting = ({
             </small>
             <Select
               className="w-100"
-              value={styles.CustomImg.fontFamily}
-              onChange={(value) => updateStyles("CustomImg.fontFamily", value)}
+              value={imgStyles.fontFamily}
+              onChange={(value) => updateImgStyles("fontFamily", value)}
               size="small"
               options={[
                 { label: "Arial", value: "Arial, sans-serif" },
@@ -359,7 +282,7 @@ const CustomImgSetting = ({
                   value: "'Brush Script MT', cursive",
                 },
               ]}
-              disabled={styles.show.CustomImg === false}
+              disabled={showStyles.CustomImg === false}
             />
           </div>
         </div>
@@ -371,15 +294,15 @@ const CustomImgSetting = ({
             </small>
             <Select
               className="w-100"
-              value={styles.CustomImg.fontStyle}
-              onChange={(value) => updateStyles("CustomImg.fontStyle", value)}
+              value={imgStyles.fontStyle}
+              onChange={(value) => updateImgStyles("fontStyle", value)}
               size="small"
               options={[
                 { label: "Normal", value: "normal" }, // default
                 { label: "Italic", value: "italic" }, // italicized text
                 { label: "Oblique", value: "oblique" }, // slanted (like italic, but not true italics)
               ]}
-              disabled={styles.show.CustomImg === false}
+              disabled={showStyles.CustomImg === false}
             />
           </div>
         </div>
@@ -391,8 +314,8 @@ const CustomImgSetting = ({
             </small>
             <Select
               className="w-100"
-              value={styles.CustomImg.fontWeight}
-              onChange={(value) => updateStyles("CustomImg.fontWeight", value)}
+              value={imgStyles.fontWeight}
+              onChange={(value) => updateImgStyles("fontWeight", value)}
               size="small"
               options={[
                 { label: "Normal", value: "normal" }, // default = 400
@@ -409,7 +332,7 @@ const CustomImgSetting = ({
                 { label: "800 (Extra Bold)", value: "800" },
                 { label: "900 (Black)", value: "900" },
               ]}
-              disabled={styles.show.CustomImg === false}
+              disabled={showStyles.CustomImg === false}
             />
           </div>
         </div>
@@ -423,22 +346,18 @@ const CustomImgSetting = ({
               className="w-100 me-2 mt-0 mb-0"
               max={10}
               step={0.1}
-              value={styles.CustomImg.fontSize}
-              onChange={(value) =>
-                updateStyles("CustomImg.fontSize", value || 0)
-              }
-              disabled={styles.show.CustomImg === false}
+              value={imgStyles.fontSize}
+              onChange={(value) => updateImgStyles("fontSize", value || 0)}
+              disabled={showStyles.CustomImg === false}
             />
             <InputNumber
-              value={styles.CustomImg.fontSize}
+              value={imgStyles.fontSize}
               className="w-20"
               size="small"
               max={10}
               step={0.1}
-              onChange={(value) =>
-                updateStyles("CustomImg.fontSize", value || 0)
-              }
-              disabled={styles.show.CustomImg === false}
+              onChange={(value) => updateImgStyles("fontSize", value || 0)}
+              disabled={showStyles.CustomImg === false}
             />
           </div>
         </div>
@@ -452,22 +371,18 @@ const CustomImgSetting = ({
               className="w-100 me-2 mt-0 mb-0"
               max={10}
               step={0.1}
-              value={styles.CustomImg.paddingTop}
-              onChange={(value) =>
-                updateStyles("CustomImg.paddingTop", value || 0)
-              }
-              disabled={styles.show.CustomImg === false}
+              value={imgStyles.paddingTop}
+              onChange={(value) => updateImgStyles("paddingTop", value || 0)}
+              disabled={showStyles.CustomImg === false}
             />
             <InputNumber
-              value={styles.CustomImg.paddingTop}
+              value={imgStyles.paddingTop}
               className="w-20"
               size="small"
               max={10}
               step={0.1}
-              onChange={(value) =>
-                updateStyles("CustomImg.paddingTop", value || 0)
-              }
-              disabled={styles.show.CustomImg === false}
+              onChange={(value) => updateImgStyles("paddingTop", value || 0)}
+              disabled={showStyles.CustomImg === false}
             />
           </div>
         </div>
@@ -481,9 +396,9 @@ const CustomImgSetting = ({
             <ColorPicker
               style={{ width: "100%" }}
               allowClear
-              value={styles.CustomImg.textColor}
+              value={imgStyles.textColor}
               onChangeComplete={(color) =>
-                updateStyles("CustomImg.textColor", color.toCssString())
+                updateImgStyles("textColor", color.toCssString())
               }
               styles={{ popupOverlayInner: { width: 480 } }}
               presets={presets}
@@ -493,7 +408,7 @@ const CustomImgSetting = ({
                 points: ["tl", "bl"],
                 overflow: { adjustY: true },
               }}
-              disabled={styles.show.CustomImg === false}
+              disabled={showStyles.CustomImg === false}
             />
           </div>
         </div>
@@ -505,10 +420,8 @@ const CustomImgSetting = ({
             </small>
             <Select
               className="w-100"
-              value={styles.CustomImg.textTransform}
-              onChange={(value) =>
-                updateStyles("CustomImg.textTransform", value)
-              }
+              value={imgStyles.textTransform}
+              onChange={(value) => updateImgStyles("textTransform", value)}
               size="small"
               options={[
                 { label: "None", value: "none" }, // default, no transform
@@ -517,7 +430,7 @@ const CustomImgSetting = ({
                 { label: "Lowercase", value: "lowercase" }, // "HELLO" → "hello"
                 { label: "Full Width", value: "full-width" }, // normal → ｎｏｒｍａｌ (rarely used)
               ]}
-              disabled={styles.show.CustomImg === false}
+              disabled={showStyles.CustomImg === false}
             />
           </div>
         </div>
@@ -529,10 +442,8 @@ const CustomImgSetting = ({
             </small>
             <Select
               className="w-100"
-              value={styles.CustomImg.textDecoration}
-              onChange={(value) =>
-                updateStyles("CustomImg.textDecoration", value)
-              }
+              value={imgStyles.textDecoration}
+              onChange={(value) => updateImgStyles("textDecoration", value)}
               size="small"
               options={[
                 { label: "None", value: "none" }, // no decoration
@@ -544,7 +455,7 @@ const CustomImgSetting = ({
                   value: "underline overline",
                 },
               ]}
-              disabled={styles.show.CustomImg === false}
+              disabled={showStyles.CustomImg === false}
             />
           </div>
         </div>

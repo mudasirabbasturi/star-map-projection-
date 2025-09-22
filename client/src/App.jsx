@@ -69,31 +69,6 @@ const App = () => {
 
   // unified state for styles
   const [styles, setStyles] = useState({
-    paperSize: "A4",
-    bgType: "solid",
-    bgColor: "#020202ff",
-    bgGradientColor: ["#a80077ff", "#66ff00"],
-    bgGradientType: "linear", // linear | radial | conic
-    bgGradientAngle: 90,
-    borderStyle: "solid",
-    borderWidth: 1,
-    borderRadius: 0,
-    borderColor: "#ffff",
-
-    bgGradientColors: ["#a80077ff", "#66ff00"],
-    bgImage: null,
-    bgImageMode: "cover",
-    bgImageOpacity: 0.7,
-
-    posterWrapper: {
-      width: 90,
-      height: 92.6,
-      bgColor: null,
-      borderStyle: "solid",
-      borderWidth: 1,
-      borderRadius: 0,
-      borderColor: "#ffff",
-    },
     map: {
       projection: "orthographic",
       width: 90,
@@ -121,60 +96,6 @@ const App = () => {
       lat: 51.5,
       lon: -0.1,
     },
-    CustomImg: {
-      imgSrc: customImage,
-      width: 90,
-      imgDimention: 25,
-      bgColor: null,
-      fontFamily: "Verdana",
-      fontStyle: "normal",
-      fontWeight: "normal",
-      fontSize: 1.5,
-      textColor: "#ffff",
-      textTransform: "capitalize",
-      textDecoration: "none",
-      paddingTop: 4,
-    },
-    content: {
-      width: 90,
-      height: 15,
-      bgColor: null,
-      paddingTop: 5,
-      paddingBottom: 5,
-      paddingLeft: 5,
-      paddingRight: 5,
-      fontFamily: "Verdana",
-      fontStyle: "normal",
-      fontWeight: "normal",
-      fontSize: 2,
-      textColor: "#ffff",
-      textTransform: "capitalize",
-      textDecoration: "none",
-      borderStyle: "none",
-      borderWidth: 0,
-      borderRadius: 0,
-      borderColor: "#ffff",
-      title: {
-        width: 90,
-        height: 5,
-        bgColor: null,
-        paddingTop: 5,
-        paddingBottom: 5,
-        paddingLeft: 5,
-        paddingRight: 5,
-        fontFamily: "Verdana",
-        fontStyle: "normal",
-        fontWeight: "normal",
-        fontSize: 2.5,
-        textColor: "#ffff",
-        textTransform: "capitalize",
-        textDecoration: "none",
-        borderStyle: "none",
-        borderWidth: 0,
-        borderRadius: 0,
-        borderColor: "#ffff",
-      },
-    },
     show: {
       title: true,
       content: true,
@@ -191,21 +112,50 @@ const App = () => {
     },
   });
 
+  const [posterStyles, setPosterStyles] = useState({
+    paperSize: "A4",
+    bgType: "solid",
+    bgColor: "#020202ff",
+    bgGradientColor: ["#a80077ff", "#66ff00"],
+    bgGradientType: "linear", // linear | radial | conic
+    bgGradientAngle: 90,
+    borderStyle: "solid",
+    borderWidth: 1,
+    borderRadius: 0,
+    borderColor: "#ffff",
+    bgGradientColors: ["#a80077ff", "#66ff00"],
+    bgImage: null,
+    bgImageMode: "cover",
+    bgImageOpacity: 0.7,
+  });
+  const updatePosterStyles = (path, value) => {
+    setPosterStyles((prev) => {
+      const keys = path.split(".");
+      const newState = { ...prev };
+      let temp = newState;
+      keys.forEach((key, idx) => {
+        if (idx === keys.length - 1) temp[key] = value;
+        else temp[key] = { ...temp[key] };
+        temp = temp[key];
+      });
+      return newState;
+    });
+  };
   const getBaseBackground = () => {
-    if (styles.bgType === "solid") return styles.bgColor;
-    if (styles.bgType === "gradient") {
-      if (styles.bgGradientType === "linear") {
+    if (posterStyles.bgType === "solid") return posterStyles.bgColor;
+    if (posterStyles.bgType === "gradient") {
+      if (posterStyles.bgGradientType === "linear") {
         return `linear-gradient(${
-          styles.bgGradientAngle
-        }deg, ${styles.bgGradientColors.join(", ")})`;
+          posterStyles.bgGradientAngle
+        }deg, ${posterStyles.bgGradientColors.join(", ")})`;
       }
-      if (styles.bgGradientType === "radial") {
-        return `radial-gradient(${styles.bgGradientColors.join(", ")})`;
+      if (posterStyles.bgGradientType === "radial") {
+        return `radial-gradient(${posterStyles.bgGradientColors.join(", ")})`;
       }
-      if (styles.bgGradientType === "conic") {
+      if (posterStyles.bgGradientType === "conic") {
         return `conic-gradient(from ${
-          styles.bgGradientAngle
-        }deg, ${styles.bgGradientColors.join(", ")})`;
+          posterStyles.bgGradientAngle
+        }deg, ${posterStyles.bgGradientColors.join(", ")})`;
       }
     }
     return "#fff";
@@ -218,19 +168,166 @@ const App = () => {
     if (styles.bgImageMode === "stretch") backgroundSize = "100% 100%";
 
     return {
-      backgroundImage: `url(${styles.bgImage})`,
+      backgroundImage: `url(${posterStyles.bgImage})`,
       backgroundSize,
       backgroundRepeat: "no-repeat",
       backgroundPosition: "center",
-      opacity: styles.bgImageOpacity,
+      opacity: posterStyles.bgImageOpacity,
       position: "absolute",
       top: 0,
       left: 0,
       right: 0,
       bottom: 0,
-      borderRadius: styles.borderRadius,
+      borderRadius: posterStyles.borderRadius,
       pointerEvents: "none",
     };
+  };
+
+  const [posterWrapperStyles, setPosterWrapperStyles] = useState({
+    width: 90,
+    height: 92.6,
+    bgColor: null,
+    borderStyle: "solid",
+    borderWidth: 1,
+    borderRadius: 0,
+    borderColor: "#ffff",
+  });
+  const updatePosterWrapperStyles = (path, value) => {
+    setPosterWrapperStyles((prev) => {
+      const keys = path.split(".");
+      const newState = { ...prev };
+      let temp = newState;
+      keys.forEach((key, idx) => {
+        if (idx === keys.length - 1) temp[key] = value;
+        else temp[key] = { ...temp[key] };
+        temp = temp[key];
+      });
+      return newState;
+    });
+  };
+
+  const [imgStyles, setImgStyles] = useState({
+    imgSrc: customImage,
+    width: 90,
+    imgDimention: 25,
+    bgColor: null,
+    fontFamily: "Verdana",
+    fontStyle: "normal",
+    fontWeight: "normal",
+    fontSize: 1.5,
+    textColor: "#ffff",
+    textTransform: "capitalize",
+    textDecoration: "none",
+    paddingTop: 4,
+  });
+  const updateImgStyles = (path, value) => {
+    setImgStyles((prev) => {
+      const keys = path.split(".");
+      const newState = { ...prev };
+      let temp = newState;
+      keys.forEach((key, idx) => {
+        if (idx === keys.length - 1) temp[key] = value;
+        else temp[key] = { ...temp[key] };
+        temp = temp[key];
+      });
+      return newState;
+    });
+  };
+
+  const [showStyles, setShowStyles] = useState({
+    title: true,
+    content: true,
+    address: true,
+    message: true,
+    date: true,
+    time: true,
+    coordinate: true,
+    CustomImg: false,
+    imgTxt_1: false,
+    imgTxt_2: false,
+    starMap: true,
+    moonMap: false,
+  });
+  const updateShowStyles = (path, value) => {
+    setShowStyles((prev) => {
+      const keys = path.split(".");
+      const newState = { ...prev };
+      let temp = newState;
+      keys.forEach((key, idx) => {
+        if (idx === keys.length - 1) temp[key] = value;
+        else temp[key] = { ...temp[key] };
+        temp = temp[key];
+      });
+      return newState;
+    });
+  };
+
+  const [contentStyles, setContentStyles] = useState({
+    width: 90,
+    height: 15,
+    bgColor: null,
+    paddingTop: 5,
+    paddingBottom: 5,
+    paddingLeft: 5,
+    paddingRight: 5,
+    fontFamily: "Verdana",
+    fontStyle: "normal",
+    fontWeight: "normal",
+    fontSize: 2,
+    textColor: "#ffff",
+    textTransform: "capitalize",
+    textDecoration: "none",
+    borderStyle: "none",
+    borderWidth: 0,
+    borderRadius: 0,
+    borderColor: "#ffff",
+  });
+  const updateContentStyles = (path, value) => {
+    setContentStyles((prev) => {
+      const keys = path.split(".");
+      const newState = { ...prev };
+      let temp = newState;
+      keys.forEach((key, idx) => {
+        if (idx === keys.length - 1) temp[key] = value;
+        else temp[key] = { ...temp[key] };
+        temp = temp[key];
+      });
+      return newState;
+    });
+  };
+
+  const [titleStyles, setTitleStyles] = useState({
+    width: 90,
+    height: 5,
+    bgColor: null,
+    paddingTop: 5,
+    paddingBottom: 5,
+    paddingLeft: 5,
+    paddingRight: 5,
+    fontFamily: "Verdana",
+    fontStyle: "normal",
+    fontWeight: "normal",
+    fontSize: 2.5,
+    textColor: "#ffff",
+    textTransform: "capitalize",
+    textDecoration: "none",
+    borderStyle: "none",
+    borderWidth: 0,
+    borderRadius: 0,
+    borderColor: "#ffff",
+  });
+  const updateTitleStyles = (path, value) => {
+    setTitleStyles((prev) => {
+      const keys = path.split(".");
+      const newState = { ...prev };
+      let temp = newState;
+      keys.forEach((key, idx) => {
+        if (idx === keys.length - 1) temp[key] = value;
+        else temp[key] = { ...temp[key] };
+        temp = temp[key];
+      });
+      return newState;
+    });
   };
 
   // generic updater
@@ -271,6 +368,72 @@ const App = () => {
   });
   const onChangeContent = (key, value) =>
     setContent((prev) => ({ ...prev, [key]: value }));
+
+  // export styles
+  const handleExport = async () => {
+    try {
+      const finalState = { positions, styles, content };
+      const res = await fetch(`http://localhost:3001/api/export-style`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(finalState),
+      });
+      if (!res.ok) throw new Error("Export request failed");
+      const data = await res.json();
+      if (data.success) {
+        openNotificationWithIcon(data.fileName, data.folder, data.url);
+        if (window.electronAPI) window.open(data.url, "_blank");
+      } else {
+        api.error({
+          message: "❌ Export failed",
+          description: data.message || "Unknown error",
+        });
+      }
+    } catch (err) {
+      console.error("Export error:", err);
+      api.error({
+        message: "❌ Error exporting file",
+        description: err.message,
+      });
+    }
+  };
+
+  // import JSON (file input or url)
+  const handleImport = async (input) => {
+    setLoading(true);
+    try {
+      if (input?.target?.files?.[0]) {
+        const file = input.target.files[0];
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          try {
+            const importedState = JSON.parse(e.target.result);
+            applyImportedState(importedState);
+          } catch (err) {
+            console.error("Failed to import JSON:", err);
+            alert("Invalid JSON file.");
+            setLoading(false);
+          }
+        };
+        reader.readAsText(file);
+      } else if (typeof input === "string") {
+        const res = await fetch(input);
+        const importedState = await res.json();
+        applyImportedState(importedState);
+      }
+    } catch (err) {
+      console.error("Failed to import JSON:", err);
+      alert("Could not load JSON file.");
+      setLoading(false);
+    }
+  };
+
+  const applyImportedState = (importedState) => {
+    if (importedState.positions) setPositions(importedState.positions);
+    if (importedState.styles) setStyles(importedState.styles);
+    if (importedState.content) setContent(importedState.content);
+    setLoading(false);
+  };
 
   // star data
   const [starsData, setStarsData] = useState({ features: [] });
@@ -428,72 +591,6 @@ const App = () => {
     }
   };
 
-  // export styles
-  const handleExport = async () => {
-    try {
-      const finalState = { positions, styles, content };
-      const res = await fetch(`http://localhost:3001/api/export-style`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(finalState),
-      });
-      if (!res.ok) throw new Error("Export request failed");
-      const data = await res.json();
-      if (data.success) {
-        openNotificationWithIcon(data.fileName, data.folder, data.url);
-        if (window.electronAPI) window.open(data.url, "_blank");
-      } else {
-        api.error({
-          message: "❌ Export failed",
-          description: data.message || "Unknown error",
-        });
-      }
-    } catch (err) {
-      console.error("Export error:", err);
-      api.error({
-        message: "❌ Error exporting file",
-        description: err.message,
-      });
-    }
-  };
-
-  // import JSON (file input or url)
-  const handleImport = async (input) => {
-    setLoading(true);
-    try {
-      if (input?.target?.files?.[0]) {
-        const file = input.target.files[0];
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          try {
-            const importedState = JSON.parse(e.target.result);
-            applyImportedState(importedState);
-          } catch (err) {
-            console.error("Failed to import JSON:", err);
-            alert("Invalid JSON file.");
-            setLoading(false);
-          }
-        };
-        reader.readAsText(file);
-      } else if (typeof input === "string") {
-        const res = await fetch(input);
-        const importedState = await res.json();
-        applyImportedState(importedState);
-      }
-    } catch (err) {
-      console.error("Failed to import JSON:", err);
-      alert("Could not load JSON file.");
-      setLoading(false);
-    }
-  };
-
-  const applyImportedState = (importedState) => {
-    if (importedState.positions) setPositions(importedState.positions);
-    if (importedState.styles) setStyles(importedState.styles);
-    if (importedState.content) setContent(importedState.content);
-    setLoading(false);
-  };
-
   useEffect(() => {
     if (!open) return;
     if (
@@ -575,10 +672,10 @@ const App = () => {
                 }`}
                 style={{
                   background: getBaseBackground(),
-                  borderStyle: styles.borderStyle,
-                  borderWidth: `${styles.borderWidth}px`,
-                  borderRadius: `${styles.borderRadius}%`,
-                  borderColor: styles.borderColor,
+                  borderStyle: posterStyles.borderStyle,
+                  borderWidth: `${posterStyles.borderWidth}px`,
+                  borderRadius: `${posterStyles.borderRadius}%`,
+                  borderColor: posterStyles.borderColor,
                 }}
               >
                 <div
@@ -593,13 +690,13 @@ const App = () => {
                     drawerMode === "posterWrapper" ? "active" : ""
                   }`}
                   style={{
-                    width: `${styles.posterWrapper.width}%`,
-                    height: `${styles.posterWrapper.height}%`,
-                    backgroundColor: styles.posterWrapper.bgColor,
-                    borderStyle: styles.posterWrapper.borderStyle,
-                    borderWidth: `${styles.posterWrapper.borderWidth}px`,
-                    borderRadius: `${styles.posterWrapper.borderRadius}%`,
-                    borderColor: styles.posterWrapper.borderColor,
+                    width: `${posterWrapperStyles.width}%`,
+                    height: `${posterWrapperStyles.height}%`,
+                    backgroundColor: posterWrapperStyles.bgColor,
+                    borderStyle: posterWrapperStyles.borderStyle,
+                    borderWidth: `${posterWrapperStyles.borderWidth}px`,
+                    borderRadius: `${posterWrapperStyles.borderRadius}%`,
+                    borderColor: posterWrapperStyles.borderColor,
                   }}
                 >
                   <div
@@ -612,7 +709,6 @@ const App = () => {
                   <Map
                     mapData={{ starsData, mwData, constData, centerRA }}
                     mapStyle={styles.map}
-                    showMap={styles.show}
                     showDrawer={showDrawer}
                     positions={positions}
                     handleMouseDown={handleMouseDown}
@@ -620,7 +716,8 @@ const App = () => {
                   />
 
                   <CustomImg
-                    styles={styles}
+                    imgStyles={imgStyles}
+                    showStyles={showStyles}
                     positions={positions}
                     handleMouseDown={handleMouseDown}
                     showDrawer={showDrawer}
@@ -629,7 +726,8 @@ const App = () => {
                   />
 
                   <Title
-                    styles={styles}
+                    titleStyles={titleStyles}
+                    showStyles={showStyles}
                     positions={positions}
                     handleMouseDown={handleMouseDown}
                     showDrawer={showDrawer}
@@ -638,7 +736,8 @@ const App = () => {
                   />
 
                   <Content
-                    styles={styles}
+                    contentStyles={contentStyles}
+                    showStyles={showStyles}
                     positions={positions}
                     handleMouseDown={handleMouseDown}
                     showDrawer={showDrawer}
@@ -669,30 +768,34 @@ const App = () => {
           <Suspense fallback={<div>Loading Sections...</div>}>
             {drawerMode === "poster" ? (
               <PosterSetting
-                styles={styles}
-                updateStyles={updateStyles}
+                posterStyles={posterStyles}
+                updatePosterStyles={updatePosterStyles}
                 content={content}
                 onChangeContent={onChangeContent}
                 showDrawer={showDrawer}
               />
             ) : drawerMode === "posterWrapper" ? (
               <PosterWrapperSetting
-                styles={styles}
-                updateStyles={updateStyles}
+                posterWrapperStyles={posterWrapperStyles}
+                updatePosterWrapperStyles={updatePosterWrapperStyles}
                 content={content}
                 onChangeContent={onChangeContent}
               />
             ) : drawerMode === "content" ? (
               <ContentSetting
-                styles={styles}
-                updateStyles={updateStyles}
+                contentStyles={contentStyles}
+                updateContentStyles={updateContentStyles}
+                showStyles={showStyles}
+                updateShowStyles={updateShowStyles}
                 content={content}
                 onChangeContent={onChangeContent}
               />
             ) : drawerMode === "title" ? (
               <TitleSetting
-                styles={styles}
-                updateStyles={updateStyles}
+                titleStyles={titleStyles}
+                updateTitleStyles={updateTitleStyles}
+                showStyles={showStyles}
+                updateShowStyles={updateShowStyles}
                 content={content}
                 onChangeContent={onChangeContent}
               />
@@ -706,8 +809,10 @@ const App = () => {
               />
             ) : drawerMode === "CustomImg" ? (
               <CustomImgSetting
-                styles={styles}
-                updateStyles={updateStyles}
+                imgStyles={imgStyles}
+                updateImgStyles={updateImgStyles}
+                showStyles={showStyles}
+                updateShowStyles={updateShowStyles}
                 content={content}
                 onChangeContent={onChangeContent}
                 showDrawer={showDrawer}

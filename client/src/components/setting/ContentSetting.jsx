@@ -39,7 +39,14 @@ function genPresets(presets = presetPalettes) {
   }));
 }
 
-const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
+const ContentSetting = ({
+  contentStyles,
+  updateContentStyles,
+  showStyles,
+  updateShowStyles,
+  content,
+  onChangeContent,
+}) => {
   const { token } = theme.useToken();
   const presets = genPresets({
     primary: generate(token.colorPrimary),
@@ -89,52 +96,50 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
         <div>
           <Checkbox
             className="text-muted fst-italic"
-            checked={styles.show.content}
-            onChange={(e) => updateStyles("show.content", e.target.checked)}
+            checked={showStyles.content}
+            onChange={(e) => updateShowStyles("content", e.target.checked)}
           >
             Content
           </Checkbox>
           <Checkbox
             className="text-muted fst-italic"
-            checked={styles.show.address}
-            onChange={(e) => updateStyles("show.address", e.target.checked)}
-            disabled={styles.show.content === false}
+            checked={showStyles.address}
+            onChange={(e) => updateShowStyles("address", e.target.checked)}
+            disabled={showStyles.content === false}
           >
             Address
           </Checkbox>
 
           <Checkbox
             className="text-muted fst-italic"
-            checked={styles.show.message}
-            onChange={(e) => updateStyles("show.message", e.target.checked)}
-            disabled={styles.show.content === false}
+            checked={showStyles.message}
+            onChange={(e) => updateShowStyles("message", e.target.checked)}
+            disabled={showStyles.content === false}
           >
             Message
           </Checkbox>
 
           <Checkbox
             className="text-muted fst-italic"
-            checked={styles.show.date}
-            onChange={(e) => updateStyles("show.date", e.target.checked)}
-            disabled={styles.show.content === false}
+            checked={showStyles.date}
+            onChange={(e) => updateShowStyles("date", e.target.checked)}
+            disabled={showStyles.content === false}
           >
             Date
           </Checkbox>
           <Checkbox
             className="text-muted fst-italic"
-            checked={styles.show.time}
-            onChange={(e) => updateStyles("show.time", e.target.checked)}
-            disabled={
-              styles.show.content === false || styles.show.date === false
-            }
+            checked={showStyles.time}
+            onChange={(e) => updateShowStyles("time", e.target.checked)}
+            disabled={showStyles.content === false || showStyles.date === false}
           >
             Time
           </Checkbox>
           <Checkbox
             className="text-muted fst-italic"
-            checked={styles.show.coordinate}
-            onChange={(e) => updateStyles("show.coordinate", e.target.checked)}
-            disabled={styles.show.content === false}
+            checked={showStyles.coordinate}
+            onChange={(e) => updateShowStyles("coordinate", e.target.checked)}
+            disabled={showStyles.content === false}
           >
             Coordinate
           </Checkbox>
@@ -157,7 +162,7 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               onChange={(e) => onChangeContent("address", e.target.value)}
               size="small"
               disabled={
-                styles.show.content === false || styles.show.address === false
+                showStyles.content === false || showStyles.address === false
               }
             />
           </div>
@@ -178,7 +183,7 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               }
               style={{ width: "100%" }}
               disabled={
-                styles.show.content === false || styles.show.date === false
+                showStyles.content === false || showStyles.date === false
               }
             />
             <TimePicker
@@ -190,9 +195,9 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
                 onChangeContent("time", timeString || "")
               }
               disabled={
-                styles.show.content === false ||
-                styles.show.time === false ||
-                styles.show.date === false
+                showStyles.content === false ||
+                showStyles.time === false ||
+                showStyles.date === false
               }
             />
           </div>
@@ -211,7 +216,7 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               onChange={(e) => onChangeContent("message", e.target.value)}
               size="small"
               disabled={
-                styles.show.content === false || styles.show.message === false
+                showStyles.content === false || showStyles.message === false
               }
             />
           </div>
@@ -230,8 +235,7 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               onChange={(e) => onChangeContent("coordinate", e.target.value)}
               size="small"
               disabled={
-                styles.show.content === false ||
-                styles.show.coordinate === false
+                showStyles.content === false || showStyles.coordinate === false
               }
             />
           </div>
@@ -252,22 +256,22 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               Width:
             </small>
             <Slider
-              value={styles.content.width}
+              value={contentStyles.width}
               className="w-100 me-2 mt-0 mb-0"
               size="small"
               min={30}
               max={100}
-              onChange={(value) => updateStyles("content.width", value)}
-              disabled={styles.show.content === false}
+              onChange={(value) => updateContentStyles("width", value)}
+              disabled={showStyles.content === false}
             />
             <InputNumber
-              value={styles.content.width}
+              value={contentStyles.width}
               className="ms-1 me-1"
               size="small"
               min={30}
               max={100}
-              onChange={(value) => updateStyles("content.width", value)}
-              disabled={styles.show.content === false}
+              onChange={(value) => updateContentStyles("width", value)}
+              disabled={showStyles.content === false}
             />
           </div>
         </div>
@@ -281,22 +285,22 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               Height:
             </small>
             <Slider
-              value={styles.content.height}
+              value={contentStyles.height}
               className="w-100 me-2 mt-0 mb-0"
               size="small"
               min={10}
               max={100}
-              onChange={(value) => updateStyles("content.height", value)}
-              disabled={styles.show.content === false}
+              onChange={(value) => updateContentStyles("height", value)}
+              disabled={showStyles.content === false}
             />
             <InputNumber
-              value={styles.content.height}
+              value={contentStyles.height}
               className="ms-1 me-1"
               size="small"
               min={10}
               max={100}
-              onChange={(value) => updateStyles("content.height", value)}
-              disabled={styles.show.content === false}
+              onChange={(value) => updateContentStyles("height", value)}
+              disabled={showStyles.content === false}
             />
           </div>
         </div>
@@ -308,39 +312,39 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
           <div className="d-flex align-items-center">
             <InputNumber
               className="me-1"
-              value={styles.content.paddingTop}
+              value={contentStyles.paddingTop}
               size="small"
               min={0}
               max={50}
-              onChange={(value) => updateStyles("content.paddingTop", value)}
-              disabled={styles.show.content === false}
+              onChange={(value) => updateContentStyles("paddingTop", value)}
+              disabled={showStyles.content === false}
             />
             <InputNumber
               className="me-1"
-              value={styles.content.paddingBottom}
+              value={contentStyles.paddingBottom}
               size="small"
               min={0}
               max={50}
-              onChange={(value) => updateStyles("content.paddingBottom", value)}
-              disabled={styles.show.content === false}
+              onChange={(value) => updateContentStyles("paddingBottom", value)}
+              disabled={showStyles.content === false}
             />
             <InputNumber
               className="me-1"
-              value={styles.content.paddingLeft}
+              value={contentStyles.paddingLeft}
               size="small"
               min={0}
               max={50}
-              onChange={(value) => updateStyles("content.paddingLeft", value)}
-              disabled={styles.show.content === false}
+              onChange={(value) => updateContentStyles("paddingLeft", value)}
+              disabled={showStyles.content === false}
             />
             <InputNumber
               className="me-1"
-              value={styles.content.paddingRight}
+              value={contentStyles.paddingRight}
               size="small"
               min={0}
               max={50}
-              onChange={(value) => updateStyles("content.paddingRight", value)}
-              disabled={styles.show.content === false}
+              onChange={(value) => updateContentStyles("paddingRight", value)}
+              disabled={showStyles.content === false}
             />
           </div>
           <div className="d-flex align-items-center">
@@ -358,9 +362,9 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
           <ColorPicker
             style={{ width: "100%" }}
             allowClear
-            value={styles.content.bgColor}
+            value={contentStyles.bgColor}
             onChangeComplete={(color) =>
-              updateStyles("content.bgColor", color.toCssString())
+              updateContentStyles("bgColor", color.toCssString())
             }
             styles={{ popupOverlayInner: { width: 480 } }}
             presets={presets}
@@ -370,7 +374,7 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               points: ["tl", "bl"],
               overflow: { adjustY: true },
             }}
-            disabled={styles.show.content === false}
+            disabled={showStyles.content === false}
           />
         </div>
       </div>
@@ -388,8 +392,8 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
             </small>
             <Select
               className="w-100"
-              value={styles.content.borderStyle}
-              onChange={(value) => updateStyles("content.borderStyle", value)}
+              value={contentStyles.borderStyle}
+              onChange={(value) => updateContentStyles("borderStyle", value)}
               size="small"
               options={[
                 { label: "Solid", value: "solid" },
@@ -398,7 +402,7 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
                 { label: "Double", value: "double" },
                 { label: "None", value: "none" },
               ]}
-              disabled={styles.show.content === false}
+              disabled={showStyles.content === false}
             />
           </div>
         </div>
@@ -412,31 +416,31 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               Width:
             </small>
             <Slider
-              value={styles.content.borderWidth}
+              value={contentStyles.borderWidth}
               className="w-100 me-2 mt-0 mb-0"
               size="small"
               min={0}
               max={20}
               onChange={(value) =>
-                updateStyles("content.borderWidth", value || 0)
+                updateContentStyles("borderWidth", value || 0)
               }
               disabled={
-                styles.show.content === false ||
-                styles.content.borderStyle === "none"
+                showStyles.content === false ||
+                contentStyles.borderStyle === "none"
               }
             />
             <InputNumber
-              value={styles.content.borderWidth}
+              value={contentStyles.borderWidth}
               className="w-20"
               size="small"
               min={0}
               max={20}
               onChange={(value) =>
-                updateStyles("content.borderWidth", value || 0)
+                updateContentStyles("borderWidth", value || 0)
               }
               disabled={
-                styles.show.content === false ||
-                styles.content.borderStyle === "none"
+                showStyles.content === false ||
+                contentStyles.borderStyle === "none"
               }
             />
           </div>
@@ -451,31 +455,31 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               Radius:
             </small>
             <Slider
-              value={styles.content.borderRadius}
+              value={contentStyles.borderRadius}
               className="w-100 me-2 mt-0 mb-0"
               size="small"
               min={0}
               max={50}
               onChange={(value) =>
-                updateStyles("content.borderRadius", value || 0)
+                updateContentStyles("borderRadius", value || 0)
               }
               disabled={
-                styles.show.content === false ||
-                styles.content.borderStyle === "none"
+                showStyles.content === false ||
+                contentStyles.borderStyle === "none"
               }
             />
             <InputNumber
-              value={styles.content.borderRadius}
+              value={contentStyles.borderRadius}
               className="w-20"
               size="small"
               min={0}
               max={50}
               onChange={(value) =>
-                updateStyles("content.borderRadius", value || 0)
+                updateContentStyles("borderRadius", value || 0)
               }
               disabled={
-                styles.show.content === false ||
-                styles.content.borderStyle === "none"
+                showStyles.content === false ||
+                contentStyles.borderStyle === "none"
               }
             />
           </div>
@@ -494,9 +498,9 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
                 width: "100%",
               }}
               allowClear
-              value={styles.content.borderColor}
+              value={contentStyles.borderColor}
               onChangeComplete={(color) =>
-                updateStyles("content.borderColor", color.toCssString())
+                updateContentStyles("borderColor", color.toCssString())
               }
               styles={{ popupOverlayInner: { width: 480 } }}
               presets={presets}
@@ -507,8 +511,8 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
                 overflow: { adjustY: true },
               }}
               disabled={
-                styles.show.content === false ||
-                styles.content.borderStyle === "none"
+                showStyles.content === false ||
+                contentStyles.borderStyle === "none"
               }
             />
           </div>
@@ -525,8 +529,8 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
             </small>
             <Select
               className="w-100"
-              value={styles.content.fontFamily}
-              onChange={(value) => updateStyles("content.fontFamily", value)}
+              value={contentStyles.fontFamily}
+              onChange={(value) => updateContentStyles("fontFamily", value)}
               size="small"
               options={[
                 { label: "Arial", value: "Arial, sans-serif" },
@@ -549,7 +553,7 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
                   value: "'Brush Script MT', cursive",
                 },
               ]}
-              disabled={styles.show.content === false}
+              disabled={showStyles.content === false}
             />
           </div>
         </div>
@@ -561,15 +565,15 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
             </small>
             <Select
               className="w-100"
-              value={styles.content.fontStyle}
-              onChange={(value) => updateStyles("content.fontStyle", value)}
+              value={contentStyles.fontStyle}
+              onChange={(value) => updateContentStyles("fontStyle", value)}
               size="small"
               options={[
                 { label: "Normal", value: "normal" }, // default
                 { label: "Italic", value: "italic" }, // italicized text
                 { label: "Oblique", value: "oblique" }, // slanted (like italic, but not true italics)
               ]}
-              disabled={styles.show.content === false}
+              disabled={showStyles.content === false}
             />
           </div>
         </div>
@@ -581,8 +585,8 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
             </small>
             <Select
               className="w-100"
-              value={styles.content.fontWeight}
-              onChange={(value) => updateStyles("content.fontWeight", value)}
+              value={contentStyles.fontWeight}
+              onChange={(value) => updateContentStyles("fontWeight", value)}
               size="small"
               options={[
                 { label: "Normal", value: "normal" }, // default = 400
@@ -599,33 +603,11 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
                 { label: "800 (Extra Bold)", value: "800" },
                 { label: "900 (Black)", value: "900" },
               ]}
-              disabled={styles.show.content === false}
+              disabled={showStyles.content === false}
             />
           </div>
         </div>
-        {/* Font Size */}
-        {/* <div className="mb-2">
-          <div className="d-flex align-items-center">
-            <small className="me-2" style={{ whiteSpace: "nowrap" }}>
-              Size:
-            </small>
-            <Slider
-              className="w-100 me-2 mt-0 mb-0"
-              min={0}
-              max={100}
-              value={styles.content.fontSize}
-              onChange={(value) => updateStyles("content.fontSize", value || 0)}
-            />
-            <InputNumber
-              value={styles.content.fontSize}
-              className="w-20"
-              size="small"
-              min={0}
-              max={100}
-              onChange={(value) => updateStyles("content.fontSize", value || 0)}
-            />
-          </div>
-        </div> */}
+
         {/* Font Size */}
         <div className="mb-2">
           <div className="d-flex align-items-center">
@@ -637,19 +619,19 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
               min={0}
               max={10} // smaller range (acts like points)
               step={0.1} // smooth increments
-              value={styles.content.fontSize}
-              onChange={(value) => updateStyles("content.fontSize", value || 0)}
-              disabled={styles.show.content === false}
+              value={contentStyles.fontSize}
+              onChange={(value) => updateContentStyles("fontSize", value || 0)}
+              disabled={showStyles.content === false}
             />
             <InputNumber
-              value={styles.content.fontSize}
+              value={contentStyles.fontSize}
               className="w-20"
               size="small"
               min={0}
               max={10}
               step={0.1}
-              onChange={(value) => updateStyles("content.fontSize", value || 0)}
-              disabled={styles.show.content === false}
+              onChange={(value) => updateContentStyles("fontSize", value || 0)}
+              disabled={showStyles.content === false}
             />
           </div>
         </div>
@@ -664,9 +646,9 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
             <ColorPicker
               style={{ width: "100%" }}
               allowClear
-              value={styles.content.textColor}
+              value={contentStyles.textColor}
               onChangeComplete={(color) =>
-                updateStyles("content.textColor", color.toCssString())
+                updateContentStyles("textColor", color.toCssString())
               }
               styles={{ popupOverlayInner: { width: 480 } }}
               presets={presets}
@@ -676,7 +658,7 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
                 points: ["tl", "bl"],
                 overflow: { adjustY: true },
               }}
-              disabled={styles.show.content === false}
+              disabled={showStyles.content === false}
             />
           </div>
         </div>
@@ -688,8 +670,8 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
             </small>
             <Select
               className="w-100"
-              value={styles.content.textTransform}
-              onChange={(value) => updateStyles("content.textTransform", value)}
+              value={contentStyles.textTransform}
+              onChange={(value) => updateContentStyles("textTransform", value)}
               size="small"
               options={[
                 { label: "None", value: "none" },
@@ -698,7 +680,7 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
                 { label: "Lowercase", value: "lowercase" }, // "HELLO" → "hello"
                 { label: "Full Width", value: "full-width" }, // normal → ｎｏｒｍａｌ (rarely used)
               ]}
-              disabled={styles.show.content === false}
+              disabled={showStyles.content === false}
             />
           </div>
         </div>
@@ -710,10 +692,8 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
             </small>
             <Select
               className="w-100"
-              value={styles.content.textDecoration}
-              onChange={(value) =>
-                updateStyles("content.textDecoration", value)
-              }
+              value={contentStyles.textDecoration}
+              onChange={(value) => updateContentStyles("textDecoration", value)}
               size="small"
               options={[
                 { label: "None", value: "none" }, // no decoration
@@ -725,7 +705,7 @@ const ContentSetting = ({ styles, updateStyles, content, onChangeContent }) => {
                   value: "underline overline",
                 },
               ]}
-              disabled={styles.show.content === false}
+              disabled={showStyles.content === false}
             />
           </div>
         </div>

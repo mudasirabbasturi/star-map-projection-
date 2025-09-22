@@ -1,7 +1,8 @@
 import { MdOutlineEditNote } from "react-icons/md";
 // import Content from "./Content";
 const CustomImg = ({
-  styles,
+  imgStyles,
+  showStyles,
   positions,
   handleMouseDown,
   showDrawer,
@@ -10,16 +11,16 @@ const CustomImg = ({
 }) => {
   return (
     <>
-      {styles.show.CustomImg && (
+      {showStyles.CustomImg && (
         <div
           className={`CustomImg hasIcon ${
             drawerMode === "CustomImg" ? "active" : ""
           }`}
           style={{
             top: `${positions.CustomImg.y}%`,
-            width: `${styles.CustomImg.width}%`,
-            height: `${styles.CustomImg.height}%`,
-            backgroundColor: styles.CustomImg.bgColor,
+            width: `${imgStyles.width}%`,
+            height: `${imgStyles.height}%`,
+            backgroundColor: imgStyles.bgColor,
           }}
           onMouseDown={(e) => handleMouseDown(e, "CustomImg")}
         >
@@ -27,8 +28,8 @@ const CustomImg = ({
             <MdOutlineEditNote className="editIcon" />
           </div>
           <svg
-            width={`${styles.CustomImg.imgDimention}%`}
-            height={`${styles.CustomImg.imgDimention}%`}
+            width={`${imgStyles.imgDimention}%`}
+            height={`${imgStyles.imgDimention}%`}
             viewBox="0 0 200 200"
           >
             <defs>
@@ -38,7 +39,7 @@ const CustomImg = ({
             </defs>
 
             <image
-              href={styles.CustomImg.imgSrc}
+              href={imgStyles.imgSrc}
               width="100%"
               height="100%"
               clipPath="url(#circleClip)"
@@ -49,22 +50,22 @@ const CustomImg = ({
           <div
             className="custom_img_txt"
             style={{
-              fontFamily: styles.CustomImg.fontFamily,
-              fontStyle: styles.CustomImg.fontStyle,
-              fontWeight: styles.CustomImg.fontWeight,
-              fontSize: `${styles.CustomImg.fontSize}vmin`,
-              color: styles.CustomImg.textColor,
-              textTransform: styles.CustomImg.textTransform,
-              textDecoration: styles.CustomImg.textDecoration,
-              paddingTop: `${styles.CustomImg.paddingTop}%`,
+              fontFamily: imgStyles.fontFamily,
+              fontStyle: imgStyles.fontStyle,
+              fontWeight: imgStyles.fontWeight,
+              fontSize: `${imgStyles.fontSize}vmin`,
+              color: imgStyles.textColor,
+              textTransform: imgStyles.textTransform,
+              textDecoration: imgStyles.textDecoration,
+              paddingTop: `${imgStyles.paddingTop}%`,
             }}
           >
-            {styles.show.imgTxt_1 && (
+            {showStyles.imgTxt_1 && (
               <div className="imgTxt imgTxt_1" style={{ textAlign: "center" }}>
                 {content.text1}
               </div>
             )}
-            {styles.show.imgTxt_2 && (
+            {showStyles.imgTxt_2 && (
               <div className="imgTxt imgTxt_2" style={{ textAlign: "center" }}>
                 {content.text2}
               </div>

@@ -1,6 +1,7 @@
 import { MdOutlineEditNote } from "react-icons/md";
 const Title = ({
-  styles,
+  titleStyles,
+  showStyles,
   positions,
   handleMouseDown,
   showDrawer,
@@ -9,29 +10,29 @@ const Title = ({
 }) => {
   return (
     <>
-      {styles.show.title && (
+      {showStyles.title && (
         <div
           className={`title hasIcon ${drawerMode === "title" ? "active" : ""}`}
           style={{
             top: `${positions.title.y}%`,
-            width: `${styles.content.title.width}%`,
-            paddingTop: `${styles.content.title.paddingTop}px`,
-            paddingBottom: `${styles.content.title.paddingBottom}px`,
-            paddingLeft: `${styles.content.title.paddingLeft}px`,
-            paddingRight: `${styles.content.title.paddingRight}px`,
-            height: `${styles.content.title.height}%`,
-            backgroundColor: styles.content.title.bgColor,
-            color: styles.content.title.textColor,
-            fontSize: `${styles.content.title.fontSize}vmin`,
-            fontFamily: styles.content.title.fontFamily,
-            fontStyle: styles.content.title.fontStyle,
-            fontWeight: styles.content.title.fontWeight,
-            textTransform: styles.content.title.textTransform,
-            textDecoration: styles.content.title.textDecoration,
-            borderStyle: styles.content.title.borderStyle,
-            borderWidth: `${styles.content.title.borderWidth}px`,
-            borderRadius: `${styles.content.title.borderRadius}%`,
-            borderColor: styles.content.title.borderColor,
+            width: `${titleStyles.width}%`,
+            paddingTop: `${titleStyles.paddingTop}px`,
+            paddingBottom: `${titleStyles.paddingBottom}px`,
+            paddingLeft: `${titleStyles.paddingLeft}px`,
+            paddingRight: `${titleStyles.paddingRight}px`,
+            height: `${titleStyles.height}%`,
+            backgroundColor: titleStyles.bgColor,
+            color: titleStyles.textColor,
+            fontSize: `${titleStyles.fontSize}vmin`,
+            fontFamily: titleStyles.fontFamily,
+            fontStyle: titleStyles.fontStyle,
+            fontWeight: titleStyles.fontWeight,
+            textTransform: titleStyles.textTransform,
+            textDecoration: titleStyles.textDecoration,
+            borderStyle: titleStyles.borderStyle,
+            borderWidth: `${titleStyles.borderWidth}px`,
+            borderRadius: `${titleStyles.borderRadius}%`,
+            borderColor: titleStyles.borderColor,
           }}
           onMouseDown={(e) => {
             e.stopPropagation();

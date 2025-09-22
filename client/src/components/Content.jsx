@@ -1,6 +1,7 @@
 import { MdOutlineEditNote } from "react-icons/md";
 const Content = ({
-  styles,
+  contentStyles,
+  showStyles,
   positions,
   handleMouseDown,
   showDrawer,
@@ -9,50 +10,50 @@ const Content = ({
 }) => {
   return (
     <>
-      {styles.show.content && (
+      {showStyles.content && (
         <div
           className={`content hasIcon ${
             drawerMode === "content" ? "active" : ""
           }`}
           style={{
-            width: `${styles.content.width}%`,
-            height: `${styles.content.height}%`,
-            paddingTop: `${styles.content.paddingTop}px`,
-            paddingBottom: `${styles.content.paddingBottom}px`,
-            paddingLeft: `${styles.content.paddingLeft}px`,
-            paddingRight: `${styles.content.paddingRight}px`,
-            backgroundColor: styles.content.bgColor,
+            width: `${contentStyles.width}%`,
+            height: `${contentStyles.height}%`,
+            paddingTop: `${contentStyles.paddingTop}px`,
+            paddingBottom: `${contentStyles.paddingBottom}px`,
+            paddingLeft: `${contentStyles.paddingLeft}px`,
+            paddingRight: `${contentStyles.paddingRight}px`,
+            backgroundColor: contentStyles.bgColor,
             top: `${positions.content.y}%`,
-            color: styles.content.textColor,
-            fontSize: `${styles.content.fontSize}vmin`,
-            fontFamily: styles.content.fontFamily,
-            fontStyle: styles.content.fontStyle,
-            fontWeight: styles.content.fontWeight,
-            textTransform: styles.content.textTransform,
-            textDecoration: styles.content.textDecoration,
-            borderStyle: styles.content.borderStyle,
-            borderWidth: `${styles.content.borderWidth}px`,
-            borderRadius: `${styles.content.borderRadius}%`,
-            borderColor: styles.content.borderColor,
+            color: contentStyles.textColor,
+            fontSize: `${contentStyles.fontSize}vmin`,
+            fontFamily: contentStyles.fontFamily,
+            fontStyle: contentStyles.fontStyle,
+            fontWeight: contentStyles.fontWeight,
+            textTransform: contentStyles.textTransform,
+            textDecoration: contentStyles.textDecoration,
+            borderStyle: contentStyles.borderStyle,
+            borderWidth: `${contentStyles.borderWidth}px`,
+            borderRadius: `${contentStyles.borderRadius}%`,
+            borderColor: contentStyles.borderColor,
           }}
           onMouseDown={(e) => handleMouseDown(e, "content")}
         >
           <div className="iconWrapper" onClick={() => showDrawer("content")}>
             <MdOutlineEditNote className="editIcon" />
           </div>
-          {styles.show.address && (
+          {showStyles.address && (
             <div className="address">{content.address}</div>
           )}
-          {styles.show.date && (
+          {showStyles.date && (
             <div className="date">
               {content.date}
-              {styles.show.time && <span className="ms-1">{content.time}</span>}
+              {showStyles.time && <span className="ms-1">{content.time}</span>}
             </div>
           )}
-          {styles.show.message && (
+          {showStyles.message && (
             <div className="message">{content.message}</div>
           )}
-          {styles.show.coordinate && (
+          {showStyles.coordinate && (
             <div className="coordinate">{content.coordinate}</div>
           )}
         </div>

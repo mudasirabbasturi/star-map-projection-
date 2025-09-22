@@ -22,4 +22,4 @@ npm run build-mac
 npm run build-linux
 
 npm install -g serve
-serve -s build
+serve -s dist

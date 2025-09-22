@@ -35,7 +35,10 @@ function genPresets(presets = presetPalettes) {
   }));
 }
 
-const PosterWrapperSetting = ({ styles, updateStyles }) => {
+const PosterWrapperSetting = ({
+  posterWrapperStyles,
+  updatePosterWrapperStyles,
+}) => {
   const { token } = theme.useToken();
   const presets = genPresets({
     primary: generate(token.colorPrimary),
@@ -86,15 +89,15 @@ const PosterWrapperSetting = ({ styles, updateStyles }) => {
             className="w-100 me-2"
             min={30}
             max={100}
-            value={styles.posterWrapper.width}
-            onChange={(value) => updateStyles("posterWrapper.width", value)}
+            value={posterWrapperStyles.width}
+            onChange={(value) => updatePosterWrapperStyles("width", value)}
           />
           <InputNumber
-            value={styles.posterWrapper.width}
+            value={posterWrapperStyles.width}
             size="small"
             min={30}
             max={100}
-            onChange={(value) => updateStyles("posterWrapper.width", value)}
+            onChange={(value) => updatePosterWrapperStyles("width", value)}
           />
         </div>
       </div>
@@ -107,16 +110,16 @@ const PosterWrapperSetting = ({ styles, updateStyles }) => {
             min={0}
             max={100}
             step={0.1}
-            value={styles.posterWrapper.height}
-            onChange={(value) => updateStyles("posterWrapper.height", value)}
+            value={posterWrapperStyles.height}
+            onChange={(value) => updatePosterWrapperStyles("height", value)}
           />
           <InputNumber
-            value={styles.posterWrapper.height}
+            value={posterWrapperStyles.height}
             size="small"
             min={0}
             max={100}
             step={0.1}
-            onChange={(value) => updateStyles("posterWrapper.height", value)}
+            onChange={(value) => updatePosterWrapperStyles("height", value)}
           />
         </div>
       </div>
@@ -127,11 +130,11 @@ const PosterWrapperSetting = ({ styles, updateStyles }) => {
         <ColorPicker
           style={{ width: "100%" }}
           allowClear
-          value={styles.posterWrapper.bgColor}
+          value={posterWrapperStyles.bgColor}
           onChangeComplete={(color) =>
-            updateStyles("posterWrapper.bgColor", color.toCssString())
+            updatePosterWrapperStyles("bgColor", color.toCssString())
           }
-          styles={{ popupOverlayInner: { width: 480 } }}
+          posterWrapperStyles={{ popupOverlayInner: { width: 480 } }}
           presets={presets}
           panelRender={customPanelRender}
           size="small"
@@ -146,9 +149,9 @@ const PosterWrapperSetting = ({ styles, updateStyles }) => {
           <Select
             className="w-100"
             size="small"
-            value={styles.posterWrapper.borderStyle}
+            value={posterWrapperStyles.borderStyle}
             onChange={(value) =>
-              updateStyles("posterWrapper.borderStyle", value)
+              updatePosterWrapperStyles("borderStyle", value)
             }
             options={[
               { label: "Solid", value: "solid" },
@@ -166,11 +169,11 @@ const PosterWrapperSetting = ({ styles, updateStyles }) => {
             size="small"
             min={0}
             max={20}
-            value={styles.posterWrapper.borderWidth}
+            value={posterWrapperStyles.borderWidth}
             onChange={(value) =>
-              updateStyles("posterWrapper.borderWidth", value || 0)
+              updatePosterWrapperStyles("borderWidth", value || 0)
             }
-            disabled={styles.posterWrapper.borderStyle === "none"}
+            disabled={posterWrapperStyles.borderStyle === "none"}
           />
         </div>
         <div className="d-flex align-items-center mb-1">
@@ -180,11 +183,11 @@ const PosterWrapperSetting = ({ styles, updateStyles }) => {
             size="small"
             min={0}
             max={50}
-            value={styles.posterWrapper.borderRadius}
+            value={posterWrapperStyles.borderRadius}
             onChange={(value) =>
-              updateStyles("posterWrapper.borderRadius", value || 0)
+              updatePosterWrapperStyles("borderRadius", value || 0)
             }
-            disabled={styles.posterWrapper.borderStyle === "none"}
+            disabled={posterWrapperStyles.borderStyle === "none"}
           />
         </div>
         <div className="d-flex align-items-center mb-1">
@@ -192,15 +195,15 @@ const PosterWrapperSetting = ({ styles, updateStyles }) => {
           <ColorPicker
             style={{ width: "100%" }}
             allowClear
-            value={styles.posterWrapper.borderColor}
+            value={posterWrapperStyles.borderColor}
             onChangeComplete={(color) =>
-              updateStyles("posterWrapper.borderColor", color.toCssString())
+              updatePosterWrapperStyles("borderColor", color.toCssString())
             }
-            styles={{ popupOverlayInner: { width: 480 } }}
+            posterWrapperStyles={{ popupOverlayInner: { width: 480 } }}
             presets={presets}
             panelRender={customPanelRender}
             size="small"
-            disabled={styles.posterWrapper.borderStyle === "none"}
+            disabled={posterWrapperStyles.borderStyle === "none"}
           />
         </div>
       </div>
