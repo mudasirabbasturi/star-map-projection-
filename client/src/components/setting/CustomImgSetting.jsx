@@ -167,7 +167,7 @@ const CustomImgSetting = ({
           <Button
             type="primary"
             onClick={() =>
-              showDrawer("uploadSelectCustomeImg", "CustomImg", "imgSrc")
+              showDrawer("uploadSelectCustomeImg", "CustomImg.imgSrc")
             }
           >
             Select File From Media

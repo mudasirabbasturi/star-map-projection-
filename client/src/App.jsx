@@ -27,9 +27,11 @@ const Map = lazy(() => import("./components/Map"));
 const CustomImg = lazy(() => import("./components/CustomImg"));
 const Content = lazy(() => import("./components/Content"));
 
-const customImage = `${
-  import.meta.env.VITE_ASSET_BASE
-}/imgs/starmap/default/couple.jpg`;
+// const customImage = `${
+//   import.meta.env.VITE_ASSET_BASE
+// }/imgs/starmap/default/couple.jpg`;
+
+const customImage = "http://localhost:3000/imgs/starmap/default/couple.jpg";
 
 const App = () => {
   const [loading, setLoading] = useState(false);
@@ -96,20 +98,6 @@ const App = () => {
       lat: 51.5,
       lon: -0.1,
     },
-    show: {
-      title: true,
-      content: true,
-      address: true,
-      message: true,
-      date: true,
-      time: true,
-      coordinate: true,
-      CustomImg: false,
-      imgTxt_1: false,
-      imgTxt_2: false,
-      starMap: true,
-      moonMap: false,
-    },
   });
 
   const [posterStyles, setPosterStyles] = useState({
@@ -162,10 +150,10 @@ const App = () => {
   };
 
   const getImageOverlayStyle = () => {
-    if (!styles.bgImage) return {};
+    if (!posterStyles.bgImage) return {};
     let backgroundSize = "cover";
-    if (styles.bgImageMode === "contain") backgroundSize = "contain";
-    if (styles.bgImageMode === "stretch") backgroundSize = "100% 100%";
+    if (posterStyles.bgImageMode === "contain") backgroundSize = "contain";
+    if (posterStyles.bgImageMode === "stretch") backgroundSize = "100% 100%";
 
     return {
       backgroundImage: `url(${posterStyles.bgImage})`,
@@ -570,7 +558,7 @@ const App = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           html: fullHTML,
-          paperSize: styles.paperSize,
+          paperSize: posterStyles.paperSize,
           fileName: content.fileName,
           downloadType: content.downloadType,
         }),
@@ -953,16 +941,58 @@ const App = () => {
                           backgroundImage: `url(http://localhost:3001/files/customImgs/${file})`,
                           borderRadius: "50%",
                         }}
+                        // onClick={() => {
+                        //   const selectedUrl = `http://localhost:3001/files/customImgs/${file}`;
+                        //   let storageKey = "recentPosterMedia";
+
+                        //   if (mediaTarget?.startsWith("map.")) {
+                        //     updateStyles(mediaTarget, selectedUrl);
+                        //     storageKey = "recentMapMedia";
+                        //   } else if (mediaTarget?.startsWith("poster.")) {
+                        //     updatePosterStyles(
+                        //       mediaTarget.replace("poster.", ""),
+                        //       selectedUrl
+                        //     );
+                        //   } else if (mediaTarget?.startsWith("CustomImg.")) {
+                        //     updatePosterStyles(
+                        //       mediaTarget.replace("CustomImg.", ""),
+                        //       selectedUrl
+                        //     );
+                        //   } else {
+                        //     updateImgStyles(mediaTarget, selectedUrl);
+                        //   }
+
+                        //   let recent =
+                        //     JSON.parse(localStorage.getItem(storageKey)) || [];
+                        //   if (!recent.includes(selectedUrl)) {
+                        //     recent.push(selectedUrl);
+                        //     localStorage.setItem(
+                        //       storageKey,
+                        //       JSON.stringify(recent)
+                        //     );
+                        //   }
+                        // }}
                         onClick={() => {
                           const selectedUrl = `http://localhost:3001/files/customImgs/${file}`;
-                          updateStyles(mediaTarget, selectedUrl);
                           let storageKey = "recentPosterMedia";
-                          if (
-                            mediaTarget &&
-                            mediaTarget.startsWith &&
-                            mediaTarget.startsWith("map.")
-                          )
+
+                          if (mediaTarget?.startsWith("map.")) {
+                            updateStyles(mediaTarget, selectedUrl);
                             storageKey = "recentMapMedia";
+                          } else if (mediaTarget?.startsWith("poster.")) {
+                            updatePosterStyles(
+                              mediaTarget.replace("poster.", ""),
+                              selectedUrl
+                            );
+                          } else if (mediaTarget?.startsWith("CustomImg.")) {
+                            updateImgStyles(
+                              mediaTarget.replace("CustomImg.", ""),
+                              selectedUrl
+                            );
+                            storageKey = "recentCustomImgMedia";
+                          } else {
+                            updateImgStyles(mediaTarget, selectedUrl);
+                          }
 
                           let recent =
                             JSON.parse(localStorage.getItem(storageKey)) || [];
@@ -1003,7 +1033,10 @@ const App = () => {
                 </Upload>
               </div>
             ) : drawerMode === "show_hide" ? (
-              <ShowHideElement styles={styles} updateStyles={updateStyles} />
+              <ShowHideElement
+                showStyles={showStyles}
+                updateShowStyles={updateShowStyles}
+              />
             ) : (
               ""
             )}

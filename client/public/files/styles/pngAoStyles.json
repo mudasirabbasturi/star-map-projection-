@@ -1,0 +1,72 @@
+{
+  "positions": {
+    "map": {
+      "y": 9.635135135135135
+    },
+    "CustomImg": {
+      "y": 50
+    },
+    "title": {
+      "y": 4
+    },
+    "content": {
+      "y": 80
+    }
+  },
+  "styles": {
+    "map": {
+      "projection": "orthographic",
+      "width": 90,
+      "height": null,
+      "maskShape": "circle",
+      "fill": null,
+      "bgType": "image",
+      "bgImage": "http://localhost:3001/files/customImgs/jonatan-pie-3l3RwQdHRHg-unsplash.jpg",
+      "bgImageOpacity": 1,
+      "strokeColor": "#eee",
+      "strokeStyle": "solid",
+      "strokeWidth": 1,
+      "showStars": true,
+      "showMilkyway": false,
+      "milkywayOpacity": 0.2,
+      "showConstellations": false,
+      "showPlanets": true,
+      "showPlanetNames": false,
+      "showMoonName": false,
+      "showMoon": true,
+      "showGraticule": false,
+      "sizeMult": 1,
+      "magLimit": 6.5,
+      "date": "2025-09-23T08:37:40.893Z",
+      "lat": 51.5,
+      "lon": -0.1
+    },
+    "show": {
+      "title": true,
+      "content": true,
+      "address": true,
+      "message": true,
+      "date": true,
+      "time": true,
+      "coordinate": true,
+      "CustomImg": false,
+      "imgTxt_1": false,
+      "imgTxt_2": false,
+      "starMap": true,
+      "moonMap": false
+    },
+    "bgImage": "http://localhost:3001/files/customImgs/jonatan-pie-3l3RwQdHRHg-unsplash.jpg"
+  },
+  "content": {
+    "downloadType": "png",
+    "fileName": "pngAo",
+    "message": "look up at the stars",
+    "title": "my star map",
+    "address": "london, uk",
+    "date": "2025-09-23",
+    "time": "01:37 AM",
+    "coordinate": "51.5°N, 0.1°W",
+    "text1": "Under These Stars",
+    "text2": "Our Story Began With Gentle Smiles"
+  }
+}

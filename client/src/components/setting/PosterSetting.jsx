@@ -342,7 +342,7 @@ const PosterSetting = ({
           <Button
             type="primary"
             onClick={() =>
-              showDrawer("uploadSelectCustomeImg", null, "bgImage")
+              showDrawer("uploadSelectCustomeImg", "poster.bgImage")
             }
           >
             Select File From Media

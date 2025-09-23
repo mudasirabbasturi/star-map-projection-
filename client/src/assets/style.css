@@ -205,3 +205,35 @@ h5 {
   font-size: 14px;
   display: inline-block;
 }
+
+
+.star {
+  transition: r 0.2s ease, opacity 0.2s ease;
+}
+
+.star:hover {
+  r: calc(var(--base-radius) * 1.5);
+  opacity: 1 !important;
+}
+
+.milky-way {
+  mix-blend-mode: screen;
+}
+
+.constLine {
+  transition: stroke-opacity 0.3s ease;
+}
+
+.constLabel {
+  font-family: 'Arial', sans-serif;
+  font-weight: bold;
+  text-shadow: 0 0 3px rgba(0, 0, 0, 0.8);
+}
+
+.planet circle {
+  filter: drop-shadow(0 0 2px rgba(255, 218, 107, 0.5));
+}
+
+.moon circle {
+  filter: drop-shadow(0 0 4px rgba(223, 233, 245, 0.6));
+}
