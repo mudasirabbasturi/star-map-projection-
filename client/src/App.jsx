@@ -27,10 +27,6 @@ const Map = lazy(() => import("./components/Map"));
 const CustomImg = lazy(() => import("./components/CustomImg"));
 const Content = lazy(() => import("./components/Content"));
 
-// const customImage = `${
-//   import.meta.env.VITE_ASSET_BASE
-// }/imgs/starmap/default/couple.jpg`;
-
 const customImage = "http://localhost:3000/imgs/starmap/default/couple.jpg";
 
 const App = () => {
@@ -69,15 +65,17 @@ const App = () => {
     window.addEventListener("mouseup", handleMouseUp);
   };
 
+  const [orientation, setOrientation] = useState("portrait");
   // unified state for styles
   const [styles, setStyles] = useState({
     map: {
       projection: "orthographic",
       width: 90,
-      height: null,
+      height: 60,
       maskShape: "circle",
       fill: null,
       bgType: "none",
+      bgImageMode: "cover",
       bgImage: null,
       bgImageOpacity: 0.1,
       strokeColor: "#eee",
@@ -88,8 +86,8 @@ const App = () => {
       milkywayOpacity: 0.2,
       showConstellations: true,
       showPlanets: true,
-      showPlanetNames: true,
-      showMoonName: false,
+      showPlanetNames: false,
+      showMoonName: true,
       showMoon: true,
       showGraticule: true,
       sizeMult: 1,
@@ -107,7 +105,7 @@ const App = () => {
     bgGradientColor: ["#a80077ff", "#66ff00"],
     bgGradientType: "linear", // linear | radial | conic
     bgGradientAngle: 90,
-    borderStyle: "solid",
+    borderStyle: "none",
     borderWidth: 1,
     borderRadius: 0,
     borderColor: "#ffff",
@@ -333,9 +331,6 @@ const App = () => {
     });
   };
 
-  const [mediaTarget, setMediaTarget] = useState(null);
-
-  // content
   const [content, setContent] = useState({
     downloadType: "pdf",
     fileName: "Poster",
@@ -356,72 +351,6 @@ const App = () => {
   });
   const onChangeContent = (key, value) =>
     setContent((prev) => ({ ...prev, [key]: value }));
-
-  // export styles
-  const handleExport = async () => {
-    try {
-      const finalState = { positions, styles, content };
-      const res = await fetch(`http://localhost:3001/api/export-style`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(finalState),
-      });
-      if (!res.ok) throw new Error("Export request failed");
-      const data = await res.json();
-      if (data.success) {
-        openNotificationWithIcon(data.fileName, data.folder, data.url);
-        if (window.electronAPI) window.open(data.url, "_blank");
-      } else {
-        api.error({
-          message: "❌ Export failed",
-          description: data.message || "Unknown error",
-        });
-      }
-    } catch (err) {
-      console.error("Export error:", err);
-      api.error({
-        message: "❌ Error exporting file",
-        description: err.message,
-      });
-    }
-  };
-
-  // import JSON (file input or url)
-  const handleImport = async (input) => {
-    setLoading(true);
-    try {
-      if (input?.target?.files?.[0]) {
-        const file = input.target.files[0];
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          try {
-            const importedState = JSON.parse(e.target.result);
-            applyImportedState(importedState);
-          } catch (err) {
-            console.error("Failed to import JSON:", err);
-            alert("Invalid JSON file.");
-            setLoading(false);
-          }
-        };
-        reader.readAsText(file);
-      } else if (typeof input === "string") {
-        const res = await fetch(input);
-        const importedState = await res.json();
-        applyImportedState(importedState);
-      }
-    } catch (err) {
-      console.error("Failed to import JSON:", err);
-      alert("Could not load JSON file.");
-      setLoading(false);
-    }
-  };
-
-  const applyImportedState = (importedState) => {
-    if (importedState.positions) setPositions(importedState.positions);
-    if (importedState.styles) setStyles(importedState.styles);
-    if (importedState.content) setContent(importedState.content);
-    setLoading(false);
-  };
 
   // star data
   const [starsData, setStarsData] = useState({ features: [] });
@@ -476,7 +405,7 @@ const App = () => {
   const [drawerMode, setDrawerMode] = useState(null);
   const [parentDrawer, setParentDrawer] = useState(null);
   const [open, setOpen] = useState(null);
-
+  const [mediaTarget, setMediaTarget] = useState(null);
   const showDrawer = (mode, parent = null, target = null) => {
     if (mode === "uploadSelectCustomeImg") {
       setParentDrawer(drawerMode);
@@ -488,7 +417,6 @@ const App = () => {
         setMediaTarget(parent);
       }
     }
-    fetchFiles();
     setDrawerMode(mode);
     setOpen(true);
   };
@@ -496,26 +424,15 @@ const App = () => {
   const closeDrawer = () => {
     setDrawerMode(null);
     setOpen(null);
-    setFiles([]);
-    setStyleFiles([]);
   };
 
-  const openNotificationWithIcon = (fileName, folder, url) => {
+  const openNotificationWithIcon = (fileName) => {
     api.success({
       message: `✅ ${fileName} saved!`,
-      description: (
-        <span>
-          Saved in folder: <b>{folder}</b> <br />
-          <a href={url} target="_blank" rel="noreferrer">
-            Open File
-          </a>
-        </span>
-      ),
       duration: 6,
     });
   };
 
-  // screenshot — uses API_BASE
   const handleScreenShot = async () => {
     if (!canvasRef.current) return;
     setLoading(true);
@@ -547,10 +464,7 @@ const App = () => {
         })
         .join("\n");
       const fullHTML = `<html>
-      <head>
-        <meta charset="UTF-8">
-        <style>${cssText}</style>
-      </head>
+      <head><meta charset="UTF-8"><style>${cssText}</style></head>
       <body>${htmlContent}</body>
     </html>`;
       const response = await fetch("http://localhost:3001/api/screenshot", {
@@ -563,11 +477,21 @@ const App = () => {
           downloadType: content.downloadType,
         }),
       });
+
       if (!response.ok) throw new Error("Failed to capture screenshot");
-      const data = await response.json();
-      openNotificationWithIcon(data.fileName, data.folder, data.url);
-      window.open(data.url, "_blank");
-      console.log("✅ File saved:", data);
+
+      // blob for download
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${content.fileName}.${content.downloadType}`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+
+      openNotificationWithIcon(content.fileName);
     } catch (err) {
       console.error("Error capturing screenshot:", err);
       api.error({
@@ -579,22 +503,14 @@ const App = () => {
     }
   };
 
+  const [files, setFiles] = useState([]);
   useEffect(() => {
-    if (!open) return;
-    if (
-      drawerMode === "showDownloadImageFiles" ||
-      drawerMode === "showDownloadPdfFiles"
-    ) {
-      fetchFiles("posters");
-    } else if (drawerMode === "showImportFiles") {
-      fetchStyleFiles();
-    } else if (drawerMode === "uploadSelectCustomeImg") {
+    if (open && drawerMode === "uploadSelectCustomeImg" && files.length === 0) {
       fetchFiles("customImgs");
     }
-  }, [open, drawerMode]);
+  }, [open, drawerMode, files.length]);
 
-  const [files, setFiles] = useState([]);
-  const fetchFiles = async (type = "posters") => {
+  const fetchFiles = async (type = "customImgs") => {
     try {
       const res = await fetch(`http://localhost:3001/api/files/${type}`);
       const data = await res.json();
@@ -603,19 +519,6 @@ const App = () => {
       console.error("Error fetching files:", err);
     }
   };
-
-  const [styleFiles, setStyleFiles] = useState([]);
-  const fetchStyleFiles = async () => {
-    try {
-      const res = await fetch(`http://localhost:3001/api/files/styles`);
-      const data = await res.json();
-      if (data.success)
-        setStyleFiles(data.files.filter((f) => f.endsWith(".json")));
-    } catch (err) {
-      console.error("Error fetching style files:", err);
-    }
-  };
-
   const handleDeleteFile = async (type, fileName) => {
     try {
       const res = await fetch(
@@ -627,8 +530,6 @@ const App = () => {
       const data = await res.json();
       if (data.success) {
         api.success({ message: "File deleted", description: data.message });
-        if (type === "posters") fetchFiles("posters");
-        if (type === "styles") fetchStyleFiles();
         if (type === "customImgs") fetchFiles("customImgs");
       } else {
         api.error({ message: "Delete failed", description: data.message });
@@ -638,7 +539,6 @@ const App = () => {
       api.error({ message: "Delete error", description: err.message });
     }
   };
-
   return (
     <>
       {contextHolder}
@@ -647,8 +547,6 @@ const App = () => {
           loading={loading}
           showDrawer={showDrawer}
           handleScreenShot={handleScreenShot}
-          handleExport={handleExport}
-          handleImport={handleImport}
         />
         <div className="main-body">
           <Spin spinning={loading} tip="Generating poster..." size="large">
@@ -657,7 +555,7 @@ const App = () => {
                 ref={canvasRef}
                 className={`poster hasIcon ${
                   drawerMode === "poster" ? "active" : ""
-                }`}
+                } ${orientation}`}
                 style={{
                   background: getBaseBackground(),
                   borderStyle: posterStyles.borderStyle,
@@ -701,6 +599,7 @@ const App = () => {
                     positions={positions}
                     handleMouseDown={handleMouseDown}
                     drawerMode={drawerMode}
+                    orientation={orientation}
                   />
 
                   <CustomImg
@@ -745,12 +644,6 @@ const App = () => {
         onClose={closeDrawer}
         mask={false}
         placement="left"
-        width={
-          drawerMode === "showDownloadImageFiles" ||
-          drawerMode === "showDownloadPdfFiles"
-            ? "100%"
-            : null
-        }
       >
         {open && (
           <Suspense fallback={<div>Loading Sections...</div>}>
@@ -761,6 +654,8 @@ const App = () => {
                 content={content}
                 onChangeContent={onChangeContent}
                 showDrawer={showDrawer}
+                orientation={orientation}
+                setOrientation={setOrientation}
               />
             ) : drawerMode === "posterWrapper" ? (
               <PosterWrapperSetting
@@ -794,6 +689,7 @@ const App = () => {
                 content={content}
                 onChangeContent={onChangeContent}
                 showDrawer={showDrawer}
+                orientation={orientation}
               />
             ) : drawerMode === "CustomImg" ? (
               <CustomImgSetting
@@ -805,218 +701,14 @@ const App = () => {
                 onChangeContent={onChangeContent}
                 showDrawer={showDrawer}
               />
-            ) : drawerMode === "showDownloadImageFiles" ? (
-              <div className="d-flex flex-wrap">
-                {files
-                  .filter((file) =>
-                    file.toLowerCase().match(/\.(jpg|jpeg|png)$/)
-                  )
-                  .map((file, index) => {
-                    const url = `http://localhost:3001/files/posters/${file}`;
-                    return (
-                      <div
-                        key={index}
-                        className="img_pdf border mb-3 me-3 p-2 d-flex flex-column align-items-center justify-content-center"
-                        style={{ width: "20%", position: "relative" }}
-                      >
-                        <a
-                          href={url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="w-100 d-flex justify-content-center"
-                          style={{ textDecoration: "none" }}
-                        >
-                          <img
-                            src={url}
-                            alt={`Poster ${index + 1}`}
-                            className="img-fluid w-100"
-                          />
-                        </a>
-                        <div
-                          className="mt-2 text-truncate w-100 text-center"
-                          style={{ fontSize: "0.9rem" }}
-                          title={file}
-                        >
-                          {file}
-                        </div>
-                        <button
-                          className="btn btn-sm btn-danger"
-                          style={{ position: "absolute", top: 1, right: 1 }}
-                          onClick={() => handleDeleteFile("posters", file)}
-                        >
-                          <CiTrash />
-                        </button>
-                      </div>
-                    );
-                  })}
-              </div>
-            ) : drawerMode === "showDownloadPdfFiles" ? (
-              <div className="d-flex flex-wrap">
-                {files
-                  .filter((file) => file.toLowerCase().endsWith(".pdf"))
-                  .map((file, index) => {
-                    const url = `http://localhost:3001/files/posters/${file}`;
-                    return (
-                      <div
-                        key={index}
-                        className="img_pdf border mb-3 me-3 p-2 d-flex flex-column align-items-center justify-content-center"
-                        style={{ width: "23%", position: "relative" }}
-                      >
-                        <a
-                          href={url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="w-100 d-flex justify-content-center"
-                          style={{ textDecoration: "none" }}
-                        >
-                          <AiFillFilePdf size={64} color="red" />
-                        </a>
-                        <div
-                          className="mt-2 text-truncate w-100 text-center"
-                          style={{ fontSize: "0.9rem" }}
-                          title={file}
-                        >
-                          {file}
-                        </div>
-                        <button
-                          className="btn btn-sm btn-outline-danger"
-                          style={{ position: "absolute", top: 1, right: 1 }}
-                          onClick={() => handleDeleteFile("posters", file)}
-                        >
-                          <CiTrash />
-                        </button>
-                      </div>
-                    );
-                  })}
-              </div>
-            ) : drawerMode === "showImportFiles" ? (
-              <div className="p-2" style={{ position: "relative" }}>
-                {styleFiles.length === 0 ? (
-                  <div>No style files found.</div>
-                ) : (
-                  styleFiles.map((file, idx) => {
-                    const url = `http://localhost:3001/files/styles/${file}`;
-                    return (
-                      <div
-                        key={idx}
-                        className="border rounded mb-1 ps-1 d-flex justify-content-between align-items-center"
-                      >
-                        <span
-                          className="text-truncate"
-                          style={{ maxWidth: "70%" }}
-                        >
-                          {file}
-                        </span>
-                        <div>
-                          <button
-                            className="btn btn-sm btn-primary me-1"
-                            onClick={() => handleImport(url)}
-                          >
-                            <CiImport />
-                          </button>
-                          <button
-                            className="btn btn-sm btn-danger"
-                            onClick={() => handleDeleteFile("styles", file)}
-                          >
-                            <CiTrash />
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })
-                )}
-              </div>
+            ) : drawerMode === "show_hide" ? (
+              <ShowHideElement
+                showStyles={showStyles}
+                updateShowStyles={updateShowStyles}
+              />
             ) : drawerMode === "uploadSelectCustomeImg" ? (
-              <div>
-                <Row gutter={[8, 8]}>
-                  {files.map((file, idx) => (
-                    <Col key={idx}>
-                      <div
-                        style={{
-                          width: 80,
-                          height: 80,
-                          border: "1px solid #ddd",
-                          cursor: "pointer",
-                          backgroundSize: "cover",
-                          backgroundImage: `url(http://localhost:3001/files/customImgs/${file})`,
-                          borderRadius: "50%",
-                        }}
-                        // onClick={() => {
-                        //   const selectedUrl = `http://localhost:3001/files/customImgs/${file}`;
-                        //   let storageKey = "recentPosterMedia";
-
-                        //   if (mediaTarget?.startsWith("map.")) {
-                        //     updateStyles(mediaTarget, selectedUrl);
-                        //     storageKey = "recentMapMedia";
-                        //   } else if (mediaTarget?.startsWith("poster.")) {
-                        //     updatePosterStyles(
-                        //       mediaTarget.replace("poster.", ""),
-                        //       selectedUrl
-                        //     );
-                        //   } else if (mediaTarget?.startsWith("CustomImg.")) {
-                        //     updatePosterStyles(
-                        //       mediaTarget.replace("CustomImg.", ""),
-                        //       selectedUrl
-                        //     );
-                        //   } else {
-                        //     updateImgStyles(mediaTarget, selectedUrl);
-                        //   }
-
-                        //   let recent =
-                        //     JSON.parse(localStorage.getItem(storageKey)) || [];
-                        //   if (!recent.includes(selectedUrl)) {
-                        //     recent.push(selectedUrl);
-                        //     localStorage.setItem(
-                        //       storageKey,
-                        //       JSON.stringify(recent)
-                        //     );
-                        //   }
-                        // }}
-                        onClick={() => {
-                          const selectedUrl = `http://localhost:3001/files/customImgs/${file}`;
-                          let storageKey = "recentPosterMedia";
-
-                          if (mediaTarget?.startsWith("map.")) {
-                            updateStyles(mediaTarget, selectedUrl);
-                            storageKey = "recentMapMedia";
-                          } else if (mediaTarget?.startsWith("poster.")) {
-                            updatePosterStyles(
-                              mediaTarget.replace("poster.", ""),
-                              selectedUrl
-                            );
-                          } else if (mediaTarget?.startsWith("CustomImg.")) {
-                            updateImgStyles(
-                              mediaTarget.replace("CustomImg.", ""),
-                              selectedUrl
-                            );
-                            storageKey = "recentCustomImgMedia";
-                          } else {
-                            updateImgStyles(mediaTarget, selectedUrl);
-                          }
-
-                          let recent =
-                            JSON.parse(localStorage.getItem(storageKey)) || [];
-                          if (!recent.includes(selectedUrl)) {
-                            recent.push(selectedUrl);
-                            localStorage.setItem(
-                              storageKey,
-                              JSON.stringify(recent)
-                            );
-                          }
-                        }}
-                      />
-                      <Button
-                        type="link"
-                        danger
-                        size="small"
-                        onClick={() => handleDeleteFile("customImgs", file)}
-                      >
-                        Delete
-                      </Button>
-                    </Col>
-                  ))}
-                </Row>
-
+              <>
+                {/* Upload Button */}
                 <Upload
                   name="file"
                   action={`http://localhost:3001/api/upload/custom-img`}
@@ -1027,16 +719,105 @@ const App = () => {
                     }
                   }}
                 >
-                  <Button type="dashed" className="mt-3">
-                    Upload New Image
+                  <Button className="border" type="link">
+                    Upload Media
                   </Button>
                 </Upload>
-              </div>
-            ) : drawerMode === "show_hide" ? (
-              <ShowHideElement
-                showStyles={showStyles}
-                updateShowStyles={updateShowStyles}
-              />
+                <hr />
+                <div
+                  style={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: 4,
+                  }}
+                >
+                  {files.length === 0 ? (
+                    <small>No Images Uploaded Yet.</small>
+                  ) : (
+                    files.map((file, idx) => {
+                      const fileUrl = `http://localhost:3001/files/customImgs/${file}`;
+                      return (
+                        <div
+                          key={idx}
+                          style={{
+                            position: "relative",
+                            width: 70,
+                            height: 70,
+                            cursor: "pointer",
+                            border: "1px solid transparent",
+                          }}
+                          onClick={() => {
+                            let storageKey = "recentPosterMedia";
+                            if (mediaTarget?.startsWith("map.")) {
+                              updateStyles(mediaTarget, fileUrl);
+                              storageKey = "recentMapMedia";
+                            } else if (mediaTarget?.startsWith("poster.")) {
+                              updatePosterStyles(
+                                mediaTarget.replace("poster.", ""),
+                                fileUrl
+                              );
+                            } else if (mediaTarget?.startsWith("CustomImg.")) {
+                              updateImgStyles(
+                                mediaTarget.replace("CustomImg.", ""),
+                                fileUrl
+                              );
+                              storageKey = "recentCustomImgMedia";
+                            } else {
+                              updateImgStyles(mediaTarget, fileUrl);
+                            }
+
+                            let recent =
+                              JSON.parse(localStorage.getItem(storageKey)) ||
+                              [];
+                            if (!recent.includes(fileUrl)) {
+                              recent.push(fileUrl);
+                              localStorage.setItem(
+                                storageKey,
+                                JSON.stringify(recent)
+                              );
+                            }
+                          }}
+                        >
+                          {/* Image */}
+                          <div
+                            style={{
+                              width: "100%",
+                              height: "100%",
+                              backgroundImage: `url(${fileUrl})`,
+                              backgroundSize: "cover",
+                              backgroundPosition: "center",
+                            }}
+                          ></div>
+
+                          {/* Delete on hover */}
+                          <div
+                            style={{
+                              position: "absolute",
+                              top: 0,
+                              right: 0,
+                              width: 16,
+                              height: 16,
+                              borderRadius: "50%",
+                              background: "red",
+                              color: "white",
+                              fontSize: 12,
+                              textAlign: "center",
+                              lineHeight: "16px",
+                              cursor: "pointer",
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation(); // prevent click on parent
+                              handleDeleteFile("customImgs", file);
+                            }}
+                          >
+                            ×
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              </>
             ) : (
               ""
             )}

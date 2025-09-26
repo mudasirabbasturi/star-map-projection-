@@ -32,13 +32,13 @@ const ShowHideElement = ({ showStyles, updateShowStyles }) => {
             Content
           </Checkbox>
 
-          <Checkbox
+          {/* <Checkbox
             className="text-muted fst-italic"
             checked={showStyles.CustomImg}
             onChange={(e) => updateShowStyles("CustomImg", e.target.checked)}
           >
             Custom Image
-          </Checkbox>
+          </Checkbox> */}
           <Checkbox
             className="text-muted fst-italic"
             checked={showStyles.moonMap}

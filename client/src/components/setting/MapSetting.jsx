@@ -45,7 +45,7 @@ function genPresets(presets = presetPalettes) {
   }));
 }
 
-const MapSetting = ({ styles, updateStyles, showDrawer }) => {
+const MapSetting = ({ styles, updateStyles, showDrawer, orientation }) => {
   const { token } = theme.useToken();
   const presets = genPresets({
     primary: generate(token.colorPrimary),
@@ -268,42 +268,79 @@ const MapSetting = ({ styles, updateStyles, showDrawer }) => {
                   Background Theme
                 </small>
               </Divider>
-              <Avatar.Group size="large" max={{ count: 6 }}>
+              <div
+                style={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: 4,
+                }}
+              >
                 {recentMapMedia.length === 0 ? (
-                  <Avatar style={{ backgroundColor: "#f56a00" }}>None</Avatar>
+                  <small>No Theme Is Selected, Add Or Upload From Media.</small>
                 ) : (
                   recentMapMedia.map((url, idx) => (
-                    <Avatar
+                    <div
+                      className="theme"
                       key={idx}
-                      src={url}
                       style={{
+                        position: "relative",
+                        width: 70,
+                        height: 70,
                         cursor: "pointer",
                         border:
                           selectedMedia === url
-                            ? "3px solid #1890ff"
-                            : "2px solid transparent",
-                        borderRadius: "50%",
+                            ? "1px solid #1890ff"
+                            : "1px solid transparent",
                       }}
                       onClick={() => {
                         updateStyles("map.bgImage", url);
                         setSelectedMedia(url);
                       }}
-                    />
+                    >
+                      <div
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          backgroundImage: `url(${url})`,
+                          backgroundSize: "cover",
+                          backgroundPosition: "center",
+                        }}
+                      ></div>
+                      <div
+                        className="remove_theme"
+                        style={{
+                          position: "absolute",
+                          top: 0,
+                          right: 0,
+                          width: 16,
+                          height: 16,
+                          borderRadius: "50%",
+                          background: "red",
+                          color: "white",
+                          fontSize: 12,
+                          textAlign: "center",
+                          lineHeight: "16px",
+                          cursor: "pointer",
+                        }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const updated = recentMapMedia.filter(
+                            (item) => item !== url
+                          );
+                          setRecentMapMedia(updated);
+                          localStorage.setItem(
+                            "recentMapMedia",
+                            JSON.stringify(updated)
+                          );
+                          if (selectedMedia === url) setSelectedMedia(null);
+                        }}
+                      >
+                        ×
+                      </div>
+                    </div>
                   ))
                 )}
-              </Avatar.Group>
-              <Button
-                danger
-                size="small"
-                style={{ marginTop: 8 }}
-                onClick={() => {
-                  localStorage.removeItem("recentMapMedia");
-                  setRecentMapMedia([]);
-                  setSelectedMedia(null);
-                }}
-              >
-                Clear Map Media
-              </Button>
+              </div>
               <Divider>
                 <small className="me-1 text-muted fst-italic">OR</small>
               </Divider>
@@ -321,6 +358,7 @@ const MapSetting = ({ styles, updateStyles, showDrawer }) => {
               onChange={(val) => updateStyles("map.bgImageMode", val)}
               style={{ width: "100%", marginTop: 8 }}
               size="small"
+              disabled={recentMapMedia.length === 0}
               options={[
                 { label: "Cover", value: "cover" },
                 { label: "Contain", value: "contain" },
@@ -330,13 +368,14 @@ const MapSetting = ({ styles, updateStyles, showDrawer }) => {
             <div className="d-flex align-items-center mt-2">
               <small className="me-1 text-muted fst-italic">Opacity:</small>
               <Slider
-                className="w-75"
+                className="w-75 me-3"
                 min={0}
                 max={1}
                 step={0.05}
                 value={styles.map.bgImageOpacity}
                 onChange={(val) => updateStyles("map.bgImageOpacity", val)}
                 size="small"
+                disabled={recentMapMedia.length === 0}
               />
               <InputNumber
                 className="w-25"
@@ -524,7 +563,7 @@ const MapSetting = ({ styles, updateStyles, showDrawer }) => {
         </div>
       </div>
       {/* Width / Height */}
-      <div className="mb-2">
+      {/* <div className="mb-2">
         <Divider style={{ fontStyle: "italic" }}>Map Width & Height</Divider>
         <div className="d-flex align-items-center mb-2">
           <small
@@ -572,7 +611,103 @@ const MapSetting = ({ styles, updateStyles, showDrawer }) => {
             size="small"
           />
         </div>
-      </div>
+      </div> */}
+      {/* Map Size */}
+      <Divider style={{ fontStyle: "italic" }}>Map Size</Divider>
+
+      {styles.map.maskShape === "rect" ? (
+        <>
+          <small className="d-block mb-2 text-muted fst-italic">
+            Rectangle mask — edit both Width & Height (aspect ratio not applied)
+          </small>
+
+          <div className="d-flex align-items-center mb-2">
+            <small
+              className="me-2 text-muted fst-italic"
+              style={{ whiteSpace: "nowrap" }}
+            >
+              Width:
+            </small>
+            <Slider
+              min={30}
+              max={100}
+              value={styles.map.width}
+              onChange={(v) => updateStyles("map.width", v)}
+              className="w-100 me-2 mt-0 mb-0"
+              size="small"
+            />
+            <InputNumber
+              min={30}
+              max={100}
+              value={styles.map.width}
+              onChange={(v) => updateStyles("map.width", v)}
+              size="small"
+            />
+          </div>
+
+          <div className="d-flex align-items-center">
+            <small
+              className="me-2 text-muted fst-italic"
+              style={{ whiteSpace: "nowrap" }}
+            >
+              Height:
+            </small>
+            <Slider
+              min={0}
+              max={100}
+              value={styles.map.height || 0}
+              onChange={(v) => updateStyles("map.height", v)}
+              className="w-100 me-2 mt-0 mb-0"
+              size="small"
+            />
+            <InputNumber
+              min={0}
+              max={100}
+              value={styles.map.height || 0}
+              onChange={(v) => updateStyles("map.height", v)}
+              size="small"
+            />
+          </div>
+        </>
+      ) : (
+        <div className="d-flex align-items-center">
+          <small
+            className="me-2 text-muted fst-italic"
+            style={{ whiteSpace: "nowrap" }}
+          >
+            {orientation === "portrait" ? "Width" : "Height"}
+          </small>
+          <Slider
+            min={30}
+            max={100}
+            value={
+              orientation === "portrait" ? styles.map.width : styles.map.height
+            }
+            onChange={(v) =>
+              updateStyles(
+                orientation === "portrait" ? "map.width" : "map.height",
+                v
+              )
+            }
+            className="w-100 me-2 mt-0 mb-0"
+            size="small"
+          />
+          <InputNumber
+            min={30}
+            max={100}
+            value={
+              orientation === "portrait" ? styles.map.width : styles.map.height
+            }
+            onChange={(v) =>
+              updateStyles(
+                orientation === "portrait" ? "map.width" : "map.height",
+                v
+              )
+            }
+            size="small"
+          />
+        </div>
+      )}
 
       <div className="mb-2">
         <Divider style={{ fontStyle: "italic" }}>Date & Time</Divider>

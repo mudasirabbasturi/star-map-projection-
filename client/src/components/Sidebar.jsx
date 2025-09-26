@@ -2,28 +2,14 @@ import { LuRectangleVertical } from "react-icons/lu";
 import { HiOutlineRectangleGroup } from "react-icons/hi2";
 import { GiOrbital } from "react-icons/gi";
 import { MdOutlineTextRotateVertical } from "react-icons/md";
-import { LiaFileDownloadSolid } from "react-icons/lia";
 import { GoDesktopDownload } from "react-icons/go";
-import { AiFillFilePdf } from "react-icons/ai";
-import { FaRegImage } from "react-icons/fa6";
+import { FaStarAndCrescent } from "react-icons/fa";
 
-import {
-  CiImport,
-  CiImageOff,
-  CiExport,
-  CiFolderOff,
-  CiText,
-} from "react-icons/ci";
+import { CiImageOff, CiText } from "react-icons/ci";
 import { Tooltip } from "antd";
 import { BiHide } from "react-icons/bi";
 
-const Sidebar = ({
-  loading,
-  showDrawer,
-  handleScreenShot,
-  handleExport,
-  handleImport,
-}) => {
+const Sidebar = ({ loading, showDrawer, handleScreenShot }) => {
   return (
     <>
       <aside className="sidebar">
@@ -72,11 +58,11 @@ const Sidebar = ({
             disabled={loading}
             onClick={() => showDrawer("map")}
           >
-            <GiOrbital />
+            <FaStarAndCrescent />
           </button>
         </Tooltip>
 
-        <Tooltip
+        {/* <Tooltip
           placement="right"
           title="Edit Custom Image / Text"
           color="geekblue"
@@ -85,7 +71,7 @@ const Sidebar = ({
           <button className="btn p-0 sidebarIcon" disabled={loading}>
             <CiImageOff />
           </button>
-        </Tooltip>
+        </Tooltip> */}
         <Tooltip
           placement="right"
           title="Edit Content / Text"
@@ -104,67 +90,6 @@ const Sidebar = ({
         >
           <button className="btn p-0 sidebarIcon" disabled={loading}>
             <CiText />
-          </button>
-        </Tooltip>
-        {/* <Tooltip
-          placement="right"
-          title="View Downloaded jpeg,jgp,png Files"
-          color="geekblue"
-          onClick={() => showDrawer("showDownloadFiles")}
-        >
-          <button className="btn p-0 sidebarIcon" disabled={loading}>
-            <CiFolderOff />
-          </button>
-        </Tooltip>
-        <Tooltip
-          placement="right"
-          title="View Downloaded Pdf Files"
-          color="geekblue"
-          onClick={() => showDrawer("showDownloadFiles")}
-        >
-          <button className="btn p-0 sidebarIcon" disabled={loading}>
-            <AiFillFilePdf />
-          </button>
-        </Tooltip> */}
-        <Tooltip
-          placement="right"
-          title="View Downloaded jpeg,jpg,png Files"
-          color="geekblue"
-          onClick={() => showDrawer("showDownloadImageFiles")}
-        >
-          <button className="btn p-0 sidebarIcon" disabled={loading}>
-            <FaRegImage />
-          </button>
-        </Tooltip>
-
-        <Tooltip
-          placement="right"
-          title="View Downloaded Pdf Files"
-          color="geekblue"
-          onClick={() => showDrawer("showDownloadPdfFiles")}
-        >
-          <button className="btn p-0 sidebarIcon" disabled={loading}>
-            <AiFillFilePdf />
-          </button>
-        </Tooltip>
-
-        <Tooltip
-          placement="right"
-          title="Import Style"
-          color="geekblue"
-          onClick={() => showDrawer("showImportFiles")}
-        >
-          <button className="btn p-0 sidebarIcon" disabled={loading}>
-            <CiImport />
-          </button>
-        </Tooltip>
-        <Tooltip placement="right" title="Export Style" color="geekblue">
-          <button
-            className="btn p-0 sidebarIcon"
-            disabled={loading}
-            onClick={handleExport}
-          >
-            <CiExport />
           </button>
         </Tooltip>
         <Tooltip placement="right" title="Download File" color="geekblue">

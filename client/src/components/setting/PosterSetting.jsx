@@ -48,6 +48,8 @@ const PosterSetting = ({
   content,
   onChangeContent,
   showDrawer,
+  orientation,
+  setOrientation,
 }) => {
   const { token } = theme.useToken();
   const presets = genPresets({
@@ -97,17 +99,17 @@ const PosterSetting = ({
 
   return (
     <>
-      {/* Dimention Mode */}
+      {/* Orientation */}
       <div className="mb-2">
-        <Divider>Dimention Mode</Divider>
+        <Divider>Orientation</Divider>
         <Select
           className="w-100"
-          value="portrait"
+          value={orientation}
+          onChange={(val) => setOrientation(val)} // update directly
           options={[
             { label: "Portrait", value: "portrait" },
-            { label: "LandScape", value: "landscape" },
+            { label: "Landscape", value: "landscape" },
           ]}
-          disabled
         />
       </div>
       {/* Paper Size */}
@@ -300,7 +302,7 @@ const PosterSetting = ({
               Background Theme
             </small>
           </Divider>
-          <Avatar.Group size="large" max={{ count: 6 }}>
+          {/* <Avatar.Group size="large" max={{ count: 6 }}>
             {recentPosterMedia.length === 0 ? (
               <Avatar style={{ backgroundColor: "#f56a00" }}>No Theme</Avatar>
             ) : (
@@ -335,7 +337,80 @@ const PosterSetting = ({
             }}
           >
             Clear Poster Media
-          </Button>
+          </Button> */}
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 4,
+            }}
+          >
+            {recentPosterMedia.length === 0 ? (
+              <small>No Theme Is Selected, Add Or Upload From Media.</small>
+            ) : (
+              recentPosterMedia.map((url, idx) => (
+                <div
+                  className="theme"
+                  key={idx}
+                  style={{
+                    position: "relative",
+                    width: 70,
+                    height: 70,
+                    cursor: "pointer",
+                    border:
+                      selectedMedia === url
+                        ? "1px solid #1890ff"
+                        : "1px solid transparent",
+                  }}
+                  onClick={() => {
+                    updatePosterStyles("bgImage", url);
+                    setSelectedMedia(url);
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      backgroundImage: `url(${url})`,
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                    }}
+                  ></div>
+                  <div
+                    className="remove_theme"
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      right: 0,
+                      width: 16,
+                      height: 16,
+                      borderRadius: "50%",
+                      background: "red",
+                      color: "white",
+                      fontSize: 12,
+                      textAlign: "center",
+                      lineHeight: "16px",
+                      cursor: "pointer",
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const updated = recentPosterMedia.filter(
+                        (item) => item !== url
+                      );
+                      setRecentPosterMedia(updated);
+                      localStorage.setItem(
+                        "recentPosterMedia",
+                        JSON.stringify(updated)
+                      );
+                      if (selectedMedia === url) setSelectedMedia(null);
+                    }}
+                  >
+                    ×
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
           <Divider>
             <small className="me-1 text-muted fst-italic">OR</small>
           </Divider>

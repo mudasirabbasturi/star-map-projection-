@@ -1,26 +1,20 @@
 const express = require("express");
 const cors = require("cors");
 const puppeteer = require("puppeteer");
+const app = express();
 const fs = require("fs");
 const path = require("path");
 const multer = require("multer");
-const app = express();
 const port = 3001;
 
-require("dotenv").config();
-const isProduction = process.env.NODE_ENV === "production";
-const API_BASE = isProduction
-  ? `http://localhost:3001`
-  : `http://localhost:5173`;
-
 app.use(cors());
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ extended: true, limit: "50mb" }));
+
 app.use(
   "/files",
   express.static(path.join(__dirname, "../client/public/files"))
 );
-
-app.use(express.json({ limit: "50mb" }));
-app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
 const sizeMap = {
   A0: { width: 9933, height: 14043 },
@@ -57,11 +51,10 @@ function getUniqueFilePath(folderPath, baseName, ext) {
   return { filePath, fileName };
 }
 
-// 📸 Screenshot / Export as file
 app.post("/api/screenshot", async (req, res) => {
   try {
     const { html, paperSize, fileName, downloadType } = req.body;
-    const safeName = sanitizeFileName(fileName || "poster");
+    const safeName = fileName?.replace(/[^a-z0-9_\- ]/gi, "_") || "poster";
     const browser = await puppeteer.launch({
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
     });
@@ -74,76 +67,21 @@ app.post("/api/screenshot", async (req, res) => {
         printBackground: true,
         margin: { top: "0mm", bottom: "0mm", left: "0mm", right: "0mm" },
       });
-    } else if (downloadType === "png" || downloadType === "jpeg") {
-      const { width, height } = sizeMap[paperSize] || {
-        width: 2480,
-        height: 3508,
-      };
-      await page.setViewport({ width, height });
-      buffer = await page.screenshot({
-        fullPage: false,
-        omitBackground: false,
-        type: downloadType,
-      });
     } else {
-      throw new Error("Unsupported download type");
+      const { width, height } = sizeMap[paperSize] || sizeMap["A4"];
+      await page.setViewport({ width, height });
+      buffer = await page.screenshot({ type: downloadType });
     }
     await browser.close();
-    const folderPath = path.join(__dirname, "../client/public/files/posters");
-    fs.mkdirSync(folderPath, { recursive: true });
-    const { filePath, fileName: finalFileName } = getUniqueFilePath(
-      folderPath,
-      safeName,
-      downloadType
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${safeName}.${downloadType}"`
     );
-
-    fs.writeFileSync(filePath, buffer);
-
-    res.json({
-      success: true,
-      fileName: finalFileName,
-      folder: `/files/posters`,
-      // url: `http://localhost:5173/files/posters/${finalFileName}`,
-      url: `${API_BASE}/files/posters/${finalFileName}`,
-    });
+    res.setHeader("Content-Type", "application/octet-stream");
+    res.send(buffer);
   } catch (error) {
     console.error("Error generating file:", error);
     res.status(500).send("Error generating file");
-  }
-});
-
-// 🎨 Export styles as JSON
-app.post("/api/export-style", (req, res) => {
-  try {
-    const { positions, styles, content } = req.body;
-    const safeName = sanitizeFileName(content.fileName || "poster");
-
-    const folderPath = path.join(__dirname, "../client/public/files/styles");
-    fs.mkdirSync(folderPath, { recursive: true });
-
-    const { filePath, fileName: finalFileName } = getUniqueFilePath(
-      folderPath,
-      `${safeName}Styles`,
-      "json"
-    );
-
-    fs.writeFileSync(
-      filePath,
-      JSON.stringify({ positions, styles, content }, null, 2)
-    );
-
-    console.log("✅ Style saved:", filePath);
-
-    res.json({
-      success: true,
-      fileName: finalFileName,
-      folder: `/files/styles`,
-      // url: `http://localhost:5173/files/styles/${finalFileName}`,
-      url: `${API_BASE}/files/styles/${finalFileName}`,
-    });
-  } catch (error) {
-    console.error("Error exporting style:", error);
-    res.status(500).json({ success: false, message: "Export failed" });
   }
 });
 
@@ -162,28 +100,6 @@ app.get("/api/files/:type", (req, res) => {
     res.status(500).json({ success: false, message: "Failed to list files" });
   }
 });
-
-// 🗑 Delete a file
-app.delete("/api/files/:type/:fileName", (req, res) => {
-  try {
-    const { type, fileName } = req.params;
-    const folderPath = path.join(__dirname, "../client/public/files", type); // ✅ fixed
-    const filePath = path.join(folderPath, fileName);
-
-    if (!fs.existsSync(filePath)) {
-      return res
-        .status(404)
-        .json({ success: false, message: "File not found" });
-    }
-
-    fs.unlinkSync(filePath);
-    res.json({ success: true, message: `${fileName} deleted successfully` });
-  } catch (err) {
-    console.error("Error deleting file:", err);
-    res.status(500).json({ success: false, message: "Failed to delete file" });
-  }
-});
-
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const folderPath = path.join(
@@ -215,6 +131,25 @@ app.post("/api/upload/custom-img", upload.single("file"), (req, res) => {
     fileName: req.file.filename,
     url: `/files/customImgs/${req.file.filename}`,
   });
+});
+
+// 🗑 Delete a file
+app.delete("/api/files/:type/:fileName", (req, res) => {
+  try {
+    const { type, fileName } = req.params;
+    const folderPath = path.join(__dirname, "../client/public/files", type);
+    const filePath = path.join(folderPath, fileName);
+    if (!fs.existsSync(filePath)) {
+      return res
+        .status(404)
+        .json({ success: false, message: "File not found" });
+    }
+    fs.unlinkSync(filePath);
+    res.json({ success: true, message: `${fileName} deleted successfully` });
+  } catch (err) {
+    console.error("Error deleting file:", err);
+    res.status(500).json({ success: false, message: "Failed to delete file" });
+  }
 });
 
 app.listen(port, () => {

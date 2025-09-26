@@ -103,6 +103,8 @@ const Map = ({
   positions,
   handleMouseDown,
   drawerMode,
+  orientation,
+  setOrientation,
 }) => {
   const svgRef = useRef(null);
   const [maskElement, setMaskElement] = useState(makeHeart());
@@ -161,44 +163,36 @@ const Map = ({
   // Memoized stars rendering - FIXED VERSION
   const stars = useMemo(() => {
     if (!showStars || !starsData?.features?.length) return [];
-
-    return starsData.features
-      .filter((f) => {
+    const bins = [
+      { maxMag: 2, opacity: 1.0 },
+      { maxMag: 4, opacity: 0.7 },
+      { maxMag: 6.5, opacity: 0.4 },
+    ];
+    const paths = bins.map((bin, i) => {
+      let d = "";
+      for (const f of starsData.features) {
         const mag = f.properties?.mag ?? 6.5;
-        return mag <= magLimit;
-      })
-      .map((f) => {
-        const mag = f.properties?.mag ?? 6.5; // Define mag here
+        if (mag > bin.maxMag) continue;
         const [ra, dec] = f.geometry?.coordinates || [];
         const { x, y } = safeProject(ra, dec);
-        if (!isFinite(x) || !isFinite(y)) return null;
-
-        const r = starRadius(mag, sizeMult);
-        const rawOpacity = 1.2 - mag / 6.5;
-        const opacity = clamp(rawOpacity, 0.05, 1);
-
-        // Enhanced star visibility - brighter stars appear more prominent
-        const starBrightness = Math.max(0.3, 1.5 - mag / 4);
-
-        return (
-          <circle
-            key={`${ra}-${dec}-${mag}`}
-            cx={x}
-            cy={y}
-            r={r}
-            opacity={opacity * starBrightness}
-            fill="white"
-            className="star"
-          />
-        );
-      })
-      .filter(Boolean);
+        if (!isFinite(x) || !isFinite(y)) continue;
+        const r = Math.max(0.4, starRadius(mag, sizeMult) * 1.3);
+        d += ` M ${x.toFixed(2)} ${y.toFixed(2)} m -${r.toFixed(
+          2
+        )},0 a ${r.toFixed(2)},${r.toFixed(2)} 0 1,0 ${(r * 2).toFixed(
+          2
+        )},0 a ${r.toFixed(2)},${r.toFixed(2)} 0 1,0 -${(r * 2).toFixed(2)},0`;
+      }
+      return (
+        <path key={`stars-bin-${i}`} d={d} fill="white" opacity={bin.opacity} />
+      );
+    });
+    return paths;
   }, [starsData, safeProject, showStars, magLimit, sizeMult]);
 
   // Memoized Milky Way rendering
   const milkyWay = useMemo(() => {
     if (!showMilkyway || !mwData?.features?.length) return null;
-
     const pathGen = d3.geoPath(projection);
     return mwData.features.map((f, index) => (
       <path
@@ -212,6 +206,79 @@ const Map = ({
   }, [mwData, projection, showMilkyway, milkywayOpacity]);
 
   // Memoized constellations rendering
+  // const constellations = useMemo(() => {
+  //   if (!showConstellations || !constData?.features?.length)
+  //     return { lines: [], labels: [] };
+  //   const lines = [];
+  //   const labels = [];
+  //   constData.features.forEach((f, index) => {
+  //     const geom = f.geometry;
+  //     if (!geom) return;
+  //     const drawLine = (coords) => {
+  //       let d = "";
+  //       for (let i = 0; i < coords.length; i++) {
+  //         const [ra, dec] = coords[i];
+  //         if (ra == null || dec == null) continue;
+  //         const { x, y } = safeProject(ra, dec);
+  //         if (!isFinite(x) || !isFinite(y)) continue;
+  //         d += (i === 0 ? "M" : "L") + x + " " + y;
+  //       }
+  //       if (d) {
+  //         lines.push(
+  //           <path
+  //             key={`const-line-${index}`}
+  //             d={d}
+  //             className="constLine"
+  //             stroke="rgba(180,200,255,0.6)"
+  //             strokeWidth="1.2"
+  //             fill="none"
+  //             strokeLinecap="round"
+  //             strokeLinejoin="round"
+  //           />
+  //         );
+  //       }
+  //     };
+  //     if (geom.type === "LineString") drawLine(geom.coordinates);
+  //     else if (geom.type === "MultiLineString") {
+  //       geom.coordinates.forEach((line, lineIndex) =>
+  //         drawLine(line, `${index}-${lineIndex}`)
+  //       );
+  //     }
+  //     const props = f.properties || {};
+  //     let labelName = props.name || props.n || null;
+  //     let labelPos = props.pos || null;
+
+  //     if (!labelPos) {
+  //       const firstLine =
+  //         geom.type === "LineString" ? geom.coordinates : geom.coordinates?.[0];
+  //       if (firstLine?.length) {
+  //         labelPos = firstLine[Math.floor(firstLine.length / 2)];
+  //       }
+  //     }
+  //     if (labelName && labelPos) {
+  //       const [ra, dec] = labelPos;
+  //       if (ra != null && dec != null) {
+  //         const { x, y } = safeProject(ra, dec);
+  //         if (isFinite(x) && isFinite(y)) {
+  //           labels.push(
+  //             <text
+  //               key={`const-label-${index}`}
+  //               x={x + 6}
+  //               y={y - 6}
+  //               className="constLabel"
+  //               fill="rgba(200,220,255,0.9)"
+  //               fontSize="10"
+  //             >
+  //               {labelName}
+  //             </text>
+  //           );
+  //         }
+  //       }
+  //     }
+  //   });
+  //   return { lines, labels };
+  // }, [constData, safeProject, showConstellations]);
+  // Memoized constellations rendering
   const constellations = useMemo(() => {
     if (!showConstellations || !constData?.features?.length)
       return { lines: [], labels: [] };
@@ -223,8 +290,8 @@ const Map = ({
       const geom = f.geometry;
       if (!geom) return;
 
-      // Draw lines
-      const drawLine = (coords) => {
+      // Draw lines with unique keys
+      const drawLine = (coords, keySuffix) => {
         let d = "";
         for (let i = 0; i < coords.length; i++) {
           const [ra, dec] = coords[i];
@@ -236,7 +303,7 @@ const Map = ({
         if (d) {
           lines.push(
             <path
-              key={`const-line-${index}`}
+              key={`const-line-${keySuffix}`}
               d={d}
               className="constLine"
               stroke="rgba(180,200,255,0.6)"
@@ -249,14 +316,15 @@ const Map = ({
         }
       };
 
-      if (geom.type === "LineString") drawLine(geom.coordinates);
-      else if (geom.type === "MultiLineString") {
+      if (geom.type === "LineString") {
+        drawLine(geom.coordinates, `${index}`);
+      } else if (geom.type === "MultiLineString") {
         geom.coordinates.forEach((line, lineIndex) =>
           drawLine(line, `${index}-${lineIndex}`)
         );
       }
 
-      // Labels
+      // Labels (unique per constellation)
       const props = f.properties || {};
       let labelName = props.name || props.n || null;
       let labelPos = props.pos || null;
@@ -430,8 +498,14 @@ const Map = ({
       <div
         className={`map hasIcon ${drawerMode === "map" ? "active" : ""}`}
         style={{
-          width: `${mapStyle.width}%`,
-          height: `${mapStyle.height}%`,
+          ...(maskShape === "rect"
+            ? {
+                width: `${mapStyle.width}%`,
+                height: `${mapStyle.height}%`,
+              }
+            : orientation === "portrait"
+            ? { width: `${mapStyle.width}%`, aspectRatio: "1/1" }
+            : { height: `${mapStyle.height}%`, aspectRatio: "1/1" }),
           top: `${positions.map.y}%`,
         }}
         onMouseDown={(e) => handleMouseDown(e, "map")}
